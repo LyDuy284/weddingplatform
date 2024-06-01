@@ -10,11 +10,16 @@ import javax.crypto.SecretKey;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.role.RoleErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleName;
-import com.fu.weddingplatform.entity.Couple;
-import com.fu.weddingplatform.entity.Role;
-import com.fu.weddingplatform.repository.CoupleRepository;
+import com.fu.weddingplatform.entity.*;
+import com.fu.weddingplatform.repository.*;
 import com.fu.weddingplatform.request.Auth.RegisterCoupleDTO;
-import com.fu.weddingplatform.response.Login.RegsiterCoupleReponse;
+import com.fu.weddingplatform.request.Auth.RegisterServiceSupplierDTO;
+import com.fu.weddingplatform.request.Auth.RegisterStaffDTO;
+import com.fu.weddingplatform.response.Auth.LoginResponse;
+import com.fu.weddingplatform.response.Auth.RegsiterCoupleReponse;
+
+import com.fu.weddingplatform.response.Auth.RegsiterServiceSupplierReponse;
+import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,13 +29,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Account.AccountErrorMessage;
-import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.jwt.JwtConfig;
-import com.fu.weddingplatform.repository.AccountRepository;
-import com.fu.weddingplatform.repository.RoleRepository;
 import com.fu.weddingplatform.request.Auth.LoginDTO;
-import com.fu.weddingplatform.response.Login.LoginResponse;
 import com.fu.weddingplatform.service.AuthService;
 import com.fu.weddingplatform.utils.Utils;
 
@@ -45,6 +46,8 @@ public class AuthServiceImp implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final CoupleRepository coupleRepository;
+    private final StaffRepository staffRepository;
+    private final ServiceSupplierRepository serviceSupplierRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -81,7 +84,7 @@ public class AuthServiceImp implements AuthService {
         RegsiterCoupleReponse response = new RegsiterCoupleReponse();
 
         if(optionalUser.isPresent()) {
-            throw new ErrorException(AccountErrorMessage.EXIST_EMAIL);
+            throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
         }
 
         Account account = new Account().builder()
@@ -116,6 +119,100 @@ public class AuthServiceImp implements AuthService {
         response.setPartnerName2(couple.getPartnerName2());
         response.setWeddingDate(newCouple.getWeddingDate().toString());
         response.setCoupleId(newCouple.getId());
+        return response;
+    }
+
+    @Override
+    public RegsiterStaffReponse registerStaff(RegisterStaffDTO registerDTO) {
+        Optional<Account> optionalUser = accountRepository.findAccountByEmail(registerDTO.getEmail());
+
+        Role role = roleRepository.findByName(RoleName.ROLE_STAFF)
+                .orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
+
+        RegsiterStaffReponse response = new RegsiterStaffReponse();
+
+        if(optionalUser.isPresent()) {
+            throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+        }
+
+        Account account = new Account().builder()
+                .name(registerDTO.getName())
+                .address(registerDTO.getAddress())
+                .email(registerDTO.getEmail())
+                .phoneNumber(registerDTO.getPhoneNumber())
+                .role(role)
+                .password(passwordEncoder.encode(registerDTO.getPassword()))
+                .status(Status.ACTIVATED)
+                .build();
+        Account newAccount = accountRepository.save(account);
+
+        Staff staff = new Staff().builder()
+                .department(registerDTO.getDepartment())
+                .position(registerDTO.getPosition())
+                .account(newAccount)
+                .status(Status.ACTIVATED)
+                .build();
+
+
+        Staff newStaff = staffRepository.save(staff);
+
+        response = modelMapper.map(newAccount, RegsiterStaffReponse.class);
+
+        response.setAccountId(newAccount.getId());
+        response.setRoleName(role.getName());
+        response.setDepartment(newStaff.getDepartment());
+        response.setPosition(newStaff.getPosition());
+        response.setStaffId(newStaff.getId());
+        return response;
+    }
+
+    @Override
+    public RegsiterServiceSupplierReponse registerServiceSupplier(RegisterServiceSupplierDTO registerDTO) {
+        Optional<Account> optionalUser = accountRepository.findAccountByEmail(registerDTO.getEmail());
+
+        Role role = roleRepository.findByName(RoleName.ROLE_SERVICE_SUPPLIER)
+                .orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
+
+        RegsiterServiceSupplierReponse response = new RegsiterServiceSupplierReponse();
+
+        if(optionalUser.isPresent()) {
+            throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+        }
+
+        Account account = new Account().builder()
+                .name(registerDTO.getName())
+                .address(registerDTO.getAddress())
+                .email(registerDTO.getEmail())
+                .phoneNumber(registerDTO.getPhoneNumber())
+                .role(role)
+                .password(passwordEncoder.encode(registerDTO.getPassword()))
+                .status(Status.ACTIVATED)
+                .build();
+        Account newAccount = accountRepository.save(account);
+
+        ServiceSupplier serviceSupplier = new ServiceSupplier()
+                .builder()
+                .slot(registerDTO.getSlot())
+                .supplierName(registerDTO.getSupplierName())
+                .supplierAddress(registerDTO.getSupplierAddress())
+                .contactPersonName(registerDTO.getContactPersonName())
+                .contactPhone(registerDTO.getContactPhone())
+                .contactEmail(registerDTO.getContactEmail())
+                .status(Status.ACTIVATED)
+                .build();
+
+
+        ServiceSupplier newServiceSupplier = serviceSupplierRepository.save(serviceSupplier);
+
+        response = modelMapper.map(newAccount, RegsiterServiceSupplierReponse.class);
+
+        response.setAccountId(newAccount.getId());
+        response.setRoleName(role.getName());
+        response.setSupplierName(newServiceSupplier.getSupplierName());
+        response.setSupplierAddress(newServiceSupplier.getSupplierAddress());
+        response.setContactEmail(newServiceSupplier.getContactEmail());
+        response.setContactPhone(newServiceSupplier.getContactPhone());
+        response.setContactPersonName(newServiceSupplier.getContactPersonName());
         return response;
     }
 

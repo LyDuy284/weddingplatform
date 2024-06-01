@@ -8,7 +8,6 @@ import lombok.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.sql.Date;
 
 @Getter
 @Setter
@@ -16,20 +15,26 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegisterCoupleDTO {
+public class RegisterServiceSupplierDTO {
 
     @Email(message = ValidationMessage.EMAIL_INVALID_MESSAGE)
     private String email;
     @Size(min = ValidationSize.PASSWORD_MIN, max = ValidationSize.PASSWORD_MAX,
             message = ValidationMessage.PASSWORD_INVALID_MESSAGE)
     private String password;
-    private String name;
+    private int slot;
+    private String supplierName;
+    private String supplierAddress;
+    private String contactPersonName;
+    @NotNull(message = ValidationMessage.PHONE_NUMBER_NOT_NULL)
+    @ValidPhoneNumber
+    private String contactPhone;
+    @Email(message = ValidationMessage.EMAIL_INVALID_MESSAGE)
+    private String contactEmail;
+
+    private String address;
+    private String Name;
     @NotNull(message = ValidationMessage.PHONE_NUMBER_NOT_NULL)
     @ValidPhoneNumber
     private String phoneNumber;
-    private String address;
-    private String partnerName1;
-    private String partnerName2;
-    private Date weddingDate;
-
 }

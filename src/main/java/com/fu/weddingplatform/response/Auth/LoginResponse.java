@@ -1,4 +1,4 @@
-package com.fu.weddingplatform.response.Login;
+package com.fu.weddingplatform.response.Auth;
 
 import lombok.*;
 

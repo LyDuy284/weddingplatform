@@ -6,7 +6,6 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
-import java.sql.Date;
 
 @Entity
 @Getter
@@ -15,16 +14,15 @@ import java.sql.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Couple {
+@Table(name="staff")
+public class Staff {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
-    private String partnerName1;
-    private String partnerName2;
+    private String position;
+    private String department;
     private String status;
-    private Date weddingDate;
 
 
     @JsonIgnore
@@ -34,5 +32,4 @@ public class Couple {
     @EqualsAndHashCode.Include
     @ToString.Include
     private Account account;
-
 }

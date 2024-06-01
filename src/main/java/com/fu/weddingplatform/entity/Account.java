@@ -51,4 +51,15 @@ public class Account {
     @JsonIgnore
     private Collection<Couple> couples;
 
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Staff> staffs;
+
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<ServiceSupplier> serviceSuppliers;
 }

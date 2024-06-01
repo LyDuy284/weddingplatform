@@ -1,4 +1,4 @@
-package com.fu.weddingplatform.response.Login;
+package com.fu.weddingplatform.response.Auth;
 
 import lombok.*;
 
@@ -8,16 +8,15 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegsiterCoupleReponse {
+public class RegsiterStaffReponse {
     private int accountId;
     private String roleName;
     private String email;
     private String name;
     private String phoneNumber;
     private String address;
-    private int coupleId;
-    private String partnerName1;
-    private String partnerName2;
-    private String weddingDate;
+    private int staffId;
+    private String position;
+    private String department;
     private String status;
 }
