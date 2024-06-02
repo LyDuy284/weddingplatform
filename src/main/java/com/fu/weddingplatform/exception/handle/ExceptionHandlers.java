@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.exception.handle;
 
+import com.fu.weddingplatform.exception.EmptyException;
+import com.fu.weddingplatform.response.ListResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -49,5 +51,13 @@ public class ExceptionHandlers extends RuntimeException {
     dto.setMessage(exception.getMessage());
     dto.setStatus(ResponseStatusDTO.FAILURE);
     return ResponseEntity.badRequest().body(dto);
+  }
+
+  @ExceptionHandler(value = EmptyException.class)
+  public ResponseEntity<Object> listEmptyException(EmptyException exception) {
+    ListResponseDTO dto = new ListResponseDTO();
+    dto.setMessage(exception.getMessage());
+    dto.setStatus(ResponseStatusDTO.FAILURE);
+    return ResponseEntity.ok().body(dto);
   }
 }

@@ -1,13 +1,15 @@
 package com.fu.weddingplatform.controller;
 
-import com.fu.weddingplatform.request.Auth.RegisterCoupleDTO;
+import com.fu.weddingplatform.constant.Account.AccountSuccessMessage;
+import com.fu.weddingplatform.constant.role.RolePreAuthorize;
+import com.fu.weddingplatform.request.Auth.*;
 
-import com.fu.weddingplatform.request.Auth.RegisterServiceSupplierDTO;
-import com.fu.weddingplatform.request.Auth.RegisterStaffDTO;
+import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Auth.RegsiterServiceSupplierReponse;
 import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
-import com.fu.weddingplatform.request.Auth.LoginDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.Auth.LoginResponse;
 import com.fu.weddingplatform.response.Auth.RegsiterCoupleReponse;
@@ -39,12 +40,23 @@ public class AuthController {
     return ResponseEntity.ok().body(responseDTO);
   }
 
+  @PostMapping("/registerNewAdminByAdmin")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
+  public ResponseEntity<ResponseDTO> registerNewAdmin(@Validated @RequestBody RegisterAdminDTO registerDTO) {
+    ResponseDTO<AccountResponse> responseDTO = new ResponseDTO<AccountResponse>();
+    AccountResponse accountResponse = authService.registerNewAdmin(registerDTO);
+    responseDTO.setData(accountResponse);
+    responseDTO.setMessage(AccountSuccessMessage.CREATE_SUCCESS);
+    responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+    return ResponseEntity.ok().body(responseDTO);
+  }
+
   @PostMapping("/register/cupple")
   public ResponseEntity<ResponseDTO> registerCupple(@Validated @RequestBody RegisterCoupleDTO registerDTO) {
     ResponseDTO<RegsiterCoupleReponse> responseDTO = new ResponseDTO();
     RegsiterCoupleReponse regsiterCoupleReponse = authService.registerCouple(registerDTO);
     responseDTO.setData(regsiterCoupleReponse);
-    responseDTO.setMessage("Register success");
+    responseDTO.setMessage(AccountSuccessMessage.CREATE_SUCCESS);
     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
     return ResponseEntity.ok().body(responseDTO);
   }
@@ -54,7 +66,7 @@ public class AuthController {
     ResponseDTO<RegsiterStaffReponse> responseDTO = new ResponseDTO<>();
     RegsiterStaffReponse registerStaffResponse = authService.registerStaff(registerDTO);
     responseDTO.setData(registerStaffResponse);
-    responseDTO.setMessage("Register success");
+    responseDTO.setMessage(AccountSuccessMessage.CREATE_SUCCESS);
     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
     return ResponseEntity.ok().body(responseDTO);
   }
@@ -64,7 +76,7 @@ public class AuthController {
     ResponseDTO<RegsiterServiceSupplierReponse> responseDTO = new ResponseDTO();
     RegsiterServiceSupplierReponse registerServiceSupplier = authService.registerServiceSupplier(registerDTO);
     responseDTO.setData(registerServiceSupplier);
-    responseDTO.setMessage("Register success");
+    responseDTO.setMessage(AccountSuccessMessage.CREATE_SUCCESS);
     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
     return ResponseEntity.ok().body(responseDTO);
   }

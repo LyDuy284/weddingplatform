@@ -12,9 +12,8 @@ import com.fu.weddingplatform.constant.role.RoleErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleName;
 import com.fu.weddingplatform.entity.*;
 import com.fu.weddingplatform.repository.*;
-import com.fu.weddingplatform.request.Auth.RegisterCoupleDTO;
-import com.fu.weddingplatform.request.Auth.RegisterServiceSupplierDTO;
-import com.fu.weddingplatform.request.Auth.RegisterStaffDTO;
+import com.fu.weddingplatform.request.Auth.*;
+import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Auth.LoginResponse;
 import com.fu.weddingplatform.response.Auth.RegsiterCoupleReponse;
 
@@ -31,7 +30,6 @@ import org.springframework.stereotype.Service;
 import com.fu.weddingplatform.constant.Account.AccountErrorMessage;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.jwt.JwtConfig;
-import com.fu.weddingplatform.request.Auth.LoginDTO;
 import com.fu.weddingplatform.service.AuthService;
 import com.fu.weddingplatform.utils.Utils;
 
@@ -72,6 +70,35 @@ public class AuthServiceImp implements AuthService {
 
         }
         return loginResponse;
+    }
+
+    @Override
+    public AccountResponse registerNewAdmin(RegisterAdminDTO registerDTO) {
+        Optional<Account> optionalUser = accountRepository.findAccountByEmail(registerDTO.getEmail());
+
+        Role role = roleRepository.findByName(RoleName.ROLE_ADMIN)
+                .orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
+
+        AccountResponse response = new AccountResponse();
+
+        if(optionalUser.isPresent()) {
+            throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+        }
+
+        Account account = new Account().builder()
+                .name(registerDTO.getName())
+                .address(registerDTO.getAddress())
+                .email(registerDTO.getEmail())
+                .phoneNumber(registerDTO.getPhoneNumber())
+                .role(role)
+                .password(passwordEncoder.encode(registerDTO.getPassword()))
+                .status(Status.ACTIVATED)
+                .build();
+        Account newAccount = accountRepository.save(account);
+
+        response = modelMapper.map(newAccount, AccountResponse.class);
+        response.setRoleName(role.getName());
+        return response;
     }
 
     @Override

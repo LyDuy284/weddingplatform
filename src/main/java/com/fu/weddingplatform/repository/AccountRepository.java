@@ -19,7 +19,7 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 
     public Optional<Account> findAccountByEmail(String email);
 
-    public Account findByEmail(String email);
+    public Page<Account> findAll(Pageable pageable);
 
     public boolean existsByRole(Role role);
 
