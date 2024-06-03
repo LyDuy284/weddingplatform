@@ -20,7 +20,7 @@ public class ApplicationUserService implements UserDetailsService {
     private final AccountRepository accountRepository;
     @Override
     public UserDetails loadUserByUsername(String email){
-        Optional<Account> account = accountRepository.findAccountByEmail(email);
+        Optional<Account> account = accountRepository.findByEmail(email);
         if (!account.isPresent()) {
             throw new IllegalStateException("Employee Not Found");
         }

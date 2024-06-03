@@ -31,6 +31,7 @@ public class Account {
     private String phoneNumber;
     private String address;
     private String status;
+    private String provider;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)

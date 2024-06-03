@@ -1,5 +1,6 @@
 package com.fu.weddingplatform.exception.handle;
 
+import com.fu.weddingplatform.exception.AuthorizedException;
 import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import org.springframework.http.HttpStatus;
@@ -59,5 +60,13 @@ public class ExceptionHandlers extends RuntimeException {
     dto.setMessage(exception.getMessage());
     dto.setStatus(ResponseStatusDTO.FAILURE);
     return ResponseEntity.ok().body(dto);
+  }
+
+  @ExceptionHandler(value = AuthorizedException.class)
+  public ResponseEntity<Object> authorizedException() {
+    ListResponseDTO dto = new ListResponseDTO();
+    dto.setMessage("Access Denied");
+    dto.setStatus(ResponseStatusDTO.FAILURE);
+    return ResponseEntity.status(HttpStatus.FORBIDDEN).body(dto);
   }
 }

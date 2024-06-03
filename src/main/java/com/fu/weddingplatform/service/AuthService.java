@@ -1,5 +1,6 @@
 package com.fu.weddingplatform.service;
 
+import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.request.Auth.*;
 import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Auth.LoginResponse;
@@ -19,4 +20,7 @@ public interface AuthService {
 
     public RegsiterServiceSupplierReponse registerServiceSupplier(RegisterServiceSupplierDTO registerDTO);
 
+    public LoginResponse loginWithGoogle(String token, String roleName);
+
+    public Account registerForGoogleLogin(String email, String name, String roleName);
 }

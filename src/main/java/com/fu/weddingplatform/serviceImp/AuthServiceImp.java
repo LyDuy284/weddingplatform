@@ -1,16 +1,17 @@
 package com.fu.weddingplatform.serviceImp;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Optional;
+import java.util.*;
 
 import javax.crypto.SecretKey;
 
+import com.fu.weddingplatform.constant.Account.AccountProvider;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.role.RoleErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleName;
 import com.fu.weddingplatform.entity.*;
+import com.fu.weddingplatform.exception.AuthorizedException;
 import com.fu.weddingplatform.repository.*;
 import com.fu.weddingplatform.request.Auth.*;
 import com.fu.weddingplatform.response.Account.AccountResponse;
@@ -19,11 +20,15 @@ import com.fu.weddingplatform.response.Auth.RegsiterCoupleReponse;
 
 import com.fu.weddingplatform.response.Auth.RegsiterServiceSupplierReponse;
 import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
+import io.jsonwebtoken.Jwts;
 import lombok.AllArgsConstructor;
+import org.apache.commons.codec.binary.Base64;
+import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -50,21 +55,19 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public LoginResponse login(LoginDTO loginDTO) {
-        Account account = accountRepository.findAccountByEmail(loginDTO.getEmail())
-                .orElseThrow(() -> new ErrorException(AccountErrorMessage.ACCOUNT_NOT_FOUND));
+        Account account = accountRepository.findByEmailAndProvider(loginDTO.getEmail(), AccountProvider.LOCAL)
+                .orElseThrow(() -> new ErrorException(AccountErrorMessage.ACCOUNT_NOT_REGISTER));
         Authentication authentication = new UsernamePasswordAuthenticationToken(loginDTO.getEmail(),
                 loginDTO.getPassword());
         LoginResponse loginResponse = null;
         Authentication authenticate = authenticationManager.authenticate(authentication);
         if (authenticate.isAuthenticated()) {
-            Optional<Account> accountAuthencatedOptional = accountRepository.findAccountByEmail(loginDTO.getEmail());
-            Account accountAuthencated = accountAuthencatedOptional.get();
-            String token = Utils.buildJWT(authenticate, accountAuthencated, secretKey, jwtConfig);
+            String token = Utils.buildJWT(authenticate, account, secretKey, jwtConfig);
              loginResponse = LoginResponse.builder()
-                     .accountId(accountAuthencated.getId())
-                     .email(accountAuthencated.getEmail())
-                     .status(accountAuthencated.getStatus())
-                     .roleName(accountAuthencated.getRole().getName())
+                     .accountId(account.getId())
+                     .email(account.getEmail())
+                     .status(account.getStatus())
+                     .roleName(account.getRole().getName())
                      .token(token)
                      .build();
 
@@ -74,7 +77,7 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public AccountResponse registerNewAdmin(RegisterAdminDTO registerDTO) {
-        Optional<Account> optionalUser = accountRepository.findAccountByEmail(registerDTO.getEmail());
+        Optional<Account> optionalUser = accountRepository.findByEmail(registerDTO.getEmail());
 
         Role role = roleRepository.findByName(RoleName.ROLE_ADMIN)
                 .orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
@@ -82,7 +85,18 @@ public class AuthServiceImp implements AuthService {
         AccountResponse response = new AccountResponse();
 
         if(optionalUser.isPresent()) {
-            throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+            if (optionalUser.get().getProvider().equalsIgnoreCase(AccountProvider.LOCAL)) {
+                throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+            } else {
+                optionalUser.get().setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+                optionalUser.get().setName(registerDTO.getName());
+                optionalUser.get().setProvider(AccountProvider.LOCAL);
+                optionalUser.get().setPhoneNumber(registerDTO.getPhoneNumber());
+                optionalUser.get().setAddress(registerDTO.getAddress());
+                Account accountSaved = accountRepository.save(optionalUser.get());
+                response = modelMapper.map(accountSaved, AccountResponse.class);
+                return response;
+            }
         }
 
         Account account = new Account().builder()
@@ -91,6 +105,7 @@ public class AuthServiceImp implements AuthService {
                 .email(registerDTO.getEmail())
                 .phoneNumber(registerDTO.getPhoneNumber())
                 .role(role)
+                .provider(AccountProvider.LOCAL)
                 .password(passwordEncoder.encode(registerDTO.getPassword()))
                 .status(Status.ACTIVATED)
                 .build();
@@ -103,27 +118,39 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public RegsiterCoupleReponse registerCouple(RegisterCoupleDTO registerDTO) {
-        Optional<Account> optionalUser = accountRepository.findAccountByEmail(registerDTO.getEmail());
+        Optional<Account> optionalUser = accountRepository.findByEmail(registerDTO.getEmail());
 
         Role role = roleRepository.findByName(RoleName.ROLE_COUPLE)
                 .orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
 
         RegsiterCoupleReponse response = new RegsiterCoupleReponse();
-
+        Account accountSaved = new Account();
         if(optionalUser.isPresent()) {
-            throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
-        }
-
-        Account account = new Account().builder()
+            if (optionalUser.get().getProvider().equalsIgnoreCase(AccountProvider.LOCAL)) {
+                throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+            } else {
+                optionalUser.get().setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+                optionalUser.get().setName(registerDTO.getName());
+                optionalUser.get().setProvider(AccountProvider.LOCAL);
+                optionalUser.get().setPhoneNumber(registerDTO.getPhoneNumber());
+                optionalUser.get().setAddress(registerDTO.getAddress());
+                accountSaved = accountRepository.save(optionalUser.get());
+            }
+        } else {
+            Account account = new Account().builder()
                 .name(registerDTO.getName())
                 .address(registerDTO.getAddress())
                 .email(registerDTO.getEmail())
                 .phoneNumber(registerDTO.getPhoneNumber())
+                .provider(AccountProvider.LOCAL)
                 .role(role)
                 .password(passwordEncoder.encode(registerDTO.getPassword()))
                 .status(Status.ACTIVATED)
                 .build();
-        Account newAccount = accountRepository.save(account);
+            accountSaved = accountRepository.save(account);
+        }
+
+
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate weddingDate = LocalDate.parse(registerDTO.getWeddingDate().toString(), dateFormatter);
@@ -131,16 +158,16 @@ public class AuthServiceImp implements AuthService {
         Couple couple = Couple.builder()
                 .partnerName1(registerDTO.getPartnerName1())
                 .partnerName2(registerDTO.getPartnerName2())
-                .weddingDate(Date.valueOf(weddingDate))
+                .weddingDate(java.sql.Date.valueOf(weddingDate))
                 .status(Status.STARTED)
-                .account(newAccount)
+                .account(accountSaved)
                 .build();
 
         Couple newCouple = coupleRepository.save(couple);
 
-        response = modelMapper.map(newAccount, RegsiterCoupleReponse.class);
+        response = modelMapper.map(accountSaved, RegsiterCoupleReponse.class);
 
-        response.setAccountId(newAccount.getId());
+        response.setAccountId(accountSaved.getId());
         response.setRoleName(role.getName());
         response.setPartnerName1(couple.getPartnerName1());
         response.setPartnerName2(couple.getPartnerName2());
@@ -151,41 +178,54 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public RegsiterStaffReponse registerStaff(RegisterStaffDTO registerDTO) {
-        Optional<Account> optionalUser = accountRepository.findAccountByEmail(registerDTO.getEmail());
+        Optional<Account> optionalUser = accountRepository.findByEmail(registerDTO.getEmail());
 
         Role role = roleRepository.findByName(RoleName.ROLE_STAFF)
                 .orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
 
         RegsiterStaffReponse response = new RegsiterStaffReponse();
 
+        Account accountSaved = new Account();
         if(optionalUser.isPresent()) {
-            throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+            if (optionalUser.get().getProvider().equalsIgnoreCase(AccountProvider.LOCAL)) {
+                throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+            } else {
+                optionalUser.get().setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+                optionalUser.get().setName(registerDTO.getName());
+                optionalUser.get().setProvider(AccountProvider.LOCAL);
+                optionalUser.get().setPhoneNumber(registerDTO.getPhoneNumber());
+                optionalUser.get().setAddress(registerDTO.getAddress());
+                accountSaved = accountRepository.save(optionalUser.get());
+            }
+        } else {
+            Account account = new Account().builder()
+                    .name(registerDTO.getName())
+                    .address(registerDTO.getAddress())
+                    .email(registerDTO.getEmail())
+                    .phoneNumber(registerDTO.getPhoneNumber())
+                    .provider(AccountProvider.LOCAL)
+                    .role(role)
+                    .password(passwordEncoder.encode(registerDTO.getPassword()))
+                    .status(Status.ACTIVATED)
+                    .build();
+            accountSaved = accountRepository.save(account);
         }
 
-        Account account = new Account().builder()
-                .name(registerDTO.getName())
-                .address(registerDTO.getAddress())
-                .email(registerDTO.getEmail())
-                .phoneNumber(registerDTO.getPhoneNumber())
-                .role(role)
-                .password(passwordEncoder.encode(registerDTO.getPassword()))
-                .status(Status.ACTIVATED)
-                .build();
-        Account newAccount = accountRepository.save(account);
+
 
         Staff staff = new Staff().builder()
                 .department(registerDTO.getDepartment())
                 .position(registerDTO.getPosition())
-                .account(newAccount)
+                .account(accountSaved)
                 .status(Status.ACTIVATED)
                 .build();
 
 
         Staff newStaff = staffRepository.save(staff);
 
-        response = modelMapper.map(newAccount, RegsiterStaffReponse.class);
+        response = modelMapper.map(accountSaved, RegsiterStaffReponse.class);
 
-        response.setAccountId(newAccount.getId());
+        response.setAccountId(accountSaved.getId());
         response.setRoleName(role.getName());
         response.setDepartment(newStaff.getDepartment());
         response.setPosition(newStaff.getPosition());
@@ -195,27 +235,37 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public RegsiterServiceSupplierReponse registerServiceSupplier(RegisterServiceSupplierDTO registerDTO) {
-        Optional<Account> optionalUser = accountRepository.findAccountByEmail(registerDTO.getEmail());
+        Optional<Account> optionalUser = accountRepository.findByEmail(registerDTO.getEmail());
 
         Role role = roleRepository.findByName(RoleName.ROLE_SERVICE_SUPPLIER)
                 .orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
 
         RegsiterServiceSupplierReponse response = new RegsiterServiceSupplierReponse();
-
+        Account accountSaved = new Account();
         if(optionalUser.isPresent()) {
-            throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+            if (optionalUser.get().getProvider().equalsIgnoreCase(AccountProvider.LOCAL)) {
+                throw new ErrorException(AccountErrorMessage.EXIST_EMAIL_ACCOUNT);
+            } else {
+                optionalUser.get().setPassword(passwordEncoder.encode(registerDTO.getPassword()));
+                optionalUser.get().setName(registerDTO.getName());
+                optionalUser.get().setProvider(AccountProvider.LOCAL);
+                optionalUser.get().setPhoneNumber(registerDTO.getPhoneNumber());
+                optionalUser.get().setAddress(registerDTO.getAddress());
+                accountSaved = accountRepository.save(optionalUser.get());
+            }
+        } else {
+            Account account = new Account().builder()
+                    .name(registerDTO.getName())
+                    .address(registerDTO.getAddress())
+                    .email(registerDTO.getEmail())
+                    .phoneNumber(registerDTO.getPhoneNumber())
+                    .provider(AccountProvider.LOCAL)
+                    .role(role)
+                    .password(passwordEncoder.encode(registerDTO.getPassword()))
+                    .status(Status.ACTIVATED)
+                    .build();
+            accountSaved = accountRepository.save(account);
         }
-
-        Account account = new Account().builder()
-                .name(registerDTO.getName())
-                .address(registerDTO.getAddress())
-                .email(registerDTO.getEmail())
-                .phoneNumber(registerDTO.getPhoneNumber())
-                .role(role)
-                .password(passwordEncoder.encode(registerDTO.getPassword()))
-                .status(Status.ACTIVATED)
-                .build();
-        Account newAccount = accountRepository.save(account);
 
         ServiceSupplier serviceSupplier = new ServiceSupplier()
                 .builder()
@@ -231,9 +281,9 @@ public class AuthServiceImp implements AuthService {
 
         ServiceSupplier newServiceSupplier = serviceSupplierRepository.save(serviceSupplier);
 
-        response = modelMapper.map(newAccount, RegsiterServiceSupplierReponse.class);
+        response = modelMapper.map(accountSaved, RegsiterServiceSupplierReponse.class);
 
-        response.setAccountId(newAccount.getId());
+        response.setAccountId(accountSaved.getId());
         response.setRoleName(role.getName());
         response.setSupplierName(newServiceSupplier.getSupplierName());
         response.setSupplierAddress(newServiceSupplier.getSupplierAddress());
@@ -241,6 +291,69 @@ public class AuthServiceImp implements AuthService {
         response.setContactPhone(newServiceSupplier.getContactPhone());
         response.setContactPersonName(newServiceSupplier.getContactPersonName());
         return response;
+    }
+
+    @Override
+    public LoginResponse loginWithGoogle(String token, String roleName) {
+        List<SimpleGrantedAuthority> simpleGrantedAuthorities = new ArrayList<>();
+        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(roleName);
+        simpleGrantedAuthorities.add(simpleGrantedAuthority);
+
+        String[] split_string = token.split("\\.");
+        String base64EncodedBody = split_string[1];
+        Base64 base64Url = new Base64(true);
+        String body = new String(base64Url.decode(base64EncodedBody));
+        JSONObject jsonObject = new JSONObject(body);
+        String email = jsonObject.get("email").toString();
+        String name = jsonObject.get("name").toString();
+
+
+
+        Optional<Account> account = accountRepository.findByEmail(email);
+        if(account.isEmpty()){
+            if (!Objects.equals(roleName, RoleName.ROLE_COUPLE)){
+                throw new AuthorizedException();
+            } else {
+                account = Optional.of(registerForGoogleLogin(email, name, roleName));
+                new Couple();
+                Couple couple = Couple.builder().account(account.get()).status(Status.ACTIVATED).build();
+                coupleRepository.save(couple);
+            }
+        }
+
+        if (!Objects.equals(roleName, account.get().getRole().getName()) && !roleName.equalsIgnoreCase(RoleName.ROLE_ADMIN)){
+            throw new AuthorizedException();
+        }
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(account.get().getEmail(), null);
+
+        String tokenResponse = Jwts.builder().setSubject(authentication.getName())
+                .claim(("authorities"), simpleGrantedAuthorities).claim("id", account.get().getId())
+                .setIssuedAt((new Date())).setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(14)))
+                .signWith(jwtConfig.secretKey()).compact();
+
+        return LoginResponse.builder()
+                .accountId(account.get().getId())
+                .email(account.get().getEmail())
+                .status(account.get().getStatus())
+                .roleName(account.get().getRole().getName())
+                .token(tokenResponse)
+                .build();
+    }
+
+    @Override
+    public Account registerForGoogleLogin(String email, String name, String roleName) {
+        Role role = roleRepository.findByName(roleName).orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
+
+        Account account = new Account().builder()
+                .name(name)
+                .email(email)
+                .role(role)
+                .status(Status.ACTIVATED)
+                .password(passwordEncoder.encode(""))
+                .provider(AccountProvider.GOOGLE)
+                .build();
+        return accountRepository.save(account);
     }
 
 }
