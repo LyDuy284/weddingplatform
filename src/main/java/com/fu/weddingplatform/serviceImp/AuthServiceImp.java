@@ -307,8 +307,6 @@ public class AuthServiceImp implements AuthService {
         String email = jsonObject.get("email").toString();
         String name = jsonObject.get("name").toString();
 
-
-
         Optional<Account> account = accountRepository.findByEmail(email);
         if(account.isEmpty()){
             if (!Objects.equals(roleName, RoleName.ROLE_COUPLE)){
@@ -321,7 +319,7 @@ public class AuthServiceImp implements AuthService {
             }
         }
 
-        if (!Objects.equals(roleName, account.get().getRole().getName()) && !roleName.equalsIgnoreCase(RoleName.ROLE_ADMIN)){
+        if (!Objects.equals(roleName, account.get().getRole().getName()) && !account.get().getRole().getName().equalsIgnoreCase(RoleName.ROLE_ADMIN)){
             throw new AuthorizedException();
         }
 
