@@ -15,7 +15,7 @@ public class RegsiterStaffReponse {
     private String name;
     private String phoneNumber;
     private String address;
-    private int staffId;
+    private String staffId;
     private String position;
     private String department;
     private String status;

@@ -6,7 +6,7 @@ import java.util.*;
 
 import javax.crypto.SecretKey;
 
-import com.fu.weddingplatform.constant.Account.AccountProvider;
+import com.fu.weddingplatform.constant.account.AccountProvider;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.role.RoleErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleName;
@@ -32,7 +32,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.fu.weddingplatform.constant.Account.AccountErrorMessage;
+import com.fu.weddingplatform.constant.account.AccountErrorMessage;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.jwt.JwtConfig;
 import com.fu.weddingplatform.service.AuthService;

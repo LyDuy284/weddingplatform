@@ -1,6 +1,6 @@
 package com.fu.weddingplatform.serviceImp;
 
-import com.fu.weddingplatform.constant.Account.AccountErrorMessage;
+import com.fu.weddingplatform.constant.account.AccountErrorMessage;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.exception.ErrorException;

@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 @Transactional
-public interface CoupleRepository extends JpaRepository<Couple, Integer> {
-    Optional<Couple> findById(int coupleId);
+public interface CoupleRepository extends JpaRepository<Couple, String> {
+    Optional<Couple> findById(String coupleId);
 }

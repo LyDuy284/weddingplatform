@@ -19,7 +19,7 @@ import com.fu.weddingplatform.exception.UsernameOrPasswordNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fu.weddingplatform.constant.Account.AccountErrorMessage;
+import com.fu.weddingplatform.constant.account.AccountErrorMessage;
 import com.fu.weddingplatform.response.ResponseDTO;
 
 @RestControllerAdvice

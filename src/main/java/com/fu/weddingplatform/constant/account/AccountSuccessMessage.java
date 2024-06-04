@@ -1,4 +1,4 @@
-package com.fu.weddingplatform.constant.Account;
+package com.fu.weddingplatform.constant.account;
 
 public final class AccountSuccessMessage {
     public static final String GET_ALL_ACCOUNT = "Get all accounts successfully";

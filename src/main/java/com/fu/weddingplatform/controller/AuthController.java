@@ -1,6 +1,6 @@
 package com.fu.weddingplatform.controller;
 
-import com.fu.weddingplatform.constant.Account.AccountSuccessMessage;
+import com.fu.weddingplatform.constant.account.AccountSuccessMessage;
 import com.fu.weddingplatform.constant.role.RoleName;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.request.Auth.*;

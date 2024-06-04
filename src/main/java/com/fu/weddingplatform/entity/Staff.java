@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 
@@ -18,8 +19,10 @@ import javax.persistence.*;
 public class Staff {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GeneratedValue(generator = "staff-id")
+    @GenericGenerator(name = "staff-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.StaffIdGenerate")
+    private String id;
+
     private String position;
     private String department;
     private String status;

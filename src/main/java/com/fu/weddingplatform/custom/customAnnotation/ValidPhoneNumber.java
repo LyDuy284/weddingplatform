@@ -1,4 +1,4 @@
-package com.fu.weddingplatform.customAnnotation;
+package com.fu.weddingplatform.custom.customAnnotation;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;

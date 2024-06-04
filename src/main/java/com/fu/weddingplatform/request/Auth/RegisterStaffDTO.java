@@ -3,7 +3,7 @@ package com.fu.weddingplatform.request.Auth;
 
 import com.fu.weddingplatform.constant.validation.ValidationMessage;
 import com.fu.weddingplatform.constant.validation.ValidationSize;
-import com.fu.weddingplatform.customAnnotation.ValidPhoneNumber;
+import com.fu.weddingplatform.custom.customAnnotation.ValidPhoneNumber;
 import lombok.*;
 
 import javax.validation.constraints.Email;

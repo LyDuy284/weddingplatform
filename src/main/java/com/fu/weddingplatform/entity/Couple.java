@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -16,10 +17,10 @@ import java.sql.Date;
 @AllArgsConstructor
 @Builder
 public class Couple {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    @GeneratedValue(generator = "couple-id")
+    @GenericGenerator(name = "couple-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.CoupleIdGenerator")
+    private String id;
 
     private String partnerName1;
     private String partnerName2;

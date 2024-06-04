@@ -7,5 +7,5 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface ServiceSupplierRepository extends JpaRepository<ServiceSupplier, Integer> {
+public interface ServiceSupplierRepository extends JpaRepository<ServiceSupplier, String> {
 }

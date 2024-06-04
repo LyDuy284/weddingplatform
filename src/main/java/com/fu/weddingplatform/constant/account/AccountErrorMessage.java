@@ -1,4 +1,4 @@
-package com.fu.weddingplatform.constant.Account;
+package com.fu.weddingplatform.constant.account;
 
 public final class AccountErrorMessage {
   public static final String ACCOUNT_NOT_FOUND = "Account not found";

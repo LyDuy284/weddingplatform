@@ -15,7 +15,7 @@ public class RegsiterCoupleReponse {
     private String name;
     private String phoneNumber;
     private String address;
-    private int coupleId;
+    private String coupleId;
     private String partnerName1;
     private String partnerName2;
     private String weddingDate;
