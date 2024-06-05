@@ -269,7 +269,6 @@ public class AuthServiceImp implements AuthService {
 
         ServiceSupplier serviceSupplier = new ServiceSupplier()
                 .builder()
-                .slot(registerDTO.getSlot())
                 .supplierName(registerDTO.getSupplierName())
                 .supplierAddress(registerDTO.getSupplierAddress())
                 .contactPersonName(registerDTO.getContactPersonName())
@@ -285,6 +284,7 @@ public class AuthServiceImp implements AuthService {
 
         response.setAccountId(accountSaved.getId());
         response.setRoleName(role.getName());
+        response.setServiceSupplierId(newServiceSupplier.getId());
         response.setSupplierName(newServiceSupplier.getSupplierName());
         response.setSupplierAddress(newServiceSupplier.getSupplierAddress());
         response.setContactEmail(newServiceSupplier.getContactEmail());

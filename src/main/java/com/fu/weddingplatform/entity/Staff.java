@@ -7,6 +7,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Getter
@@ -35,4 +36,10 @@ public class Staff {
     @EqualsAndHashCode.Include
     @ToString.Include
     private Account account;
+
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<BlogPost> blogPosts;
 }

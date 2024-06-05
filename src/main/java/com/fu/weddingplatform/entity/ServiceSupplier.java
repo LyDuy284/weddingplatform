@@ -7,6 +7,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.Collection;
 
 @Entity
 @Getter
@@ -22,7 +23,6 @@ public class ServiceSupplier {
     @GenericGenerator(name = "service-supplier-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ServiceSupplierIdGenerator")
     private String id;
 
-    private int slot;
     private String supplierName;
     private String supplierAddress;
     private String contactPersonName;
@@ -37,5 +37,11 @@ public class ServiceSupplier {
     @EqualsAndHashCode.Include
     @ToString.Include
     private Account account;
+
+    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<BlogPost> blogPosts;
 
 }

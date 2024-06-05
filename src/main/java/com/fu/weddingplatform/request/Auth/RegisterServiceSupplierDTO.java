@@ -22,7 +22,6 @@ public class RegisterServiceSupplierDTO {
     @Size(min = ValidationSize.PASSWORD_MIN, max = ValidationSize.PASSWORD_MAX,
             message = ValidationMessage.PASSWORD_INVALID_MESSAGE)
     private String password;
-    private int slot;
     private String supplierName;
     private String supplierAddress;
     private String contactPersonName;
