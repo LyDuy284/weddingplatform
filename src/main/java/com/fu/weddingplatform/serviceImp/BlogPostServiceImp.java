@@ -62,22 +62,78 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public List<BlogPostResponse> getAllPendingBlogPosts(int pageNo, int pageSize) {
-        return List.of();
+        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
+        
+        if (!pageResult.hasContent()){
+            throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
+        }
+
+        for (BlogPost blogPost : pageResult.getContent()){
+            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
+            if (blogPost.getStatus().equalsIgnoreCase("PENDING")){
+                response.add(blogPostResponse);
+            }
+        }
+        return response;
     }
 
     @Override
     public List<BlogPostResponse> getAllActiveBlogPosts(int pageNo, int pageSize) {
-        return List.of();
+        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
+        
+        if (!pageResult.hasContent()){
+            throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
+        }
+
+        for (BlogPost blogPost : pageResult.getContent()){
+            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
+            if (blogPost.getStatus().equalsIgnoreCase("ACTIVATED")){
+                response.add(blogPostResponse);
+            }
+        }
+        return response;
     }
 
     @Override
     public List<BlogPostResponse> getAllRejectedBlogPosts(int pageNo, int pageSize) {
-        return List.of();
+        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
+        
+        if (!pageResult.hasContent()){
+            throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
+        }
+
+        for (BlogPost blogPost : pageResult.getContent()){
+            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
+            if (blogPost.getStatus().equalsIgnoreCase("REJECTED")){
+                response.add(blogPostResponse);
+            }
+        }
+        return response;
     }
 
     @Override
     public List<BlogPostResponse> getAllBlogPostsByServiceSupplier(String serviceSupplierId, int pageNo, int pageSize) {
-        return List.of();
+        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
+        Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
+        
+        if (!pageResult.hasContent()){
+            throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
+        }
+
+        for (BlogPost blogPost : pageResult.getContent()){
+            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
+            if (blogPost.getServiceSupplier().getId().equalsIgnoreCase(serviceSupplierId)){
+                response.add(blogPostResponse);
+            }
+        }
+        return response;
     }
 
     @Override
