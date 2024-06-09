@@ -138,7 +138,11 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public BlogPostResponse getBlogPostById(String id) {
-        return null;
+        BlogPost blogPost = blogPostRepository.findById(Integer.parseInt(id)).orElseThrow(
+                () -> new ErrorException(BlogErrorMessage.NOT_FOUND)
+        );
+        BlogPostResponse response = new BlogPostResponse(id, blogPost.getTitle(), blogPost.getContent(), blogPost.getDateCreated(), blogPost.getServiceSupplier().getId(), blogPost.getStaff().getId(), blogPost.getStatus());
+        return response;
     }
 
     @Override
