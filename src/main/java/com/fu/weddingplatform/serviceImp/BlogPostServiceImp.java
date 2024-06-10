@@ -41,7 +41,7 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public List<BlogPostResponse> getAllBlogPosts(int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        List<BlogPostResponse> response = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
 
@@ -62,7 +62,7 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public List<BlogPostResponse> getAllPendingBlogPosts(int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        List<BlogPostResponse> response = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
         
@@ -81,7 +81,7 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public List<BlogPostResponse> getAllActiveBlogPosts(int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        List<BlogPostResponse> response = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
         
@@ -100,7 +100,7 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public List<BlogPostResponse> getAllRejectedBlogPosts(int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        List<BlogPostResponse> response = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
         
@@ -119,7 +119,7 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public List<BlogPostResponse> getAllBlogPostsByServiceSupplier(String serviceSupplierId, int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        List<BlogPostResponse> response = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
         

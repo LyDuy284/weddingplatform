@@ -68,7 +68,7 @@ public class BlogPostController {
 
     @GetMapping("getAllRejectedBlogPosts")
     public ResponseEntity<ListResponseDTO> getAllRejectedBlogPosts(@RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "10") int pageSize){
-        ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO();
+        ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO<>();
         List<BlogPostResponse> list = blogPostService.getAllRejectedBlogPosts(pageNo, pageSize);
         responseDTO.setData(list);
         responseDTO.setMessage(BlogSuccessMessage.GET_ALL_REJECTED);
@@ -78,7 +78,7 @@ public class BlogPostController {
 
     @GetMapping("/getAllBlogPostsByServiceSupplier")
     public ResponseEntity<ListResponseDTO> getAllBlogPostsByServiceSupplier(@RequestParam String serviceSupplierId, @RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "10") int pageSize){
-        ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO();
+        ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO<>();
         List<BlogPostResponse> list = blogPostService.getAllBlogPostsByServiceSupplier(serviceSupplierId, pageNo, pageSize);
         responseDTO.setData(list);
         responseDTO.setMessage(BlogSuccessMessage.GET_ALL_BY_SERVICE_SUPPLIER);
@@ -88,7 +88,7 @@ public class BlogPostController {
 
     @GetMapping("/getBlogPostById/{id}")
     public ResponseEntity<ResponseDTO<BlogPostResponse>> getBlogPostById(@PathVariable String id){
-        ResponseDTO<BlogPostResponse> responseDTO = new ResponseDTO();
+        ResponseDTO<BlogPostResponse> responseDTO = new ResponseDTO<>();
         BlogPostResponse blogPostResponse = blogPostService.getBlogPostById(id);
         responseDTO.setData(blogPostResponse);
         responseDTO.setMessage(BlogSuccessMessage.GET_BY_ID);
