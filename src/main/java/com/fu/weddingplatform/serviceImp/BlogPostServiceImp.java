@@ -28,6 +28,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -41,7 +42,7 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public List<BlogPostResponse> getAllBlogPosts(int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
+        List<BlogPostResponse> response = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
 
@@ -62,93 +63,70 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public List<BlogPostResponse> getAllPendingBlogPosts(int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
-        
-        if (!pageResult.hasContent()){
+        Page<BlogPost> pageResult = blogPostRepository.findByStatus("PENDING", pageable);
+
+        if (pageResult.isEmpty()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
         }
 
-        for (BlogPost blogPost : pageResult.getContent()){
-            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
-            if (blogPost.getStatus().equalsIgnoreCase("PENDING")){
-                response.add(blogPostResponse);
-            }
-        }
-        return response;
+        return pageResult.stream()
+                .map(blogPost -> modelMapper.map(blogPost, BlogPostResponse.class))
+                .collect(Collectors.toList());
     }
-
     @Override
     public List<BlogPostResponse> getAllActiveBlogPosts(int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
-        
-        if (!pageResult.hasContent()){
+        Page<BlogPost> pageResult = blogPostRepository.findByStatus("ACTIVATED", pageable);
+
+        if (pageResult.isEmpty()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
         }
 
-        for (BlogPost blogPost : pageResult.getContent()){
-            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
-            if (blogPost.getStatus().equalsIgnoreCase("ACTIVATED")){
-                response.add(blogPostResponse);
-            }
-        }
-        return response;
+        return pageResult.stream()
+                .map(blogPost -> modelMapper.map(blogPost, BlogPostResponse.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<BlogPostResponse> getAllRejectedBlogPosts(int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
-        
-        if (!pageResult.hasContent()){
+        Page<BlogPost> pageResult = blogPostRepository.findByStatus("REJECTED", pageable);
+
+        if (pageResult.isEmpty()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
         }
 
-        for (BlogPost blogPost : pageResult.getContent()){
-            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
-            if (blogPost.getStatus().equalsIgnoreCase("REJECTED")){
-                response.add(blogPostResponse);
-            }
-        }
-        return response;
+        return pageResult.stream()
+                .map(blogPost -> modelMapper.map(blogPost, BlogPostResponse.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<BlogPostResponse> getAllBlogPostsByServiceSupplier(String serviceSupplierId, int pageNo, int pageSize) {
-        List<BlogPostResponse> response = new ArrayList<BlogPostResponse>();
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
-        
-        if (!pageResult.hasContent()){
+            Page<BlogPost> pageResult = blogPostRepository.findByServiceSupplierId(serviceSupplierId, pageable);
+
+        if (pageResult.isEmpty()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
         }
 
-        for (BlogPost blogPost : pageResult.getContent()){
-            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
-            if (blogPost.getServiceSupplier().getId().equalsIgnoreCase(serviceSupplierId)){
-                response.add(blogPostResponse);
-            }
-        }
-        return response;
+        return pageResult.stream()
+                .map(blogPost -> modelMapper.map(blogPost, BlogPostResponse.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public BlogPostResponse getBlogPostById(String id) {
-        BlogPost blogPost = blogPostRepository.findById(Integer.parseInt(id)).orElseThrow(
-                () -> new ErrorException(BlogErrorMessage.NOT_FOUND)
+        BlogPost blogPost = blogPostRepository.findById(Integer.valueOf(id)).orElseThrow(
+                () -> new ErrorException(BlogErrorMessage.EMPTY_MESSAGE)
         );
-        BlogPostResponse response = new BlogPostResponse(id, blogPost.getTitle(), blogPost.getContent(), blogPost.getDateCreated(), blogPost.getServiceSupplier().getId(), blogPost.getStaff().getId(), blogPost.getStatus());
-        return response;
+        return new BlogPostResponse(id, blogPost.getTitle(), blogPost.getContent(), blogPost.getDateCreated(), blogPost.getServiceSupplier().getId(), blogPost.getStaff().getId(), blogPost.getStatus());
     }
 
     @Override
     public BlogPostResponse createBlogPost(CreateBlogDTO createDTO) {
-
-        BlogPostResponse response = new BlogPostResponse();
+        BlogPostResponse response;
 
         ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(createDTO.getServiceSupplierId()).orElseThrow(
                 () -> new ErrorException(SupplierErrorMessage.NOT_FOUND)
@@ -159,7 +137,7 @@ public class BlogPostServiceImp implements BlogPostService {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now(vietnamZoneId);
 
-        BlogPost blog = new BlogPost().builder()
+        BlogPost blog = BlogPost.builder()
                 .title(createDTO.getTitle())
                 .content(createDTO.getContent())
                 .dateCreated(localDateTime.format(dateTimeFormatter))
