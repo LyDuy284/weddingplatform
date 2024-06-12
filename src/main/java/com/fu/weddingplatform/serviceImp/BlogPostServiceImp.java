@@ -1,7 +1,7 @@
 package com.fu.weddingplatform.serviceImp;
 
 import com.fu.weddingplatform.constant.Status;
-import com.fu.weddingplatform.constant.SupplierErrorMessage;
+import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
 import com.fu.weddingplatform.constant.blogPost.BlogErrorMessage;
 import com.fu.weddingplatform.entity.BlogPost;
 import com.fu.weddingplatform.entity.ServiceSupplier;
@@ -22,7 +22,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -105,7 +104,11 @@ public class BlogPostServiceImp implements BlogPostService {
     @Override
     public List<BlogPostResponse> getAllBlogPostsByServiceSupplier(String serviceSupplierId, int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-            Page<BlogPost> pageResult = blogPostRepository.findByServiceSupplierId(serviceSupplierId, pageable);
+
+        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
+                () -> new ErrorException(SupplierErrorMessage.NOT_FOUND)
+        );
+            Page<BlogPost> pageResult = blogPostRepository.findByServiceSupplier(serviceSupplier, pageable);
 
         if (pageResult.isEmpty()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
