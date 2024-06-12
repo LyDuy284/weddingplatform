@@ -10,4 +10,6 @@ public interface CoupleService {
     List<CoupleResponse> getAllCouple(int pageSize, int size, String sortBy, boolean isAscending);
 
     CoupleResponse getCoupleById(String coupleId);
+
+    void deleteCouple(String coupleId);
 }

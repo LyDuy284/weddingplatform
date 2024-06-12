@@ -30,8 +30,8 @@ public class CoupleController {
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
     public ResponseEntity<?> getAllCouple(@RequestParam(defaultValue = "0") int pageSize,
                                           @RequestParam(defaultValue = "10") int size,
-                                          @RequestParam(defaultValue = "couple-id") String sortBy,
-                                          @RequestParam(defaultValue = "1") boolean isAscending){
+                                          @RequestParam(defaultValue = "id") String sortBy,
+                                          @RequestParam(defaultValue = "true") boolean isAscending){
         List<CoupleResponse> coupleList = coupleService.getAllCouple(pageSize, size, sortBy, isAscending);
         ListResponseDTO<CoupleResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
@@ -48,6 +48,17 @@ public class CoupleController {
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(CoupleSuccessMessage.GET_COUPLE);
         responseDTO.setData(coupleResponse);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    @DeleteMapping("deleteCouple/{coupleId}")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
+    public ResponseEntity<?> deleteCouple(@PathVariable String coupleId){
+        coupleService.deleteCouple(coupleId);
+        ResponseDTO<CoupleResponse> responseDTO = new ResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(CoupleSuccessMessage.DELETE_COUPLE);
+        responseDTO.setData(null);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 package com.fu.weddingplatform.serviceImp;
 
+import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.entity.Couple;
@@ -31,24 +32,22 @@ public class CoupleServiceImp implements CoupleService {
 
     @Autowired
     ModelMapper modelMapper;
-    @Autowired
-    private AccountRepository accountRepository;
 
     @Override
     public List<CoupleResponse> getAllCouple(int pageSize, int size, String sortBy, boolean isAscending) {
         List<CoupleResponse> coupleResponseList = new ArrayList<>();
         Page<Couple> couplePage;
-        if(isAscending){
+        if (isAscending) {
             couplePage = coupleRepository.findAll(PageRequest.of(pageSize, size, Sort.by(sortBy).ascending()));
-        }else{
+        } else {
             couplePage = coupleRepository.findAll(PageRequest.of(pageSize, size, Sort.by(sortBy).descending()));
         }
 
-        if(couplePage.hasContent()){
-            for (Couple couple: couplePage) {
+        if (couplePage.hasContent()) {
+            for (Couple couple : couplePage) {
                 coupleResponseList.add(modelMapper.map(couple, CoupleResponse.class));
             }
-        }else{
+        } else {
             throw new ErrorException(CoupleErrorMessage.EMPTY_COUPLE_LIST);
         }
         return coupleResponseList;
@@ -57,9 +56,21 @@ public class CoupleServiceImp implements CoupleService {
     @Override
     public CoupleResponse getCoupleById(String coupleId) {
         Optional<Couple> coupleOptional = coupleRepository.findById(coupleId);
-        if(coupleOptional.isPresent()){
+        if (coupleOptional.isPresent()) {
             return modelMapper.map(coupleOptional.get(), CoupleResponse.class);
-        }else{
+        } else {
+            throw new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND);
+        }
+    }
+
+    @Override
+    public void deleteCouple(String coupleId) {
+        Optional<Couple> coupleOptional = coupleRepository.findById(coupleId);
+        if (coupleOptional.isPresent()) {
+            Couple couple = coupleOptional.get();
+            couple.setStatus(Status.DISABLE);
+            coupleRepository.save(couple);
+        } else {
             throw new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND);
         }
     }
