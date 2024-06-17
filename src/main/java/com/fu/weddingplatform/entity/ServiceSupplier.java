@@ -49,4 +49,16 @@ public class ServiceSupplier {
     @ToString.Include
     @JsonIgnore
     private Collection<Feedback> feedbacks;
+
+    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Service> services;
+
+    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Promotion> promotions;
 }
