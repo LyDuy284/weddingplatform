@@ -63,7 +63,7 @@ public class BlogPostServiceImp implements BlogPostService {
     @Override
     public List<BlogPostResponse> getAllPendingBlogPosts(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BlogPost> pageResult = blogPostRepository.findByStatus("PENDING", pageable);
+        Page<BlogPost> pageResult = blogPostRepository.findByStatus(Status.PENDING, pageable);
 
         if (pageResult.isEmpty()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
@@ -76,7 +76,7 @@ public class BlogPostServiceImp implements BlogPostService {
     @Override
     public List<BlogPostResponse> getAllActiveBlogPosts(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BlogPost> pageResult = blogPostRepository.findByStatus("ACTIVATED", pageable);
+        Page<BlogPost> pageResult = blogPostRepository.findByStatus(Status.ACTIVATED, pageable);
 
         if (pageResult.isEmpty()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
@@ -90,7 +90,7 @@ public class BlogPostServiceImp implements BlogPostService {
     @Override
     public List<BlogPostResponse> getAllRejectedBlogPosts(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
-        Page<BlogPost> pageResult = blogPostRepository.findByStatus("REJECTED", pageable);
+        Page<BlogPost> pageResult = blogPostRepository.findByStatus(Status.REJECTED, pageable);
 
         if (pageResult.isEmpty()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);

@@ -13,6 +13,7 @@ import com.fu.weddingplatform.service.BlogPostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public class BlogPostController {
 
     @PostMapping("create")
     @PreAuthorize(RolePreAuthorize.ROLE_SERVICE_SUPPLIER)
-    public ResponseEntity<ResponseDTO> createBlogPost(@RequestBody CreateBlogDTO createBlogDTO){
+    public ResponseEntity<ResponseDTO> createBlogPost(@Validated @RequestBody CreateBlogDTO createBlogDTO){
         ResponseDTO<BlogPostResponse> responseDTO = new ResponseDTO<>();
         BlogPostResponse data = blogPostService.createBlogPost(createBlogDTO);
         responseDTO.setData(data);
