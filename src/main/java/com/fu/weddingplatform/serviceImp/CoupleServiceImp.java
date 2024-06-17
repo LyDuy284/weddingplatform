@@ -68,7 +68,7 @@ public class CoupleServiceImp implements CoupleService {
         Optional<Couple> coupleOptional = coupleRepository.findById(coupleId);
         if (coupleOptional.isPresent()) {
             Couple couple = coupleOptional.get();
-            couple.setStatus(Status.DISABLE);
+            couple.setStatus(Status.DISABLED);
             coupleRepository.save(couple);
         } else {
             throw new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND);

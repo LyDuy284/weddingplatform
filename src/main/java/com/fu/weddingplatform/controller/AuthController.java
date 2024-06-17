@@ -62,8 +62,8 @@ public class AuthController {
     return ResponseEntity.ok().body(responseDTO);
   }
 
-  @PostMapping("/register/cupple")
-  public ResponseEntity<ResponseDTO> registerCupple(@Validated @RequestBody RegisterCoupleDTO registerDTO) {
+  @PostMapping("/register/couple")
+  public ResponseEntity<ResponseDTO> registerCouple(@Validated @RequestBody RegisterCoupleDTO registerDTO) {
     ResponseDTO<RegsiterCoupleReponse> responseDTO = new ResponseDTO();
     RegsiterCoupleReponse regsiterCoupleReponse = authService.registerCouple(registerDTO);
     responseDTO.setData(regsiterCoupleReponse);

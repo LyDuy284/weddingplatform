@@ -8,6 +8,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.Collection;
 
 @Entity
 @Getter
@@ -36,4 +37,9 @@ public class Couple {
     @ToString.Include
     private Account account;
 
+    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Feedback> feedbacks;
 }

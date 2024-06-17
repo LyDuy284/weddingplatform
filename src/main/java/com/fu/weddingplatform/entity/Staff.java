@@ -42,4 +42,10 @@ public class Staff {
     @ToString.Include
     @JsonIgnore
     private Collection<BlogPost> blogPosts;
+
+    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Feedback> feedbacks;
 }

@@ -44,4 +44,9 @@ public class ServiceSupplier {
     @JsonIgnore
     private Collection<BlogPost> blogPosts;
 
+    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Feedback> feedbacks;
 }

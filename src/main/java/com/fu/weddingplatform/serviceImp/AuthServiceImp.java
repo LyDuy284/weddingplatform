@@ -297,7 +297,6 @@ public class AuthServiceImp implements AuthService {
     public LoginResponse loginWithGoogle(String token) {
         List<SimpleGrantedAuthority> simpleGrantedAuthorities = new ArrayList<>();
 
-
         String[] split_string = token.split("\\.");
         String base64EncodedBody = split_string[1];
         Base64 base64Url = new Base64(true);
