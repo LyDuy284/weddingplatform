@@ -21,8 +21,8 @@ import java.util.Date;
 public class BlogPost {
 
     @Id
-    @GeneratedValue(generator = "couple-id")
-    @GenericGenerator(name = "couple-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BlogPostIdGenerator")
+    @GeneratedValue(generator = "blog-id")
+    @GenericGenerator(name = "blog-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BlogPostIdGenerator")
     private String id;
     private String title;
     private String content;

@@ -41,40 +41,10 @@ public class AuthController {
     return ResponseEntity.ok().body(responseDTO);
   }
 
-  @PostMapping("/loginGoogle/staff")
+  @PostMapping("/loginGoogle")
   public ResponseEntity<ResponseDTO> loginGoogleRoleStaff(@RequestBody String token) {
     ResponseDTO<LoginResponse> responseDTO = new ResponseDTO();
-    LoginResponse loginResponseDTO = authService.loginWithGoogle(token, RoleName.ROLE_STAFF);
-    responseDTO.setData(loginResponseDTO);
-    responseDTO.setMessage("Login success");
-    responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    return ResponseEntity.ok().body(responseDTO);
-  }
-
-  @PostMapping("/loginGoogle/couple")
-  public ResponseEntity<ResponseDTO> loginGoogleRoleCouple(@RequestBody String token) {
-    ResponseDTO<LoginResponse> responseDTO = new ResponseDTO();
-    LoginResponse loginResponseDTO = authService.loginWithGoogle(token, RoleName.ROLE_COUPLE);
-    responseDTO.setData(loginResponseDTO);
-    responseDTO.setMessage("Login success");
-    responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    return ResponseEntity.ok().body(responseDTO);
-  }
-
-  @PostMapping("/loginGoogle/service-supplier")
-  public ResponseEntity<ResponseDTO> loginGoogleRoleServiceSupplier(@RequestBody String token) {
-    ResponseDTO<LoginResponse> responseDTO = new ResponseDTO();
-    LoginResponse loginResponseDTO = authService.loginWithGoogle(token, RoleName.ROLE_SERVICE_SUPPLIER);
-    responseDTO.setData(loginResponseDTO);
-    responseDTO.setMessage("Login success");
-    responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    return ResponseEntity.ok().body(responseDTO);
-  }
-
-  @PostMapping("/loginGoogle/admin")
-  public ResponseEntity<ResponseDTO> loginGoogleRoleAdmin(@RequestBody String token) {
-    ResponseDTO<LoginResponse> responseDTO = new ResponseDTO();
-    LoginResponse loginResponseDTO = authService.loginWithGoogle(token, RoleName.ROLE_ADMIN);
+    LoginResponse loginResponseDTO = authService.loginWithGoogle(token);
     responseDTO.setData(loginResponseDTO);
     responseDTO.setMessage("Login success");
     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);

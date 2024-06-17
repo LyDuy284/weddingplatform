@@ -294,10 +294,9 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public LoginResponse loginWithGoogle(String token, String roleName) {
+    public LoginResponse loginWithGoogle(String token) {
         List<SimpleGrantedAuthority> simpleGrantedAuthorities = new ArrayList<>();
-        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(roleName);
-        simpleGrantedAuthorities.add(simpleGrantedAuthority);
+
 
         String[] split_string = token.split("\\.");
         String base64EncodedBody = split_string[1];
@@ -309,19 +308,13 @@ public class AuthServiceImp implements AuthService {
 
         Optional<Account> account = accountRepository.findByEmail(email);
         if(account.isEmpty()){
-            if (!Objects.equals(roleName, RoleName.ROLE_COUPLE)){
-                throw new AuthorizedException();
-            } else {
-                account = Optional.of(registerForGoogleLogin(email, name, roleName));
-                new Couple();
-                Couple couple = Couple.builder().account(account.get()).status(Status.ACTIVATED).build();
-                coupleRepository.save(couple);
-            }
+            account = Optional.of(registerForGoogleLogin(email, name, RoleName.ROLE_COUPLE));
+            new Couple();
+            Couple couple = Couple.builder().account(account.get()).status(Status.ACTIVATED).build();
+            coupleRepository.save(couple);
         }
-
-        if (!Objects.equals(roleName, account.get().getRole().getName()) && !account.get().getRole().getName().equalsIgnoreCase(RoleName.ROLE_ADMIN)){
-            throw new AuthorizedException();
-        }
+        SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(account.get().getRole().getName());
+        simpleGrantedAuthorities.add(simpleGrantedAuthority);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(account.get().getEmail(), null);
 

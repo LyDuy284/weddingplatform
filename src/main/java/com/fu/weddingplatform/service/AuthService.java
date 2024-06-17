@@ -20,7 +20,7 @@ public interface AuthService {
 
     public RegsiterServiceSupplierReponse registerServiceSupplier(RegisterServiceSupplierDTO registerDTO);
 
-    public LoginResponse loginWithGoogle(String token, String roleName);
+    public LoginResponse loginWithGoogle(String token);
 
     public Account registerForGoogleLogin(String email, String name, String roleName);
 }
