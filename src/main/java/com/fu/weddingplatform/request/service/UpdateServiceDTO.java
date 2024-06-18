@@ -2,6 +2,8 @@ package com.fu.weddingplatform.request.service;
 
 import lombok.*;
 
+import javax.validation.constraints.Min;
+
 @Getter
 @Setter
 @ToString
@@ -13,5 +15,6 @@ public class UpdateServiceDTO {
     private String categoryId;
     private String name;
     private String description;
+    @Min(value = 0, message = "Value must be greater than 0")
     private float price;
 }

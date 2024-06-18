@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,7 +25,7 @@ public class ServiceController {
 
     @PostMapping("create")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
-    public ResponseEntity<?> getAllCouple(@RequestBody CreateServiceDTO createDTO){
+    public ResponseEntity<?> getAllCouple(@Validated @RequestBody CreateServiceDTO createDTO){
         ResponseDTO<ServiceResponse> responseDTO = new ResponseDTO<>();
         ServiceResponse data = service.createService(createDTO);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
