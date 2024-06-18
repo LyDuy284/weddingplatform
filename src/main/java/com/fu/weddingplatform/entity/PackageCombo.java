@@ -17,18 +17,24 @@ import java.util.Collection;
 @Setter
 @ToString
 @Builder
-@Table(name = "service")
-public class Service {
+@Table(name = "package_combo")
+public class PackageCombo {
 
     @Id
-    @GeneratedValue(generator = "service-id")
-    @GenericGenerator(name = "service-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ServiceIdGenerate")
+    @GeneratedValue(generator = "package-combo-id")
+    @GenericGenerator(name = "package-combo-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.PackageComboIdGenerate")
     private String id;
-    private String name;
+    private String packageName;
     @Column(columnDefinition = "text")
     private String description;
     private float price;
     private String status;
+
+    @OneToMany(mappedBy = "packageCombo", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<ServiceCombo> serviceCombos;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -38,17 +44,6 @@ public class Service {
     @ToString.Include
     private ServiceSupplier serviceSupplier;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "category_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private Category category;
 
-    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<ServicePromotion> servicePromotions;
+
 }

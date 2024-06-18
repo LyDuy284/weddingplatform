@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
@@ -9,27 +8,32 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Date;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@Table(name = "category")
-public class Category {
+@Table(name = "booking")
+public class Booking {
 
     @Id
-    @GeneratedValue(generator = "category-id")
-    @GenericGenerator(name = "category-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.CategoryIdGenerate")
+    @GeneratedValue(generator = "booking-id")
+    @GenericGenerator(name = "booking-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingIdGenerate")
     private String id;
-    private String categoryName;
+    private Date bookingDate;
     private String status;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "coupleId")
     @EqualsAndHashCode.Include
     @ToString.Include
-    @JsonIgnore
-    private Collection<Services> services;
+    private Couple couple;
+
+
 }

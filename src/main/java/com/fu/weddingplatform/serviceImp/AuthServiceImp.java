@@ -11,7 +11,6 @@ import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.role.RoleErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleName;
 import com.fu.weddingplatform.entity.*;
-import com.fu.weddingplatform.exception.AuthorizedException;
 import com.fu.weddingplatform.repository.*;
 import com.fu.weddingplatform.request.Auth.*;
 import com.fu.weddingplatform.response.Account.AccountResponse;

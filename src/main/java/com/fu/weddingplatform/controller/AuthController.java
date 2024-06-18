@@ -1,10 +1,9 @@
 package com.fu.weddingplatform.controller;
 
 import com.fu.weddingplatform.constant.account.AccountSuccessMessage;
-import com.fu.weddingplatform.constant.role.RoleName;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
-import com.fu.weddingplatform.request.Auth.*;
 
+import com.fu.weddingplatform.request.Auth.*;
 import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Auth.RegsiterServiceSupplierReponse;
 import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
@@ -42,7 +41,7 @@ public class AuthController {
   }
 
   @PostMapping("/loginGoogle")
-  public ResponseEntity<ResponseDTO> loginGoogleRoleStaff(@RequestBody String token) {
+  public ResponseEntity<ResponseDTO> loginGoogle(@RequestBody String token) {
     ResponseDTO<LoginResponse> responseDTO = new ResponseDTO();
     LoginResponse loginResponseDTO = authService.loginWithGoogle(token);
     responseDTO.setData(loginResponseDTO);

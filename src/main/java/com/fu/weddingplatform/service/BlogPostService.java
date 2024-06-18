@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.service;
 
-import com.fu.weddingplatform.entity.BlogPost;
 import com.fu.weddingplatform.request.BlogPost.CreateBlogDTO;
 import com.fu.weddingplatform.request.BlogPost.UpdateBlogDTO;
 import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;

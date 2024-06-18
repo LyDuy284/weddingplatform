@@ -43,5 +43,5 @@ public class Promotion {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<ServicePromotion> servicePromotions;
+    private Collection<Services> services;
 }

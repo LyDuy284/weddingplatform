@@ -2,10 +2,8 @@ package com.fu.weddingplatform.serviceImp;
 
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
-import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.exception.ErrorException;
-import com.fu.weddingplatform.repository.AccountRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
 import com.fu.weddingplatform.service.CoupleService;
@@ -16,9 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

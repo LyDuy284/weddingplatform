@@ -8,7 +8,6 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.Collection;
 
 @Entity
 @AllArgsConstructor
@@ -17,12 +16,12 @@ import java.util.Collection;
 @Setter
 @ToString
 @Builder
-@Table(name = "service_promotion")
-public class ServicePromotion {
+@Table(name = "service_combo")
+public class ServiceCombo {
 
     @Id
-    @GeneratedValue(generator = "service-promotion-id")
-    @GenericGenerator(name = "service-promotion-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ServicePromotionIdGenerate")
+    @GeneratedValue(generator = "service-combo-id")
+    @GenericGenerator(name = "service-combo-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ServiceComboIdGenerate")
     private String id;
     private String status;
 
@@ -32,15 +31,13 @@ public class ServicePromotion {
     @JoinColumn(name = "service_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Service service;
+    private Services service;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "promotion_id")
+    @JoinColumn(name = "package_combo_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Promotion promotion;
-
-
+    private PackageCombo packageCombo;
 }

@@ -54,11 +54,17 @@ public class ServiceSupplier {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<Service> services;
+    private Collection<Services> services;
 
     @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
     private Collection<Promotion> promotions;
+
+    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<PackageCombo> packageCombos;
 }

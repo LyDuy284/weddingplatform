@@ -1,11 +1,9 @@
 package com.fu.weddingplatform.controller;
 
-import com.fu.weddingplatform.constant.account.AccountSuccessMessage;
 import com.fu.weddingplatform.constant.blogPost.BlogSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.request.BlogPost.CreateBlogDTO;
-import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;

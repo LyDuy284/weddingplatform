@@ -7,7 +7,7 @@ import org.hibernate.id.IdentifierGenerator;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ServicePromotionIdGenerate implements IdentifierGenerator {
+public class PackageComboIdGenerate implements IdentifierGenerator {
 
     private static final AtomicInteger counter = new AtomicInteger(1);
 
@@ -15,6 +15,6 @@ public class ServicePromotionIdGenerate implements IdentifierGenerator {
     @Override
     public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
         int count = counter.getAndIncrement();
-        return String.format("PROMOTION-%d", count);
+        return String.format("PACKAGE-COMBO-%d", count);
     }
 }

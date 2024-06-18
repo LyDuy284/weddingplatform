@@ -42,4 +42,10 @@ public class Couple {
     @ToString.Include
     @JsonIgnore
     private Collection<Feedback> feedbacks;
+
+    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Booking> bookings;
 }
