@@ -59,4 +59,10 @@ public class Services {
     @ToString.Include
     @JsonIgnore
     private Collection<ServiceCombo> serviceCombos;
+
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Cart> carts;
 }

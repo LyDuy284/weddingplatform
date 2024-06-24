@@ -44,6 +44,10 @@ public class PackageCombo {
     @ToString.Include
     private ServiceSupplier serviceSupplier;
 
-
+    @OneToMany(mappedBy = "packageCombo", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Cart> carts;
 
 }

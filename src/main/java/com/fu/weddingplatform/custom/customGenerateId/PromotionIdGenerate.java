@@ -19,7 +19,7 @@ public class PromotionIdGenerate implements IdentifierGenerator {
         Connection connection = sharedSessionContractImplementor.connection();
         int count = 1;
         Statement statement = connection.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT RIGHT(id, LENGTH(id) - LOCATE('-', id)) AS number \n" +
+        ResultSet rs = statement.executeQuery("SELECT CAST(SUBSTRING_INDEX(id, '-', -1) AS UNSIGNED) AS number \n" +
                 "FROM promotion \n" +
                 "ORDER BY id DESC \n" +
                 "LIMIT 1; ");

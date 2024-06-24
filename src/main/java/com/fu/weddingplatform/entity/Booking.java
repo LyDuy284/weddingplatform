@@ -35,5 +35,9 @@ public class Booking {
     @ToString.Include
     private Couple couple;
 
-
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Cart> carts;
 }

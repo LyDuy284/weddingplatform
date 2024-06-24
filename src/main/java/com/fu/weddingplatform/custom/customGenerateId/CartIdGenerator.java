@@ -1,7 +1,5 @@
 package com.fu.weddingplatform.custom.customGenerateId;
 
-
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
@@ -11,12 +9,8 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-@RequiredArgsConstructor
-public class CategoryIdGenerate implements IdentifierGenerator {
+public class CartIdGenerator implements IdentifierGenerator {
 
     @SneakyThrows
     @Override
@@ -25,15 +19,15 @@ public class CategoryIdGenerate implements IdentifierGenerator {
         int count = 1;
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery("SELECT CAST(SUBSTRING_INDEX(id, '-', -1) AS UNSIGNED) AS number \n" +
-                "FROM category \n" +
+                "FROM cart \n" +
                 "ORDER BY id DESC \n" +
                 "LIMIT 1; ");
         if (rs.next()) {
             int maxId = rs.getInt("number") + 1;
-            return String.format("CATEGORY-%d", maxId);
+            return String.format("CART-%d", maxId);
 
         } else {
-            return String.format("CATEGORY-%d", count);
+            return String.format("CART-%d", count);
         }
     }
 }

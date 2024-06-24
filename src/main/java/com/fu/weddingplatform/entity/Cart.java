@@ -8,7 +8,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.Collection;
 
 @Entity
 @AllArgsConstructor
@@ -17,32 +17,38 @@ import java.util.Date;
 @Setter
 @ToString
 @Builder
-@Table(name = "blog_post")
-public class BlogPost {
+@Table(name = "cart")
+public class Cart {
 
     @Id
-    @GeneratedValue(generator = "blog-id")
-    @GenericGenerator(name = "blog-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BlogPostIdGenerator")
+    @GeneratedValue(generator = "cart-id")
+    @GenericGenerator(name = "cart-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.CartIdGenerator")
     private String id;
-    private String title;
-    @Column(columnDefinition = "text")
-    private String content;
-    private String dateCreated;
+    private float price;
     private String status;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "service_supplier_id")
+    @JoinColumn(name = "bookingId")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private ServiceSupplier serviceSupplier;
+    private Booking booking;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "staff_id")
+    @JoinColumn(name = "serviceId")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Staff staff;
+    private Services service;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "packageComboId")
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private PackageCombo packageCombo;
+
 }

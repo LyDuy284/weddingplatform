@@ -72,6 +72,7 @@ public class AuthController {
   }
 
   @PostMapping("/register/staff")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
   public ResponseEntity<ResponseDTO> registerStaff(@Validated @RequestBody RegisterStaffDTO registerDTO) {
     ResponseDTO<RegsiterStaffReponse> responseDTO = new ResponseDTO<>();
     RegsiterStaffReponse registerStaffResponse = authService.registerStaff(registerDTO);
