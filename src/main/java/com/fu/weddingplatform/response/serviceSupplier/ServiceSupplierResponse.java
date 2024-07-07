@@ -11,7 +11,6 @@ import lombok.*;
 public class ServiceSupplierResponse {
     private String id;
     private String supplierName;
-    private String supplierAddress;
     private String contactPersonName;
     private String contactPhone;
     private String contactEmail;

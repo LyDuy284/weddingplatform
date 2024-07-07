@@ -17,7 +17,6 @@ public class RegsiterServiceSupplierReponse {
     private String address;
     private String serviceSupplierId;
     private String supplierName;
-    private String supplierAddress;
     private String contactEmail;
     private String contactPhone;
     private String contactPersonName;

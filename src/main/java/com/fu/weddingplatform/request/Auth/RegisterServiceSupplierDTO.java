@@ -19,11 +19,9 @@ public class RegisterServiceSupplierDTO {
 
     @Email(message = ValidationMessage.EMAIL_INVALID_MESSAGE)
     private String email;
-    @Size(min = ValidationSize.PASSWORD_MIN, max = ValidationSize.PASSWORD_MAX,
-            message = ValidationMessage.PASSWORD_INVALID_MESSAGE)
+    @Size(min = ValidationSize.PASSWORD_MIN, max = ValidationSize.PASSWORD_MAX, message = ValidationMessage.PASSWORD_INVALID_MESSAGE)
     private String password;
     private String supplierName;
-    private String supplierAddress;
     private String contactPersonName;
     @NotNull(message = ValidationMessage.PHONE_NUMBER_NOT_NULL)
     @ValidPhoneNumber
