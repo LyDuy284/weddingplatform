@@ -9,9 +9,8 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.concurrent.atomic.AtomicInteger;
 
-public class ServiceComboIdGenerate implements IdentifierGenerator {
+public class RatingIdGenerate implements IdentifierGenerator {
 
     @SneakyThrows
     @Override
@@ -20,15 +19,15 @@ public class ServiceComboIdGenerate implements IdentifierGenerator {
         int count = 1;
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery("SELECT CAST(SUBSTRING_INDEX(id, '-', -1) AS UNSIGNED) AS number \n" +
-                "FROM service_combo \n" +
+                "FROM rating \n" +
                 "ORDER BY id DESC \n" +
                 "LIMIT 1; ");
         if (rs.next()) {
             int maxId = rs.getInt("number") + 1;
-            return String.format("SERVICE-COMBO-%d", maxId);
+            return String.format("RATING-%d", maxId);
 
         } else {
-            return String.format("SERVICE-COMBO-%d", count);
+            return String.format("RATING-%d", count);
         }
     }
 }

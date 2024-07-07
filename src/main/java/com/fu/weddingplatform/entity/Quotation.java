@@ -1,10 +1,8 @@
 package com.fu.weddingplatform.entity;
 
-import java.sql.Date;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -35,17 +33,14 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-@Table(name = "promotion")
-public class Promotion {
+@Table(name = "quotation")
+public class Quotation {
 
     @Id
-    @GeneratedValue(generator = "promotion-id")
-    @GenericGenerator(name = "promotion-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.PromotionIdGenerate")
+    @GeneratedValue(generator = "quotation-id")
+    @GenericGenerator(name = "quotation-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.QuoteIdGenerate")
     private String id;
-    @Column(columnDefinition = "text")
-    private String promotionDetails;
-    private Date startDate;
-    private Date endDate;
+    private float price;
     private String status;
 
     @JsonIgnore
@@ -56,16 +51,39 @@ public class Promotion {
     @ToString.Include
     private ServiceSupplier serviceSupplier;
 
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "couple_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    @JsonIgnore
-    private Collection<Services> services;
+    private Couple couple;
 
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "booking_id")
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private Booking booking;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "service_id")
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private Services service;
+
+    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
     private Collection<QuoteDetail> quoteDetails;
 
+    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Payment> payments;
 }

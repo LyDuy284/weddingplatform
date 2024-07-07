@@ -8,6 +8,7 @@ import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Auth.RegsiterServiceSupplierReponse;
 import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -28,6 +29,8 @@ import com.fu.weddingplatform.service.AuthService;
 @CrossOrigin("*")
 @RequiredArgsConstructor
 public class AuthController {
+
+  @Autowired
   private final AuthService authService;
 
   @PostMapping("/login")

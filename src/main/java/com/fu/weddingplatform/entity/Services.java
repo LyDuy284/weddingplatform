@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
@@ -27,6 +26,8 @@ public class Services {
     private String name;
     @Column(columnDefinition = "text")
     private String description;
+    @Column(columnDefinition = "text")
+    private String images;
     private float price;
     private String status;
 
@@ -58,11 +59,23 @@ public class Services {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<ServiceCombo> serviceCombos;
+    private Collection<ComboService> comboServices;
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<Cart> carts;
+    private Collection<BookingDetail> bookingDetails;
+
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Rating> ratings;
+
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Quotation> quotations;
 }

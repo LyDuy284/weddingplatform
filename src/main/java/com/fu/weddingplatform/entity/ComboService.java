@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.Fetch;
@@ -16,13 +15,15 @@ import javax.persistence.*;
 @Setter
 @ToString
 @Builder
-@Table(name = "service_combo")
-public class ServiceCombo {
+@Table(name = "combo_service")
+public class ComboService {
 
     @Id
-    @GeneratedValue(generator = "service-combo-id")
-    @GenericGenerator(name = "service-combo-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ServiceComboIdGenerate")
+    @GeneratedValue(generator = "combo-service-id")
+    @GenericGenerator(name = "combo-service-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ComboServiceIdGenerate")
     private String id;
+    @Column(columnDefinition = "text")
+    private String description;
     private String status;
 
     @JsonIgnore
@@ -36,8 +37,9 @@ public class ServiceCombo {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "package_combo_id")
+    @JoinColumn(name = "staff_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private PackageCombo packageCombo;
+    private Staff staff;
+
 }

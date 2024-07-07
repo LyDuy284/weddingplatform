@@ -1,21 +1,22 @@
 package com.fu.weddingplatform.custom.customGenerateId;
 
-import lombok.SneakyThrows;
-import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.id.IdentifierGenerator;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.id.IdentifierGenerator;
+
+import lombok.SneakyThrows;
 
 public class StaffIdGenerate implements IdentifierGenerator {
 
     @SneakyThrows
     @Override
-    public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
+    public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o)
+            throws HibernateException {
         Connection connection = sharedSessionContractImplementor.connection();
         int count = 1;
         Statement statement = connection.createStatement();

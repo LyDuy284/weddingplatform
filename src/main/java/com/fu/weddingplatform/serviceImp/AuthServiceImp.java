@@ -213,8 +213,6 @@ public class AuthServiceImp implements AuthService {
 
 
         Staff staff = new Staff().builder()
-                .department(registerDTO.getDepartment())
-                .position(registerDTO.getPosition())
                 .account(accountSaved)
                 .status(Status.ACTIVATED)
                 .build();
@@ -226,8 +224,6 @@ public class AuthServiceImp implements AuthService {
 
         response.setAccountId(accountSaved.getId());
         response.setRoleName(role.getName());
-        response.setDepartment(newStaff.getDepartment());
-        response.setPosition(newStaff.getPosition());
         response.setStaffId(newStaff.getId());
         return response;
     }

@@ -11,24 +11,25 @@ import org.hibernate.id.IdentifierGenerator;
 
 import lombok.SneakyThrows;
 
-public class FeedbackIdGenerate implements IdentifierGenerator {
+public class ComboServiceIdGenerate implements IdentifierGenerator {
 
     @SneakyThrows
     @Override
-    public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
+    public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o)
+            throws HibernateException {
         Connection connection = sharedSessionContractImplementor.connection();
         int count = 1;
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery("SELECT CAST(SUBSTRING_INDEX(id, '-', -1) AS UNSIGNED) AS number \n" +
-                "FROM feedback \n" +
+                "FROM combo_service \n" +
                 "ORDER BY id DESC \n" +
                 "LIMIT 1; ");
         if (rs.next()) {
             int maxId = rs.getInt("number") + 1;
-            return String.format("FEEDBACK-%d", maxId);
+            return String.format("COMBO-SERVICE-%d", maxId);
 
         } else {
-            return String.format("FEEDBACK-%d", count);
+            return String.format("COMBO-SERVICE-%d", count);
         }
     }
 }

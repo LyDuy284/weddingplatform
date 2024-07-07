@@ -16,7 +16,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name="staff")
+@Table(name = "staff")
 public class Staff {
 
     @Id
@@ -24,10 +24,7 @@ public class Staff {
     @GenericGenerator(name = "staff-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.StaffIdGenerate")
     private String id;
 
-    private String position;
-    private String department;
     private String status;
-
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
@@ -43,9 +40,15 @@ public class Staff {
     @JsonIgnore
     private Collection<BlogPost> blogPosts;
 
-    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
     private Collection<Feedback> feedbacks;
+
+    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<ComboService> comboServices;
 }

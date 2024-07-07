@@ -16,7 +16,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name="service_supplier")
+@Table(name = "service_supplier")
 public class ServiceSupplier {
     @Id
     @GeneratedValue(generator = "service-supplier-id")
@@ -66,5 +66,11 @@ public class ServiceSupplier {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<PackageCombo> packageCombos;
+    private Collection<Quotation> quotations;
+
+    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Area> areas;
 }

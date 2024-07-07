@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface ServiceRepository extends JpaRepository<Services, Integer> {
+public interface ServiceRepository extends JpaRepository<Services, String> {
 
     @Query(nativeQuery = true, value = "SELECT RIGHT(id, LENGTH(id) - LOCATE('-', id)) AS number\n" +
             "FROM service\n" +

@@ -1,9 +1,7 @@
 package com.fu.weddingplatform.entity;
 
 import java.sql.Date;
-import java.util.Collection;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -11,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -29,43 +26,39 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "rating")
 @Getter
 @Setter
 @ToString
 @Builder
-@Table(name = "promotion")
-public class Promotion {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Rating {
 
     @Id
-    @GeneratedValue(generator = "promotion-id")
-    @GenericGenerator(name = "promotion-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.PromotionIdGenerate")
+    @GeneratedValue(generator = "rating-id")
+    @GenericGenerator(name = "rating-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.RatingIdGenerate")
     private String id;
+    private int ratingValue;
+    private Date dateCreated;
     @Column(columnDefinition = "text")
-    private String promotionDetails;
-    private Date startDate;
-    private Date endDate;
+    private String description;
     private String status;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "service_supplier_id")
+    @JoinColumn(name = "coupleId")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private ServiceSupplier serviceSupplier;
+    private Couple couple;
 
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "service_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    @JsonIgnore
-    private Collection<Services> services;
-
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<QuoteDetail> quoteDetails;
+    private Services service;
 
 }

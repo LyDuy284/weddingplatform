@@ -1,15 +1,15 @@
 package com.fu.weddingplatform.custom.customGenerateId;
 
-import lombok.SneakyThrows;
-import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.id.IdentifierGenerator;
-
 import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.id.IdentifierGenerator;
+
+import lombok.SneakyThrows;
 
 public class BlogPostIdGenerator implements IdentifierGenerator {
 

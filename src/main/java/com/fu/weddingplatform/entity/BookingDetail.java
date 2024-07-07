@@ -1,14 +1,26 @@
 package com.fu.weddingplatform.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
-import java.util.Collection;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @AllArgsConstructor
@@ -17,12 +29,12 @@ import java.util.Collection;
 @Setter
 @ToString
 @Builder
-@Table(name = "cart")
-public class Cart {
+@Table(name = "booking_detail")
+public class BookingDetail {
 
     @Id
-    @GeneratedValue(generator = "cart-id")
-    @GenericGenerator(name = "cart-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.CartIdGenerator")
+    @GeneratedValue(generator = "booking-detail-id")
+    @GenericGenerator(name = "booking-detail-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingDetailIdGenerator")
     private String id;
     private float price;
     private String status;
@@ -42,13 +54,5 @@ public class Cart {
     @EqualsAndHashCode.Include
     @ToString.Include
     private Services service;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "packageComboId")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private PackageCombo packageCombo;
 
 }

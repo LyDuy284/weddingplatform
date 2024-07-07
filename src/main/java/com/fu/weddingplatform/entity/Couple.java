@@ -28,7 +28,6 @@ public class Couple {
     private String status;
     private Date weddingDate;
 
-
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
@@ -48,4 +47,29 @@ public class Couple {
     @ToString.Include
     @JsonIgnore
     private Collection<Booking> bookings;
+
+    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Quotation> quotations;
+
+    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Rating> ratings;
+
+    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Payment> payments;
+
+    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Comment> comments;
+
 }
