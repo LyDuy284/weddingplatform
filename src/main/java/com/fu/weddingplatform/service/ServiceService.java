@@ -14,11 +14,12 @@ public interface ServiceService {
 
     public ServiceResponse getServiceById(String id);
 
-    public List<ServiceResponse> getAllServices();
+    public List<ServiceResponse> getAllServices(int pageNo, int pageSize, String sortBy, boolean isAscending);
 
-    public List<ServiceResponse> getAllActivateServices();
+    public List<ServiceResponse> getAllActivateServices(int pageNo, int pageSize, String sortBy, boolean isAscending);
 
-    public List<ServiceResponse> getAllServicesBySupplier(String supplierId);
+    public List<ServiceResponse> getAllServicesBySupplier(String supplierId, int pageNo, int pageSize, String sortBy,
+            boolean isAscending);
 
     public ServiceResponse updateServiceStatus(String supplierId, String status);
 

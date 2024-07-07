@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
 @RestController
 @RequestMapping("couple")
 @CrossOrigin("*")
@@ -28,11 +27,11 @@ public class CoupleController {
 
     @GetMapping("getAllCoupleByAdmin")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-    public ResponseEntity<?> getAllCouple(@RequestParam(defaultValue = "0") int pageSize,
-                                          @RequestParam(defaultValue = "10") int size,
-                                          @RequestParam(defaultValue = "id") String sortBy,
-                                          @RequestParam(defaultValue = "true") boolean isAscending){
-        List<CoupleResponse> coupleList = coupleService.getAllCouple(pageSize, size, sortBy, isAscending);
+    public ResponseEntity<?> getAllCouple(@RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "true") boolean isAscending) {
+        List<CoupleResponse> coupleList = coupleService.getAllCouple(pageNo, pageSize, sortBy, isAscending);
         ListResponseDTO<CoupleResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(CoupleSuccessMessage.GET_ALL_COUPLE);
@@ -42,7 +41,7 @@ public class CoupleController {
 
     @GetMapping("getCouple/{coupleId}")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-    public ResponseEntity<?> getCoupleById(@PathVariable String coupleId){
+    public ResponseEntity<?> getCoupleById(@PathVariable String coupleId) {
         CoupleResponse coupleResponse = coupleService.getCoupleById(coupleId);
         ResponseDTO<CoupleResponse> responseDTO = new ResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
@@ -53,7 +52,7 @@ public class CoupleController {
 
     @DeleteMapping("deleteCouple/{coupleId}")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-    public ResponseEntity<?> deleteCouple(@PathVariable String coupleId){
+    public ResponseEntity<?> deleteCouple(@PathVariable String coupleId) {
         coupleService.deleteCouple(coupleId);
         ResponseDTO<CoupleResponse> responseDTO = new ResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);

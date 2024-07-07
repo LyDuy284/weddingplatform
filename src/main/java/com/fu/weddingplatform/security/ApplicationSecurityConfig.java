@@ -36,14 +36,15 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/auth/login",
                         "/auth/**",
                         "/blog/**",
+                        "/service/**",
+                        "/category/**",
                         "/swagger-resources/**",
                         "/v2/api-docs",
                         "/webjars/**",
                         "/v3/api-docs/**",
                         "/swagger-ui.html/**",
                         "/v3/api-docs/",
-                        "/swagger-ui/**"
-                        )
+                        "/swagger-ui/**")
                 .permitAll()
                 .anyRequest().authenticated();
 

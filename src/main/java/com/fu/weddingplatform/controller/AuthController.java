@@ -34,7 +34,7 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/login")
-  public ResponseEntity<ResponseDTO> login(@Validated @RequestBody LoginDTO login) {
+  public ResponseEntity<?> login(@Validated @RequestBody LoginDTO login) {
     ResponseDTO<LoginResponse> responseDTO = new ResponseDTO<LoginResponse>();
     LoginResponse loginResponseDTO = authService.login(login);
     responseDTO.setData(loginResponseDTO);
@@ -44,8 +44,8 @@ public class AuthController {
   }
 
   @PostMapping("/loginGoogle")
-  public ResponseEntity<ResponseDTO> loginGoogle(@RequestBody String token) {
-    ResponseDTO<LoginResponse> responseDTO = new ResponseDTO();
+  public ResponseEntity<?> loginGoogle(@RequestBody String token) {
+    ResponseDTO<LoginResponse> responseDTO = new ResponseDTO<>();
     LoginResponse loginResponseDTO = authService.loginWithGoogle(token);
     responseDTO.setData(loginResponseDTO);
     responseDTO.setMessage("Login success");
@@ -55,7 +55,7 @@ public class AuthController {
 
   @PostMapping("/registerNewAdminByAdmin")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-  public ResponseEntity<ResponseDTO> registerNewAdmin(@Validated @RequestBody RegisterAdminDTO registerDTO) {
+  public ResponseEntity<?> registerNewAdmin(@Validated @RequestBody RegisterAdminDTO registerDTO) {
     ResponseDTO<AccountResponse> responseDTO = new ResponseDTO<AccountResponse>();
     AccountResponse accountResponse = authService.registerNewAdmin(registerDTO);
     responseDTO.setData(accountResponse);
@@ -65,8 +65,8 @@ public class AuthController {
   }
 
   @PostMapping("/register/couple")
-  public ResponseEntity<ResponseDTO> registerCouple(@Validated @RequestBody RegisterCoupleDTO registerDTO) {
-    ResponseDTO<RegsiterCoupleReponse> responseDTO = new ResponseDTO();
+  public ResponseEntity<?> registerCouple(@Validated @RequestBody RegisterCoupleDTO registerDTO) {
+    ResponseDTO<RegsiterCoupleReponse> responseDTO = new ResponseDTO<>();
     RegsiterCoupleReponse regsiterCoupleReponse = authService.registerCouple(registerDTO);
     responseDTO.setData(regsiterCoupleReponse);
     responseDTO.setMessage(AccountSuccessMessage.CREATE_SUCCESS);
@@ -76,7 +76,7 @@ public class AuthController {
 
   @PostMapping("/register/staff")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-  public ResponseEntity<ResponseDTO> registerStaff(@Validated @RequestBody RegisterStaffDTO registerDTO) {
+  public ResponseEntity<?> registerStaff(@Validated @RequestBody RegisterStaffDTO registerDTO) {
     ResponseDTO<RegsiterStaffReponse> responseDTO = new ResponseDTO<>();
     RegsiterStaffReponse registerStaffResponse = authService.registerStaff(registerDTO);
     responseDTO.setData(registerStaffResponse);
@@ -86,8 +86,8 @@ public class AuthController {
   }
 
   @PostMapping("/register/serviceSupplier")
-  public ResponseEntity<ResponseDTO> registerServiceSupplier(@Validated @RequestBody RegisterServiceSupplierDTO registerDTO) {
-    ResponseDTO<RegsiterServiceSupplierReponse> responseDTO = new ResponseDTO();
+  public ResponseEntity<?> registerServiceSupplier(@Validated @RequestBody RegisterServiceSupplierDTO registerDTO) {
+    ResponseDTO<RegsiterServiceSupplierReponse> responseDTO = new ResponseDTO<>();
     RegsiterServiceSupplierReponse registerServiceSupplier = authService.registerServiceSupplier(registerDTO);
     responseDTO.setData(registerServiceSupplier);
     responseDTO.setMessage(AccountSuccessMessage.CREATE_SUCCESS);

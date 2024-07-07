@@ -1,7 +1,17 @@
 package com.fu.weddingplatform.serviceImp;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.category.CategoryErrorMessage;
+import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
 import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
 import com.fu.weddingplatform.entity.Category;
 import com.fu.weddingplatform.entity.ServiceSupplier;
@@ -16,11 +26,8 @@ import com.fu.weddingplatform.response.category.CategoryResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.service.ServiceService;
-import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -34,13 +41,12 @@ public class ServiceServiceImp implements ServiceService {
     @Override
     public ServiceResponse createService(CreateServiceDTO createDTO) {
 
-        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(createDTO.getServiceSupplierId()).orElseThrow(
-                () ->  new ErrorException(SupplierErrorMessage.NOT_FOUND)
-        );
+        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(createDTO.getServiceSupplierId())
+                .orElseThrow(
+                        () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
         Category category = categoryRepository.findById(createDTO.getCategoryId()).orElseThrow(
-                () -> new ErrorException(CategoryErrorMessage.NOT_FOUND)
-        );
+                () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
 
         Services service = Services.builder()
                 .name(createDTO.getName())
@@ -55,7 +61,8 @@ public class ServiceServiceImp implements ServiceService {
 
         ServiceResponse response = modelMapper.map(serviceSaved, ServiceResponse.class);
         CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
-        ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(serviceSupplier, ServiceSupplierResponse.class);
+        ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(serviceSupplier,
+                ServiceSupplierResponse.class);
         response.setCategoryResponse(categoryResponse);
         response.setServiceSupplierResponse(serviceSupplierResponse);
         return response;
@@ -68,21 +75,82 @@ public class ServiceServiceImp implements ServiceService {
 
     @Override
     public ServiceResponse getServiceById(String id) {
-        return null;
+        Services service = serviceRepository.findById(id).orElseThrow(
+                () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
+
+        ServiceResponse response = modelMapper.map(service, ServiceResponse.class);
+        CategoryResponse categoryResponse = modelMapper.map(service.getCategory(), CategoryResponse.class);
+        ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(service.getServiceSupplier(),
+                ServiceSupplierResponse.class);
+        response.setCategoryResponse(categoryResponse);
+        response.setServiceSupplierResponse(serviceSupplierResponse);
+
+        return response;
     }
 
     @Override
-    public List<ServiceResponse> getAllServices() {
-        return List.of();
+    public List<ServiceResponse> getAllServices(int pageNo, int pageSize, String sortBy, boolean isAscending) {
+        List<ServiceResponse> response = new ArrayList<ServiceResponse>();
+        Page<Services> servicePages;
+
+        if (isAscending) {
+            servicePages = serviceRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()));
+        } else {
+            servicePages = serviceRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()));
+        }
+
+        if (servicePages.hasContent()) {
+            for (Services service : servicePages) {
+                ServiceResponse serviceResponse = modelMapper.map(service, ServiceResponse.class);
+                CategoryResponse categoryResponse = modelMapper.map(service.getCategory(), CategoryResponse.class);
+                ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(service.getServiceSupplier(),
+                        ServiceSupplierResponse.class);
+                serviceResponse.setCategoryResponse(categoryResponse);
+                serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
+                response.add(serviceResponse);
+            }
+        } else {
+            throw new ErrorException(ServiceErrorMessage.EMPTY);
+        }
+
+        return response;
     }
 
     @Override
-    public List<ServiceResponse> getAllActivateServices() {
-        return List.of();
+    public List<ServiceResponse> getAllActivateServices(int pageNo, int pageSize, String sortBy, boolean isAscending) {
+        List<ServiceResponse> response = new ArrayList<ServiceResponse>();
+        Page<Services> servicePages;
+
+        if (isAscending) {
+            servicePages = serviceRepository
+                    .findByStatus(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()), Status.ACTIVATED);
+        } else {
+            servicePages = serviceRepository.findByStatus(
+                    PageRequest.of(
+                            pageNo, pageSize, Sort.by(sortBy).descending()),
+                    Status.ACTIVATED);
+        }
+
+        if (servicePages.hasContent()) {
+            for (Services service : servicePages) {
+                ServiceResponse serviceResponse = modelMapper.map(service, ServiceResponse.class);
+                CategoryResponse categoryResponse = modelMapper.map(service.getCategory(), CategoryResponse.class);
+                ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(service.getServiceSupplier(),
+                        ServiceSupplierResponse.class);
+                serviceResponse.setCategoryResponse(categoryResponse);
+                serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
+                response.add(serviceResponse);
+            }
+        } else {
+            throw new ErrorException(ServiceErrorMessage.EMPTY);
+        }
+
+        return response;
     }
 
     @Override
-    public List<ServiceResponse> getAllServicesBySupplier(String supplierId) {
+    public List<ServiceResponse> getAllServicesBySupplier(String supplierId, int pageNo, int pageSize, String sortBy,
+            boolean isAscending) {
         return List.of();
     }
 

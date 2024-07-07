@@ -1,27 +1,5 @@
 package com.fu.weddingplatform.serviceImp;
 
-import com.fu.weddingplatform.constant.Status;
-import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
-import com.fu.weddingplatform.constant.blogPost.BlogErrorMessage;
-import com.fu.weddingplatform.entity.BlogPost;
-import com.fu.weddingplatform.entity.ServiceSupplier;
-import com.fu.weddingplatform.exception.EmptyException;
-import com.fu.weddingplatform.exception.ErrorException;
-import com.fu.weddingplatform.repository.BlogPostRepository;
-import com.fu.weddingplatform.repository.ServiceSupplierRepository;
-import com.fu.weddingplatform.repository.StaffRepository;
-import com.fu.weddingplatform.request.BlogPost.CreateBlogDTO;
-import com.fu.weddingplatform.request.BlogPost.UpdateBlogDTO;
-import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
-import com.fu.weddingplatform.service.BlogPostService;
-import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -29,15 +7,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import com.fu.weddingplatform.constant.Status;
+import com.fu.weddingplatform.constant.blogPost.BlogErrorMessage;
+import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
+import com.fu.weddingplatform.entity.BlogPost;
+import com.fu.weddingplatform.entity.ServiceSupplier;
+import com.fu.weddingplatform.exception.EmptyException;
+import com.fu.weddingplatform.exception.ErrorException;
+import com.fu.weddingplatform.repository.BlogPostRepository;
+import com.fu.weddingplatform.repository.ServiceSupplierRepository;
+import com.fu.weddingplatform.request.BlogPost.CreateBlogDTO;
+import com.fu.weddingplatform.request.BlogPost.UpdateBlogDTO;
+import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
+import com.fu.weddingplatform.service.BlogPostService;
+
+import lombok.AllArgsConstructor;
+
 @Service
 @AllArgsConstructor
 public class BlogPostServiceImp implements BlogPostService {
 
     private final BlogPostRepository blogPostRepository;
     private final ModelMapper modelMapper;
-    private final StaffRepository staffRepository;
     private final ServiceSupplierRepository serviceSupplierRepository;
-
 
     @Override
     public List<BlogPostResponse> getAllBlogPosts(int pageNo, int pageSize) {
@@ -45,13 +44,13 @@ public class BlogPostServiceImp implements BlogPostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
 
-        if (!pageResult.hasContent()){
+        if (!pageResult.hasContent()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
         }
 
-        for (BlogPost blogPost : pageResult.getContent()){
+        for (BlogPost blogPost : pageResult.getContent()) {
             BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
-            if (blogPost.getStaff() != null){
+            if (blogPost.getStaff() != null) {
                 blogPostResponse.setStaffId(blogPost.getStaff().getId());
             }
             blogPostResponse.setServiceSupplierId(blogPost.getServiceSupplier().getId());
@@ -73,6 +72,7 @@ public class BlogPostServiceImp implements BlogPostService {
                 .map(blogPost -> modelMapper.map(blogPost, BlogPostResponse.class))
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<BlogPostResponse> getAllActiveBlogPosts(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
@@ -106,9 +106,8 @@ public class BlogPostServiceImp implements BlogPostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
 
         ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
-                () -> new ErrorException(SupplierErrorMessage.NOT_FOUND)
-        );
-            Page<BlogPost> pageResult = blogPostRepository.findByServiceSupplier(serviceSupplier, pageable);
+                () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+        Page<BlogPost> pageResult = blogPostRepository.findByServiceSupplier(serviceSupplier, pageable);
 
         if (pageResult.isEmpty()) {
             throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
@@ -122,18 +121,18 @@ public class BlogPostServiceImp implements BlogPostService {
     @Override
     public BlogPostResponse getBlogPostById(String id) {
         BlogPost blogPost = blogPostRepository.findById(id).orElseThrow(
-                () -> new ErrorException(BlogErrorMessage.EMPTY_MESSAGE)
-        );
-        return new BlogPostResponse(id, blogPost.getTitle(), blogPost.getContent(), blogPost.getDateCreated(), blogPost.getServiceSupplier().getId(), blogPost.getStaff().getId(), blogPost.getStatus());
+                () -> new ErrorException(BlogErrorMessage.EMPTY_MESSAGE));
+        return new BlogPostResponse(id, blogPost.getTitle(), blogPost.getContent(), blogPost.getDateCreated(),
+                blogPost.getServiceSupplier().getId(), blogPost.getStaff().getId(), blogPost.getStatus());
     }
 
     @Override
     public BlogPostResponse createBlogPost(CreateBlogDTO createDTO) {
         BlogPostResponse response;
 
-        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(createDTO.getServiceSupplierId()).orElseThrow(
-                () -> new ErrorException(SupplierErrorMessage.NOT_FOUND)
-        );
+        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(createDTO.getServiceSupplierId())
+                .orElseThrow(
+                        () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
         ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
 
