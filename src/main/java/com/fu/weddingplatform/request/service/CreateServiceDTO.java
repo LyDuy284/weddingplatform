@@ -1,9 +1,16 @@
 package com.fu.weddingplatform.request.service;
 
-import lombok.*;
-
-import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+
+import com.fu.weddingplatform.constant.validation.ValidationMessage;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -12,7 +19,9 @@ import javax.validation.constraints.Min;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateServiceDTO {
+    @NotEmpty(message = "Category ID " + ValidationMessage.NOT_EMPTY)
     private String categoryId;
+    @NotEmpty(message = "Service Supplier ID " + ValidationMessage.NOT_EMPTY)
     private String serviceSupplierId;
     private String name;
     private String description;

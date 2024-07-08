@@ -1,20 +1,29 @@
 package com.fu.weddingplatform.controller;
 
-import com.fu.weddingplatform.constant.blogPost.BlogSuccessMessage;
-import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
-import com.fu.weddingplatform.constant.role.RolePreAuthorize;
-import com.fu.weddingplatform.request.BlogPost.CreateBlogDTO;
-import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
-import com.fu.weddingplatform.response.ListResponseDTO;
-import com.fu.weddingplatform.response.ResponseDTO;
-import com.fu.weddingplatform.service.BlogPostService;
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.fu.weddingplatform.constant.blogPost.BlogPostSuccessMessage;
+import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
+import com.fu.weddingplatform.constant.role.RolePreAuthorize;
+import com.fu.weddingplatform.request.blogPost.CreateBlogDTO;
+import com.fu.weddingplatform.response.ListResponseDTO;
+import com.fu.weddingplatform.response.ResponseDTO;
+import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
+import com.fu.weddingplatform.service.BlogPostService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/blog")
@@ -30,18 +39,18 @@ public class BlogPostController {
         ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO<>();
         List<BlogPostResponse> list = blogPostService.getAllBlogPosts(pageNo, pageSize);
         responseDTO.setData(list);
-        responseDTO.setMessage(BlogSuccessMessage.GET_ALL);
+        responseDTO.setMessage(BlogPostSuccessMessage.GET_ALL);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }
 
     @PostMapping("create")
-    @PreAuthorize(RolePreAuthorize.ROLE_SERVICE_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
     public ResponseEntity<?> createBlogPost(@Validated @RequestBody CreateBlogDTO createBlogDTO) {
         ResponseDTO<BlogPostResponse> responseDTO = new ResponseDTO<>();
         BlogPostResponse data = blogPostService.createBlogPost(createBlogDTO);
         responseDTO.setData(data);
-        responseDTO.setMessage(BlogSuccessMessage.CREATE);
+        responseDTO.setMessage(BlogPostSuccessMessage.CREATE);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }
@@ -52,7 +61,7 @@ public class BlogPostController {
         ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO<>();
         List<BlogPostResponse> list = blogPostService.getAllPendingBlogPosts(pageNo, pageSize);
         responseDTO.setData(list);
-        responseDTO.setMessage(BlogSuccessMessage.GET_ALL_PENDING);
+        responseDTO.setMessage(BlogPostSuccessMessage.GET_ALL_PENDING);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }
@@ -63,7 +72,7 @@ public class BlogPostController {
         ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO<>();
         List<BlogPostResponse> list = blogPostService.getAllActiveBlogPosts(pageNo, pageSize);
         responseDTO.setData(list);
-        responseDTO.setMessage(BlogSuccessMessage.GET_ALL_ACTIVE);
+        responseDTO.setMessage(BlogPostSuccessMessage.GET_ALL_ACTIVE);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }
@@ -74,7 +83,7 @@ public class BlogPostController {
         ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO<>();
         List<BlogPostResponse> list = blogPostService.getAllRejectedBlogPosts(pageNo, pageSize);
         responseDTO.setData(list);
-        responseDTO.setMessage(BlogSuccessMessage.GET_ALL_REJECTED);
+        responseDTO.setMessage(BlogPostSuccessMessage.GET_ALL_REJECTED);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }
@@ -86,7 +95,7 @@ public class BlogPostController {
         List<BlogPostResponse> list = blogPostService.getAllBlogPostsByServiceSupplier(serviceSupplierId, pageNo,
                 pageSize);
         responseDTO.setData(list);
-        responseDTO.setMessage(BlogSuccessMessage.GET_ALL_BY_SERVICE_SUPPLIER);
+        responseDTO.setMessage(BlogPostSuccessMessage.GET_ALL_BY_SERVICE_SUPPLIER);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }
@@ -96,7 +105,7 @@ public class BlogPostController {
         ResponseDTO<BlogPostResponse> responseDTO = new ResponseDTO<>();
         BlogPostResponse blogPostResponse = blogPostService.getBlogPostById(id);
         responseDTO.setData(blogPostResponse);
-        responseDTO.setMessage(BlogSuccessMessage.GET_BY_ID);
+        responseDTO.setMessage(BlogPostSuccessMessage.GET_BY_ID);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }

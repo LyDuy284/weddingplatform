@@ -40,6 +40,7 @@ public class Comment {
   @GeneratedValue(generator = "comment-id")
   @GenericGenerator(name = "comment-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.CommentIdGenerator")
   private String id;
+  private String createdAt;
   @Column(columnDefinition = "text")
   private String content;
   private String status;
@@ -60,10 +61,18 @@ public class Comment {
   @ToString.Include
   private Couple couple;
 
-  @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @Fetch(FetchMode.JOIN)
+  @JoinColumn(name = "parent_id")
+  @EqualsAndHashCode.Include
+  @ToString.Include
+  private Comment parent;
+
+  @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
   @EqualsAndHashCode.Include
   @ToString.Include
   @JsonIgnore
-  private Collection<ReplyComment> replyComments;
+  private Collection<Comment> replyComments;
 
 }

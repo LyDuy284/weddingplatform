@@ -24,7 +24,8 @@ public class AccountController {
 
     @GetMapping("getAllAccountByAdmin")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-    public ResponseEntity<?> getAllAccountByAdmin(@RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "10") int pageSize){
+    public ResponseEntity<?> getAllAccountByAdmin(@RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
         ListResponseDTO<AccountResponse> responseDTO = new ListResponseDTO<>();
         List<AccountResponse> list = accountService.getAllUsersByAdmin(pageNo, pageSize);
         responseDTO.setData(list);
@@ -35,7 +36,8 @@ public class AccountController {
 
     @GetMapping("getAllActivateUsersByAdmin")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-    public ResponseEntity<?> getAllActivateUsersByAdmin(@RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "10") int pageSize){
+    public ResponseEntity<?> getAllActivateUsersByAdmin(@RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize) {
         ListResponseDTO<AccountResponse> responseDTO = new ListResponseDTO<>();
         List<AccountResponse> list = accountService.getAllActivateUsersByAdmin(pageNo, pageSize);
         responseDTO.setData(list);
@@ -46,7 +48,8 @@ public class AccountController {
 
     @GetMapping("getAllAccountByRole")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-    public ResponseEntity<?> getAllAccountByRole(@RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "10") int pageSize, @RequestParam String role){
+    public ResponseEntity<?> getAllAccountByRole(@RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize, @RequestParam String role) {
         ListResponseDTO<AccountResponse> responseDTO = new ListResponseDTO<>();
         List<AccountResponse> list = accountService.getAllAccountByRole(pageNo, pageSize, role);
         responseDTO.setData(list);
@@ -55,9 +58,9 @@ public class AccountController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @PostMapping("disableAccountByAdmin")
+    @DeleteMapping("disableAccountByAdmin/{id}")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-    public ResponseEntity<?> disableAccountByAdmin(@RequestParam int id){
+    public ResponseEntity<?> disableAccountByAdmin(@RequestParam int id) {
         ResponseDTO<AccountResponse> responseDTO = new ResponseDTO<>();
         AccountResponse data = accountService.updateAccountStatus(id, Status.DISABLED);
         responseDTO.setData(data);
@@ -66,9 +69,9 @@ public class AccountController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @PostMapping("activateAccountByAdmin")
+    @PutMapping("activateAccountByAdmin/{id}")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
-    public ResponseEntity<?> activateAccountByAdmin(@RequestParam int id){
+    public ResponseEntity<?> activateAccountByAdmin(@RequestParam int id) {
         ResponseDTO<AccountResponse> responseDTO = new ResponseDTO<>();
         AccountResponse data = accountService.updateAccountStatus(id, Status.ACTIVATED);
         responseDTO.setData(data);

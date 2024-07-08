@@ -5,7 +5,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -15,18 +14,21 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
-import com.fu.weddingplatform.constant.blogPost.BlogErrorMessage;
+import com.fu.weddingplatform.constant.blogPost.BlogPostErrorMessage;
 import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
 import com.fu.weddingplatform.entity.BlogPost;
+import com.fu.weddingplatform.entity.Comment;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BlogPostRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
-import com.fu.weddingplatform.request.BlogPost.CreateBlogDTO;
-import com.fu.weddingplatform.request.BlogPost.UpdateBlogDTO;
+import com.fu.weddingplatform.request.blogPost.CreateBlogDTO;
+import com.fu.weddingplatform.request.blogPost.UpdateBlogDTO;
 import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
+import com.fu.weddingplatform.response.comment.CommentResponse;
 import com.fu.weddingplatform.service.BlogPostService;
+import com.fu.weddingplatform.service.CommentService;
 
 import lombok.AllArgsConstructor;
 
@@ -37,6 +39,7 @@ public class BlogPostServiceImp implements BlogPostService {
     private final BlogPostRepository blogPostRepository;
     private final ModelMapper modelMapper;
     private final ServiceSupplierRepository serviceSupplierRepository;
+    private final CommentService commentService;
 
     @Override
     public List<BlogPostResponse> getAllBlogPosts(int pageNo, int pageSize) {
@@ -45,7 +48,7 @@ public class BlogPostServiceImp implements BlogPostService {
         Page<BlogPost> pageResult = blogPostRepository.findAll(pageable);
 
         if (!pageResult.hasContent()) {
-            throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
+            throw new EmptyException(BlogPostErrorMessage.EMPTY_MESSAGE);
         }
 
         for (BlogPost blogPost : pageResult.getContent()) {
@@ -54,6 +57,27 @@ public class BlogPostServiceImp implements BlogPostService {
                 blogPostResponse.setStaffId(blogPost.getStaff().getId());
             }
             blogPostResponse.setServiceSupplierId(blogPost.getServiceSupplier().getId());
+
+            if (blogPost.getStaff() != null) {
+                blogPostResponse.setStaffId(blogPost.getServiceSupplier().getId());
+            }
+
+            List<String> listImages = new ArrayList<String>();
+            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+                String[] imageArray = blogPost.getImages().split("\n,");
+                for (String image : imageArray) {
+                    listImages.add(image.trim());
+                }
+            }
+            blogPostResponse.setListImages(listImages);
+
+            List<CommentResponse> listComments = new ArrayList<CommentResponse>();
+            for (Comment comment : blogPost.getComments()) {
+                CommentResponse commentResponse = commentService.getCommentById(comment.getId());
+                listComments.add(commentResponse);
+            }
+            blogPostResponse.setListComments(listComments);
+            blogPostResponse.setCreateAt(blogPost.getDateCreated());
             response.add(blogPostResponse);
         }
         return response;
@@ -64,13 +88,41 @@ public class BlogPostServiceImp implements BlogPostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findByStatus(Status.PENDING, pageable);
 
-        if (pageResult.isEmpty()) {
-            throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
+        List<BlogPostResponse> response = new ArrayList<>();
+        if (!pageResult.hasContent()) {
+            throw new EmptyException(BlogPostErrorMessage.EMPTY_MESSAGE);
         }
 
-        return pageResult.stream()
-                .map(blogPost -> modelMapper.map(blogPost, BlogPostResponse.class))
-                .collect(Collectors.toList());
+        for (BlogPost blogPost : pageResult.getContent()) {
+            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
+            if (blogPost.getStaff() != null) {
+                blogPostResponse.setStaffId(blogPost.getStaff().getId());
+            }
+            blogPostResponse.setServiceSupplierId(blogPost.getServiceSupplier().getId());
+
+            if (blogPost.getStaff() != null) {
+                blogPostResponse.setStaffId(blogPost.getServiceSupplier().getId());
+            }
+
+            List<String> listImages = new ArrayList<String>();
+            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+                String[] imageArray = blogPost.getImages().split("\n,");
+                for (String image : imageArray) {
+                    listImages.add(image.trim());
+                }
+            }
+            blogPostResponse.setListImages(listImages);
+
+            List<CommentResponse> listComments = new ArrayList<CommentResponse>();
+            for (Comment comment : blogPost.getComments()) {
+                CommentResponse commentResponse = commentService.getCommentById(comment.getId());
+                listComments.add(commentResponse);
+            }
+            blogPostResponse.setCreateAt(blogPost.getDateCreated());
+            blogPostResponse.setListComments(listComments);
+            response.add(blogPostResponse);
+        }
+        return response;
     }
 
     @Override
@@ -78,13 +130,41 @@ public class BlogPostServiceImp implements BlogPostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findByStatus(Status.ACTIVATED, pageable);
 
-        if (pageResult.isEmpty()) {
-            throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
+        List<BlogPostResponse> response = new ArrayList<>();
+        if (!pageResult.hasContent()) {
+            throw new EmptyException(BlogPostErrorMessage.EMPTY_MESSAGE);
         }
 
-        return pageResult.stream()
-                .map(blogPost -> modelMapper.map(blogPost, BlogPostResponse.class))
-                .collect(Collectors.toList());
+        for (BlogPost blogPost : pageResult.getContent()) {
+            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
+            if (blogPost.getStaff() != null) {
+                blogPostResponse.setStaffId(blogPost.getStaff().getId());
+            }
+            blogPostResponse.setServiceSupplierId(blogPost.getServiceSupplier().getId());
+
+            if (blogPost.getStaff() != null) {
+                blogPostResponse.setStaffId(blogPost.getServiceSupplier().getId());
+            }
+
+            List<String> listImages = new ArrayList<String>();
+            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+                String[] imageArray = blogPost.getImages().split("\n,");
+                for (String image : imageArray) {
+                    listImages.add(image.trim());
+                }
+            }
+            blogPostResponse.setListImages(listImages);
+
+            List<CommentResponse> listComments = new ArrayList<CommentResponse>();
+            for (Comment comment : blogPost.getComments()) {
+                CommentResponse commentResponse = commentService.getCommentById(comment.getId());
+                listComments.add(commentResponse);
+            }
+            blogPostResponse.setCreateAt(blogPost.getDateCreated());
+            blogPostResponse.setListComments(listComments);
+            response.add(blogPostResponse);
+        }
+        return response;
     }
 
     @Override
@@ -92,13 +172,41 @@ public class BlogPostServiceImp implements BlogPostService {
         Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "id"));
         Page<BlogPost> pageResult = blogPostRepository.findByStatus(Status.REJECTED, pageable);
 
-        if (pageResult.isEmpty()) {
-            throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
+        List<BlogPostResponse> response = new ArrayList<>();
+        if (!pageResult.hasContent()) {
+            throw new EmptyException(BlogPostErrorMessage.EMPTY_MESSAGE);
         }
 
-        return pageResult.stream()
-                .map(blogPost -> modelMapper.map(blogPost, BlogPostResponse.class))
-                .collect(Collectors.toList());
+        for (BlogPost blogPost : pageResult.getContent()) {
+            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
+            if (blogPost.getStaff() != null) {
+                blogPostResponse.setStaffId(blogPost.getStaff().getId());
+            }
+            blogPostResponse.setServiceSupplierId(blogPost.getServiceSupplier().getId());
+
+            if (blogPost.getStaff() != null) {
+                blogPostResponse.setStaffId(blogPost.getServiceSupplier().getId());
+            }
+
+            List<String> listImages = new ArrayList<String>();
+            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+                String[] imageArray = blogPost.getImages().split("\n,");
+                for (String image : imageArray) {
+                    listImages.add(image.trim());
+                }
+            }
+            blogPostResponse.setListImages(listImages);
+
+            List<CommentResponse> listComments = new ArrayList<CommentResponse>();
+            for (Comment comment : blogPost.getComments()) {
+                CommentResponse commentResponse = commentService.getCommentById(comment.getId());
+                listComments.add(commentResponse);
+            }
+            blogPostResponse.setCreateAt(blogPost.getDateCreated());
+            blogPostResponse.setListComments(listComments);
+            response.add(blogPostResponse);
+        }
+        return response;
     }
 
     @Override
@@ -109,26 +217,79 @@ public class BlogPostServiceImp implements BlogPostService {
                 () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
         Page<BlogPost> pageResult = blogPostRepository.findByServiceSupplier(serviceSupplier, pageable);
 
-        if (pageResult.isEmpty()) {
-            throw new EmptyException(BlogErrorMessage.EMPTY_MESSAGE);
+        List<BlogPostResponse> response = new ArrayList<>();
+        if (!pageResult.hasContent()) {
+            throw new EmptyException(BlogPostErrorMessage.EMPTY_MESSAGE);
         }
 
-        return pageResult.stream()
-                .map(blogPost -> modelMapper.map(blogPost, BlogPostResponse.class))
-                .collect(Collectors.toList());
+        for (BlogPost blogPost : pageResult.getContent()) {
+            BlogPostResponse blogPostResponse = modelMapper.map(blogPost, BlogPostResponse.class);
+            if (blogPost.getStaff() != null) {
+                blogPostResponse.setStaffId(blogPost.getStaff().getId());
+            }
+            blogPostResponse.setServiceSupplierId(blogPost.getServiceSupplier().getId());
+
+            if (blogPost.getStaff() != null) {
+                blogPostResponse.setStaffId(blogPost.getServiceSupplier().getId());
+            }
+
+            List<String> listImages = new ArrayList<String>();
+            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+                String[] imageArray = blogPost.getImages().split("\n,");
+                for (String image : imageArray) {
+                    listImages.add(image.trim());
+                }
+            }
+            blogPostResponse.setListImages(listImages);
+
+            List<CommentResponse> listComments = new ArrayList<CommentResponse>();
+            for (Comment comment : blogPost.getComments()) {
+                CommentResponse commentResponse = commentService.getCommentById(comment.getId());
+                listComments.add(commentResponse);
+            }
+            blogPostResponse.setCreateAt(blogPost.getDateCreated());
+            blogPostResponse.setListComments(listComments);
+            response.add(blogPostResponse);
+        }
+        return response;
     }
 
     @Override
     public BlogPostResponse getBlogPostById(String id) {
         BlogPost blogPost = blogPostRepository.findById(id).orElseThrow(
-                () -> new ErrorException(BlogErrorMessage.EMPTY_MESSAGE));
-        return new BlogPostResponse(id, blogPost.getTitle(), blogPost.getContent(), blogPost.getDateCreated(),
-                blogPost.getServiceSupplier().getId(), blogPost.getStaff().getId(), blogPost.getStatus());
+                () -> new ErrorException(BlogPostErrorMessage.NOT_FOUND));
+
+        BlogPostResponse response;
+        response = modelMapper.map(blogPost, BlogPostResponse.class);
+        response.setServiceSupplierId(blogPost.getServiceSupplier().getId());
+
+        if (blogPost.getStaff() != null) {
+            response.setStaffId(blogPost.getServiceSupplier().getId());
+        }
+
+        List<String> listImages = new ArrayList<String>();
+        if (blogPost.getImages() != null || blogPost.getImages() != "") {
+            String[] imageArray = blogPost.getImages().split("\n,");
+            for (String image : imageArray) {
+                listImages.add(image.trim());
+            }
+        }
+        response.setListImages(listImages);
+
+        List<CommentResponse> listComments = new ArrayList<CommentResponse>();
+        for (Comment comment : blogPost.getComments()) {
+            CommentResponse commentResponse = commentService.getCommentById(comment.getId());
+            listComments.add(commentResponse);
+        }
+        response.setCreateAt(blogPost.getDateCreated());
+        response.setListComments(listComments);
+
+        return response;
     }
 
     @Override
     public BlogPostResponse createBlogPost(CreateBlogDTO createDTO) {
-        BlogPostResponse response;
+        BlogPostResponse response = new BlogPostResponse();
 
         ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(createDTO.getServiceSupplierId())
                 .orElseThrow(
@@ -143,6 +304,7 @@ public class BlogPostServiceImp implements BlogPostService {
                 .title(createDTO.getTitle())
                 .content(createDTO.getContent())
                 .dateCreated(localDateTime.format(dateTimeFormatter))
+                .images(createDTO.getImages())
                 .status(Status.PENDING)
                 .serviceSupplier(serviceSupplier)
                 .build();
@@ -150,6 +312,17 @@ public class BlogPostServiceImp implements BlogPostService {
         BlogPost newBlog = blogPostRepository.save(blog);
 
         response = modelMapper.map(newBlog, BlogPostResponse.class);
+
+        List<String> listImages = new ArrayList<String>();
+        if (newBlog.getImages() != null || newBlog.getImages() != "") {
+            String[] imageArray = newBlog.getImages().split("\n,");
+            for (String image : imageArray) {
+                listImages.add(image.trim());
+            }
+        }
+        response.setListImages(listImages);
+        response.setListComments(new ArrayList<>());
+        response.setCreateAt(newBlog.getDateCreated());
         response.setServiceSupplierId(serviceSupplier.getId());
         return response;
     }

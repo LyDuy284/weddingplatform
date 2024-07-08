@@ -36,6 +36,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests().antMatchers("/auth/login",
                         "/auth/**",
                         "/blog/**",
+                        "/comment/**",
                         "/service/**",
                         "/category/**",
                         "/swagger-resources/**",

@@ -1,4 +1,8 @@
-package com.fu.weddingplatform.request.BlogPost;
+package com.fu.weddingplatform.request.blogPost;
+
+import javax.validation.constraints.NotEmpty;
+
+import com.fu.weddingplatform.constant.validation.ValidationMessage;
 
 import lombok.*;
 
@@ -11,5 +15,7 @@ import lombok.*;
 public class CreateBlogDTO {
     private String title;
     private String content;
+    private String images;
+    @NotEmpty(message = "Service Supplier ID " + ValidationMessage.NOT_EMPTY)
     private String serviceSupplierId;
 }

@@ -44,6 +44,7 @@ public class Promotion {
     private String id;
     @Column(columnDefinition = "text")
     private String promotionDetails;
+    private int percent;
     private Date startDate;
     private Date endDate;
     private String status;

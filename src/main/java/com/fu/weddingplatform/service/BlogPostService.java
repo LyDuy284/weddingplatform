@@ -1,7 +1,7 @@
 package com.fu.weddingplatform.service;
 
-import com.fu.weddingplatform.request.BlogPost.CreateBlogDTO;
-import com.fu.weddingplatform.request.BlogPost.UpdateBlogDTO;
+import com.fu.weddingplatform.request.blogPost.CreateBlogDTO;
+import com.fu.weddingplatform.request.blogPost.UpdateBlogDTO;
 import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
 
 import java.util.List;

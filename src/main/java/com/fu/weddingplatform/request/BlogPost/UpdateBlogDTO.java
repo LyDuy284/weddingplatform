@@ -1,4 +1,4 @@
-package com.fu.weddingplatform.request.BlogPost;
+package com.fu.weddingplatform.request.blogPost;
 
 public class UpdateBlogDTO {
 }
