@@ -23,7 +23,7 @@ public class SentEmailServiceImp implements SentEmailService {
     mimeMessageHelper.setTo(email);
     mimeMessageHelper.setSubject(title);
     mimeMessageHelper.setText(content);
-    mimeMessageHelper.setFrom(String.format("\"%s\" <%s>", "WeddingPlatform", "weddingplatform176@gmail.com"));
+    mimeMessageHelper.setFrom(String.format("\"%s\" <%s>", "Wedding-Platform", "weddingplatform176@gmail.com"));
     javaMailSender.send(mimeMessage);
   }
 

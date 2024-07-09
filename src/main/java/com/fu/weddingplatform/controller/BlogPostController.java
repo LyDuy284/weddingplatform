@@ -18,6 +18,7 @@ import com.fu.weddingplatform.constant.blogPost.BlogPostSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.request.blogPost.CreateBlogDTO;
+import com.fu.weddingplatform.request.blogPost.UpdateBlogDTO;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
@@ -51,6 +52,17 @@ public class BlogPostController {
         BlogPostResponse data = blogPostService.createBlogPost(createBlogDTO);
         responseDTO.setData(data);
         responseDTO.setMessage(BlogPostSuccessMessage.CREATE);
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @PostMapping("update/{id}")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+    public ResponseEntity<?> updateBlogPost(@Validated @RequestBody UpdateBlogDTO updateDTO) {
+        ResponseDTO<BlogPostResponse> responseDTO = new ResponseDTO<>();
+        BlogPostResponse data = blogPostService.updateBlogPost(updateDTO);
+        responseDTO.setData(data);
+        responseDTO.setMessage(BlogPostSuccessMessage.UPDATE);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }

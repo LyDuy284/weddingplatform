@@ -27,6 +27,6 @@ public interface BlogPostService {
 
     public BlogPostResponse rejectBlogPost(String id, String staffId);
 
-    public BlogPostResponse deleteBlogPost(String id);
+    public boolean deleteBlogPost(String id);
 
 }
