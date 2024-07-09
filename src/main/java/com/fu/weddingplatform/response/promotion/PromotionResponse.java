@@ -1,6 +1,7 @@
-package com.fu.weddingplatform.request.promotion;
+package com.fu.weddingplatform.response.promotion;
 
 import java.sql.Date;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,10 +16,13 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class CreatePromotion {
+public class PromotionResponse {
+  private String id;
   private String promotionDetails;
   private int percent;
   private Date startDate;
   private Date endDate;
   private String status;
+  private List<String> services;
+  private String serviceSupplierId;
 }

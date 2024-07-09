@@ -5,5 +5,7 @@ public final class ValidationMessage {
     public static final String EMAIL_INVALID_MESSAGE = "Ensure your email address is in a valid format (e.g., name@example.com).";
     public static final String PHONE_NUMBER_NOT_NULL = "Phone number cannot be null.";
     public static final String NOT_EMPTY = "  cannot be empty.";
+    public static final String INVALID_DATE = "Date is invalid.";
+    public static final String START_DATE_AFTER_END_DATE = "Start Date cannot be after End Date.";
 
 }

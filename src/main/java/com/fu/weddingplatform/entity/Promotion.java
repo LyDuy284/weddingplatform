@@ -61,7 +61,7 @@ public class Promotion {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<Services> services;
+    private Collection<PromotionServiceEntity> promotionServices;
 
     @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include

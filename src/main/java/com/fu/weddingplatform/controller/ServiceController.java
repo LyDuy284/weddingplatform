@@ -24,12 +24,9 @@ import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.service.ServiceService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("service")
 @CrossOrigin("*")
-@RequiredArgsConstructor
 public class ServiceController {
     @Autowired
     ServiceService service;

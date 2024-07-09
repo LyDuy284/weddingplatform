@@ -37,6 +37,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/auth/**",
                         "/blog/**",
                         "/comment/**",
+                        "/promotion/**",
                         "/service/**",
                         "/category/**",
                         "/swagger-resources/**",
