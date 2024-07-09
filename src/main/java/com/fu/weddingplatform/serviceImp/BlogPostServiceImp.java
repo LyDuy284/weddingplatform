@@ -16,13 +16,16 @@ import org.springframework.stereotype.Service;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.blogPost.BlogPostErrorMessage;
 import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
+import com.fu.weddingplatform.constant.staff.StaffErrorMessage;
 import com.fu.weddingplatform.entity.BlogPost;
 import com.fu.weddingplatform.entity.Comment;
 import com.fu.weddingplatform.entity.ServiceSupplier;
+import com.fu.weddingplatform.entity.Staff;
 import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BlogPostRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
+import com.fu.weddingplatform.repository.StaffRepository;
 import com.fu.weddingplatform.request.blogPost.CreateBlogDTO;
 import com.fu.weddingplatform.request.blogPost.UpdateBlogDTO;
 import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
@@ -39,6 +42,7 @@ public class BlogPostServiceImp implements BlogPostService {
     private final BlogPostRepository blogPostRepository;
     private final ModelMapper modelMapper;
     private final ServiceSupplierRepository serviceSupplierRepository;
+    private final StaffRepository staffRepository;
     private final CommentService commentService;
 
     @Override
@@ -334,6 +338,34 @@ public class BlogPostServiceImp implements BlogPostService {
 
     @Override
     public BlogPostResponse approveBlogPost(String id, String staffId) {
+
+        BlogPost blogPost = blogPostRepository.findById(id).orElseThrow(
+                () -> new ErrorException(BlogPostErrorMessage.NOT_FOUND));
+
+        Staff staff = staffRepository.findById(staffId).orElseThrow(
+                () -> new ErrorException(StaffErrorMessage.NOT_FOUND));
+
+        BlogPostResponse response = new BlogPostResponse();
+
+        blogPost.setStatus(Status.APPROVED);
+
+        BlogPost blogPostSaved = blogPostRepository.save(blogPost);
+
+        response = modelMapper.map(blogPostSaved, BlogPostResponse.class);
+
+        List<String> listImages = new ArrayList<String>();
+        if (blogPostSaved.getImages() != null || blogPostSaved.getImages() != "") {
+            String[] imageArray = blogPostSaved.getImages().split("\n,");
+            for (String image : imageArray) {
+                listImages.add(image.trim());
+            }
+        }
+        response.setListImages(listImages);
+        response.setListComments(new ArrayList<>());
+        response.setCreateAt(blogPostSaved.getDateCreated());
+        response.setServiceSupplierId(blogPost.getServiceSupplier().getId());
+        response.setStaffId(staffId);
+
         return null;
     }
 

@@ -17,14 +17,24 @@ import com.fu.weddingplatform.entity.ServiceSupplier;
 @Transactional
 public interface PromotionRepository extends JpaRepository<Promotion, String> {
 
-  public Page<Promotion> findByServiceSupplier(ServiceSupplier serviceSupplier, PageRequest pageRequest);
+  public Page<Promotion> findByServiceSupplierAndStatus(ServiceSupplier serviceSupplier, String status,
+      PageRequest pageRequest);
 
   @Query(nativeQuery = true, value = "SELECT p.*\n" +
       " FROM promotion p \n" +
       " JOIN promotion_service ps ON p.id = ps.promotion_id \n" +
       " JOIN service s ON ps.service_id = s.id \n" +
       " WHERE s.id = ?1 and (?2 BETWEEN p.start_date AND p.end_date) \n" +
+      "AND p.status = 'ACTIVATED' \n" +
       " limit ?4 offset ?3")
   public List<Promotion> findByService(String serviceId, String currentDate, int pageNo, int pageSize);
+
+  @Query(nativeQuery = true, value = "SELECT p.*\n" +
+      " FROM promotion p \n" +
+      " JOIN promotion_service ps ON p.id = ps.promotion_id \n" +
+      " JOIN service s ON ps.service_id = s.id \n" +
+      " WHERE s.id = ?1 and (?2 BETWEEN p.start_date AND p.end_date) \n" +
+      "AND p.status = 'ACTIVATED' \n")
+  public List<Promotion> findByService(String serviceId, String currentDate);
 
 }

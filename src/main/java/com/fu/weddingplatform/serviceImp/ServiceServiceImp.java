@@ -13,6 +13,7 @@ import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.category.CategoryErrorMessage;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
 import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
+import com.fu.weddingplatform.constant.validation.ValidationMessage;
 import com.fu.weddingplatform.entity.Category;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Services;
@@ -23,8 +24,11 @@ import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.request.service.CreateServiceDTO;
 import com.fu.weddingplatform.request.service.UpdateServiceDTO;
 import com.fu.weddingplatform.response.category.CategoryResponse;
+import com.fu.weddingplatform.response.promotion.PromotionByServiceResponse;
+import com.fu.weddingplatform.response.service.ServiceBySupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
+import com.fu.weddingplatform.service.PromotionService;
 import com.fu.weddingplatform.service.ServiceService;
 
 import lombok.RequiredArgsConstructor;
@@ -37,6 +41,7 @@ public class ServiceServiceImp implements ServiceService {
     private final ServiceSupplierRepository serviceSupplierRepository;
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
+    private final PromotionService promotionService;
 
     @Override
     public ServiceResponse createService(CreateServiceDTO createDTO) {
@@ -47,6 +52,10 @@ public class ServiceServiceImp implements ServiceService {
 
         Category category = categoryRepository.findById(createDTO.getCategoryId()).orElseThrow(
                 () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
+
+        if (createDTO.getPrice() <= 0) {
+            throw new ErrorException("Price" + ValidationMessage.GREATER_THAN_ZERO);
+        }
 
         Services service = Services.builder()
                 .name(createDTO.getName())
@@ -65,12 +74,40 @@ public class ServiceServiceImp implements ServiceService {
                 ServiceSupplierResponse.class);
         response.setCategoryResponse(categoryResponse);
         response.setServiceSupplierResponse(serviceSupplierResponse);
+
         return response;
     }
 
     @Override
     public ServiceResponse updateService(UpdateServiceDTO updateDTO) {
-        return null;
+
+        Services service = serviceRepository.findById(updateDTO.getId()).orElseThrow(
+                () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
+
+        Category category = categoryRepository.findById(updateDTO.getCategoryId()).orElseThrow(
+                () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
+
+        if (updateDTO.getPrice() <= 0) {
+            throw new ErrorException("Price" + ValidationMessage.GREATER_THAN_ZERO);
+        }
+        service.setName(updateDTO.getName());
+        service.setDescription(updateDTO.getDescription());
+        service.setPrice(updateDTO.getPrice());
+        service.setImages(updateDTO.getImages());
+        service.setCategory(category);
+
+        serviceRepository.save(service);
+
+        ServiceResponse response = modelMapper.map(service, ServiceResponse.class);
+        CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
+        ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
+                service.getServiceSupplier(),
+                ServiceSupplierResponse.class);
+        response.setCategoryResponse(categoryResponse);
+        response.setServiceSupplierResponse(serviceSupplierResponse);
+        List<PromotionByServiceResponse> promotions = promotionService.getAllPromotionByService(updateDTO.getId());
+        response.setPromotions(promotions);
+        return response;
     }
 
     @Override
@@ -84,7 +121,8 @@ public class ServiceServiceImp implements ServiceService {
                 ServiceSupplierResponse.class);
         response.setCategoryResponse(categoryResponse);
         response.setServiceSupplierResponse(serviceSupplierResponse);
-
+        List<PromotionByServiceResponse> promotions = promotionService.getAllPromotionByService(id);
+        response.setPromotions(promotions);
         return response;
     }
 
@@ -107,6 +145,9 @@ public class ServiceServiceImp implements ServiceService {
                         ServiceSupplierResponse.class);
                 serviceResponse.setCategoryResponse(categoryResponse);
                 serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
+                List<PromotionByServiceResponse> promotions = promotionService
+                        .getAllPromotionByService(service.getId());
+                serviceResponse.setPromotions(promotions);
                 response.add(serviceResponse);
             }
         } else {
@@ -139,6 +180,9 @@ public class ServiceServiceImp implements ServiceService {
                         ServiceSupplierResponse.class);
                 serviceResponse.setCategoryResponse(categoryResponse);
                 serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
+                List<PromotionByServiceResponse> promotions = promotionService
+                        .getAllPromotionByService(service.getId());
+                serviceResponse.setPromotions(promotions);
                 response.add(serviceResponse);
             }
         } else {
@@ -149,13 +193,44 @@ public class ServiceServiceImp implements ServiceService {
     }
 
     @Override
-    public List<ServiceResponse> getAllServicesBySupplier(String supplierId, int pageNo, int pageSize, String sortBy,
-            boolean isAscending) {
-        return List.of();
+    public ServiceResponse updateServiceStatus(String supplierId, String status) {
+        return null;
     }
 
     @Override
-    public ServiceResponse updateServiceStatus(String supplierId, String status) {
-        return null;
+    public List<ServiceBySupplierResponse> getAllServicesBySupplier(String supplierId, int pageNo, int pageSize,
+            String sortBy, boolean isAscending) {
+
+        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(supplierId).orElseThrow(
+                () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+
+        List<ServiceBySupplierResponse> response = new ArrayList<ServiceBySupplierResponse>();
+        Page<Services> servicePages;
+
+        if (isAscending) {
+            servicePages = serviceRepository
+                    .findByServiceSupplier(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()),
+                            serviceSupplier);
+        } else {
+            servicePages = serviceRepository
+                    .findByServiceSupplier(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()),
+                            serviceSupplier);
+        }
+
+        if (servicePages.hasContent()) {
+            for (Services service : servicePages) {
+                ServiceBySupplierResponse serviceResponse = modelMapper.map(service, ServiceBySupplierResponse.class);
+                CategoryResponse categoryResponse = modelMapper.map(service.getCategory(), CategoryResponse.class);
+                serviceResponse.setCategoryResponse(categoryResponse);
+                List<PromotionByServiceResponse> promotions = promotionService
+                        .getAllPromotionByService(service.getId());
+                serviceResponse.setPromotions(promotions);
+                response.add(serviceResponse);
+            }
+        } else {
+            throw new ErrorException(ServiceErrorMessage.EMPTY);
+        }
+
+        return response;
     }
 }

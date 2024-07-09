@@ -284,6 +284,7 @@ public class AuthServiceImp implements AuthService {
                 .contactPersonName(registerDTO.getContactPersonName())
                 .contactPhone(registerDTO.getContactPhone())
                 .contactEmail(registerDTO.getContactEmail())
+                .account(accountSaved)
                 .status(Status.ACTIVATED)
                 .build();
 

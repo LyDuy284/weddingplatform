@@ -69,6 +69,10 @@ public class PromotionServiceImp implements PromotionService {
       throw new ErrorException(ValidationMessage.START_DATE_AFTER_END_DATE);
     }
 
+    if (createDTO.getPercent() <= 0) {
+      throw new ErrorException("Percent" + ValidationMessage.GREATER_THAN_ZERO);
+    }
+
     Promotion promotion = new Promotion().builder()
         .percent(createDTO.getPercent())
         .status(Status.ACTIVATED)
@@ -113,10 +117,10 @@ public class PromotionServiceImp implements PromotionService {
     List<PromotionBySupplierResponse> response = new ArrayList<PromotionBySupplierResponse>();
     Page<Promotion> promotionPage;
     if (isAscending) {
-      promotionPage = promotionRepository.findByServiceSupplier(serviceSupplier,
+      promotionPage = promotionRepository.findByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED,
           PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()));
     } else {
-      promotionPage = promotionRepository.findByServiceSupplier(serviceSupplier,
+      promotionPage = promotionRepository.findByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED,
           PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()));
     }
 
@@ -152,6 +156,24 @@ public class PromotionServiceImp implements PromotionService {
     if (promotionResult.size() == 0) {
       throw new ErrorException(PromotionErrorMessage.EMPTY);
     }
+    for (Promotion promotion : promotionResult) {
+      PromotionByServiceResponse promotionResponse = modelMapper.map(promotion, PromotionByServiceResponse.class);
+      response.add(promotionResponse);
+    }
+
+    return response;
+  }
+
+  @Override
+  public List<PromotionByServiceResponse> getAllPromotionByService(String serviceId) {
+    List<PromotionByServiceResponse> response = new ArrayList<PromotionByServiceResponse>();
+
+    ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    LocalDate localDate = LocalDate.now(vietnamZoneId);
+    String currentDate = localDate.format(dateFormatter);
+
+    List<Promotion> promotionResult = promotionRepository.findByService(serviceId, currentDate);
     for (Promotion promotion : promotionResult) {
       PromotionByServiceResponse promotionResponse = modelMapper.map(promotion, PromotionByServiceResponse.class);
       response.add(promotionResponse);

@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,8 +20,10 @@ import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.constant.service.ServiceSuccessMessage;
 import com.fu.weddingplatform.request.service.CreateServiceDTO;
+import com.fu.weddingplatform.request.service.UpdateServiceDTO;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
+import com.fu.weddingplatform.response.service.ServiceBySupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.service.ServiceService;
 
@@ -42,13 +45,23 @@ public class ServiceController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
+    @PutMapping("update")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+    public ResponseEntity<?> updateService(@Validated @RequestBody UpdateServiceDTO updateDTO) {
+        ResponseDTO<ServiceResponse> responseDTO = new ResponseDTO<>();
+        ServiceResponse data = service.updateService(updateDTO);
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ServiceSuccessMessage.UPDATE);
+        responseDTO.setData(data);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
     @GetMapping("getAllServices")
-    public ResponseEntity<?> getAllServices(@RequestParam(defaultValue = "0") int pageSize,
-            @RequestParam(defaultValue = "10") int size,
+    public ResponseEntity<?> getAllServices(@RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "true") boolean isAscending) {
-        List<ServiceResponse> serviceResponses = service.getAllServices(pageSize, size, sortBy,
-                isAscending);
+        List<ServiceResponse> serviceResponses = service.getAllServices(pageNo, pageSize, sortBy, isAscending);
         ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
@@ -67,13 +80,27 @@ public class ServiceController {
     }
 
     @GetMapping("getAllActiveServices")
-    public ResponseEntity<?> getAllActiveServices(@RequestParam(defaultValue = "0") int pageSize,
-            @RequestParam(defaultValue = "10") int size,
+    public ResponseEntity<?> getAllActiveServices(@RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "true") boolean isAscending) {
-        List<ServiceResponse> serviceResponses = service.getAllActivateServices(pageSize, size, sortBy,
-                isAscending);
+        List<ServiceResponse> serviceResponses = service.getAllActivateServices(pageNo, pageSize, sortBy, isAscending);
         ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
+        responseDTO.setData(serviceResponses);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("getAllServicesBySupplier/{id}")
+    public ResponseEntity<?> getAllServicesBySupplier(@RequestParam String supplierId,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "true") boolean isAscending) {
+        List<ServiceBySupplierResponse> serviceResponses = service.getAllServicesBySupplier(supplierId, pageNo,
+                pageSize, sortBy, isAscending);
+        ListResponseDTO<ServiceBySupplierResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
         responseDTO.setData(serviceResponses);

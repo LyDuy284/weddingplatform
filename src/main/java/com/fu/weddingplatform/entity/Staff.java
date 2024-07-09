@@ -23,7 +23,6 @@ public class Staff {
     @GeneratedValue(generator = "staff-id")
     @GenericGenerator(name = "staff-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.StaffIdGenerate")
     private String id;
-
     private String status;
 
     @JsonIgnore
