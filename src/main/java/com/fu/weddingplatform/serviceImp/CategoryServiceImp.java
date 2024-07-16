@@ -58,13 +58,12 @@ public class CategoryServiceImp implements CategoryService {
         } else {
             categories = categoryRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()));
         }
-        System.out.println(categories.getContent());
         if (categories.hasContent()) {
             for (Category category : categories) {
                 response.add(modelMapper.map(category, CategoryResponse.class));
             }
         } else {
-            throw new ErrorException(CoupleErrorMessage.EMPTY_COUPLE_LIST);
+            throw new ErrorException(CategoryErrorMessage.EMPTY);
         }
         return response;
     }

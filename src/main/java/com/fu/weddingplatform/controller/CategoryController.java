@@ -35,7 +35,7 @@ public class CategoryController {
     CategoryService categoryService;
 
     @PostMapping("create")
-    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_STAFF)
     public ResponseEntity<?> createServiceByAdminOrSupplier(@RequestBody CreateCategoryDTO createDTO) {
         ResponseDTO<CategoryResponse> responseDTO = new ResponseDTO<>();
         CategoryResponse data = categoryService.createCategory(createDTO);
@@ -46,11 +46,11 @@ public class CategoryController {
     }
 
     @GetMapping("getAllCategory")
-    public ResponseEntity<?> getAllCategory(@RequestParam(defaultValue = "0") int pageSize,
-            @RequestParam(defaultValue = "10") int size,
+    public ResponseEntity<?> getAllCategory(@RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "true") boolean isAscending) {
-        List<CategoryResponse> categoryResponses = categoryService.getAllCategories(pageSize, size, sortBy,
+        List<CategoryResponse> categoryResponses = categoryService.getAllCategories(pageNo, pageSize, sortBy,
                 isAscending);
         ListResponseDTO<CategoryResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
