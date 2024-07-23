@@ -25,6 +25,7 @@ public class Booking {
     @GenericGenerator(name = "booking-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingIdGenerate")
     private String id;
     private Date bookingDate;
+    private Date completedDate;
     private String status;
 
     @JsonIgnore
