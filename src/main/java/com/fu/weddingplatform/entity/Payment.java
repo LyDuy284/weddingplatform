@@ -1,19 +1,10 @@
 package com.fu.weddingplatform.entity;
 
 import java.sql.Date;
-import java.util.Collection;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
+import com.fu.weddingplatform.enums.PaymentType;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
@@ -42,12 +33,15 @@ public class Payment {
   @GeneratedValue(generator = "payment-id")
   @GenericGenerator(name = "payment-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.PaymentIdGenerator")
   private String id;
-
+  @Column(unique = true)
+  private int transactionId;
   private Date dateCreated;
+  private int amount;
   @Column(columnDefinition = "text")
   private String description;
-  private String name;
-
+  @Enumerated(EnumType.STRING)
+  private PaymentType paymentType;
+  private String paymentStatus;
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @Fetch(FetchMode.JOIN)
@@ -55,7 +49,6 @@ public class Payment {
   @EqualsAndHashCode.Include
   @ToString.Include
   private Couple couple;
-
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @Fetch(FetchMode.JOIN)
@@ -64,9 +57,9 @@ public class Payment {
   @ToString.Include
   private Quotation quotation;
 
-  @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
-  @EqualsAndHashCode.Include
-  @ToString.Include
-  @JsonIgnore
-  private Collection<Transaction> transaction;
+//  @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+//  @EqualsAndHashCode.Include
+//  @ToString.Include
+//  @JsonIgnore
+//  private Collection<Transaction> transaction;
 }

@@ -40,7 +40,7 @@ public class Quotation {
     @GeneratedValue(generator = "quotation-id")
     @GenericGenerator(name = "quotation-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.QuoteIdGenerate")
     private String id;
-    private float price;
+    private int price;
     private String status;
 
     @JsonIgnore
