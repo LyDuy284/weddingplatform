@@ -5,7 +5,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +86,22 @@ public class PromotionServiceImp implements PromotionService {
 
     Promotion promotionSaved = promotionRepository.save(promotion);
 
+    List<String> listSeviceIds = Arrays.stream(createDTO.getListServiceIds().split(","))
+        .map(String::trim)
+        .collect(Collectors.toList());
+    if (listSeviceIds.size() > 0) {
+      for (String serviceId : listSeviceIds) {
+        Services service = serviceRepository.findById(serviceId.trim()).orElseThrow(
+            () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
+
+        PromotionServiceEntity promotionService = new PromotionServiceEntity().builder().promotion(promotionSaved)
+            .service(service).build();
+        promotionServiceRepository.save(promotionService);
+      }
+    }
+
     PromotionResponse promotionResponse = modelMapper.map(promotionSaved, PromotionResponse.class);
+    promotionResponse.setListServiceIds(listSeviceIds);
     promotionResponse.setServiceSupplierId(serviceSupplier.getId());
     return promotionResponse;
   }
@@ -102,7 +119,7 @@ public class PromotionServiceImp implements PromotionService {
     for (PromotionServiceEntity promotionServiceEntity : listPromotionService) {
       listServiceIds.add(promotionServiceEntity.getService().getId());
     }
-    response.setServices(listServiceIds);
+    response.setListServiceIds(listServiceIds);
     return response;
   }
 
@@ -141,7 +158,8 @@ public class PromotionServiceImp implements PromotionService {
   @Override
   public List<PromotionByServiceResponse> getPromotionByService(String serviceId, int pageNo,
       int pageSize) {
-    Services service = serviceRepository.findById(serviceId).orElseThrow(
+
+    serviceRepository.findById(serviceId).orElseThrow(
         () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
 
     List<PromotionByServiceResponse> response = new ArrayList<PromotionByServiceResponse>();

@@ -1,7 +1,9 @@
 package com.fu.weddingplatform.serviceImp;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -11,14 +13,19 @@ import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.category.CategoryErrorMessage;
+import com.fu.weddingplatform.constant.promotion.PromotionErrorMessage;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
 import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
 import com.fu.weddingplatform.constant.validation.ValidationMessage;
 import com.fu.weddingplatform.entity.Category;
+import com.fu.weddingplatform.entity.Promotion;
+import com.fu.weddingplatform.entity.PromotionServiceEntity;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Services;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.CategoryRepository;
+import com.fu.weddingplatform.repository.PromotionRepository;
+import com.fu.weddingplatform.repository.PromotionServiceRepository;
 import com.fu.weddingplatform.repository.ServiceRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.request.service.CreateServiceDTO;
@@ -42,6 +49,8 @@ public class ServiceServiceImp implements ServiceService {
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
     private final PromotionService promotionService;
+    private final PromotionServiceRepository promotionServiceRepository;
+    private final PromotionRepository promotionRepository;
 
     @Override
     public ServiceResponse createService(CreateServiceDTO createDTO) {
@@ -68,12 +77,34 @@ public class ServiceServiceImp implements ServiceService {
 
         Services serviceSaved = serviceRepository.save(service);
 
+        List<String> listPromotionIds = Arrays.stream(createDTO.getListPromotionIds().split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+        List<PromotionByServiceResponse> lisitPromotionResponse = new ArrayList<>();
+        if (listPromotionIds.size() > 0) {
+            for (String promotionId : listPromotionIds) {
+                Promotion promotion = promotionRepository.findById(promotionId).orElseThrow(
+                        () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
+
+                PromotionByServiceResponse promotionResponse = modelMapper.map(promotion,
+                        PromotionByServiceResponse.class);
+
+                lisitPromotionResponse.add(promotionResponse);
+
+                PromotionServiceEntity promotionService = new PromotionServiceEntity().builder()
+                        .promotion(promotion)
+                        .service(serviceSaved).build();
+
+                promotionServiceRepository.save(promotionService);
+            }
+        }
         ServiceResponse response = modelMapper.map(serviceSaved, ServiceResponse.class);
         CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
         ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(serviceSupplier,
                 ServiceSupplierResponse.class);
         response.setCategoryResponse(categoryResponse);
         response.setServiceSupplierResponse(serviceSupplierResponse);
+        response.setPromotions(lisitPromotionResponse);
 
         return response;
     }

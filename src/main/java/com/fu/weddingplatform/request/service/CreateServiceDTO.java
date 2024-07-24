@@ -23,6 +23,7 @@ public class CreateServiceDTO {
     private String categoryId;
     @NotEmpty(message = "Service Supplier ID " + ValidationMessage.NOT_EMPTY)
     private String serviceSupplierId;
+    private String listPromotionIds;
     private String name;
     private String description;
     @Min(value = 0, message = "Value must be greater than 0")

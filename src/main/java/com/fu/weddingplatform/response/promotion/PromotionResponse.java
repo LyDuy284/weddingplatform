@@ -23,6 +23,6 @@ public class PromotionResponse {
   private Date startDate;
   private Date endDate;
   private String status;
-  private List<String> services;
+  private List<String> listServiceIds;
   private String serviceSupplierId;
 }

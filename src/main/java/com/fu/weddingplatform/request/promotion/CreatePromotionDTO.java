@@ -25,6 +25,7 @@ public class CreatePromotionDTO {
   private String supplierId;
   @Min(value = 0, message = "Value must be greater than 0")
   private int percent;
+  private String listServiceIds;
   private String promotionDetails;
   private Date startDate;
   private Date endDate;
