@@ -36,17 +36,19 @@ public class Booking {
     @ToString.Include
     private Couple couple;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "quotation_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    @JsonIgnore
-    private Collection<BookingDetail> bookingDetails;
+    private Quotation quotation;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<Quotation> quotations;
+    private Collection<BookingDetail> bookingDetails;
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include

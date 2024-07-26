@@ -1,5 +1,9 @@
 package com.fu.weddingplatform.response.quotation;
 
+import java.util.List;
+
+import com.fu.weddingplatform.response.quoteResquest.QuoteResquestResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,5 +25,5 @@ public class QuotationResponse {
   private String coupleId;
   private String bookingId;
   private String serviceId;
-
+  private List<QuoteResquestResponse> quoteRequest;
 }

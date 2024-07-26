@@ -92,9 +92,9 @@ public class PaymentServiceImpl implements PaymentService {
             throws JsonProcessingException {
         Quotation quotation = quotationRepository.findById(paymentRequest.getQuotationId())
                 .orElseThrow(() -> new ErrorException(QuotationErrorMessage.QUOTATION_NOT_FOUND));
-        if (!quotation.getBooking().getStatus().equals(BookingStatus.CONFIRM)) {
-            throw new ErrorException(PaymentErrorMessage.CONDITIONS_NOT_VALID);
-        }
+        // if (!quotation.getBooking().getStatus().equals(BookingStatus.CONFIRM)) {
+        // throw new ErrorException(PaymentErrorMessage.CONDITIONS_NOT_VALID);
+        // }
         String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
         String vnp_IpAddr = req.getRemoteAddr();
         Map<String, String> vnp_Params = new HashMap<>();
@@ -158,14 +158,14 @@ public class PaymentServiceImpl implements PaymentService {
                     .dateCreated(Date.valueOf(String.valueOf(LocalDateTime.now())))
                     .paymentStatus(PaymentStatus.COMPLETED)
                     .couple(quotation.getCouple())
-                    .quotation(quotation)
+                    // .quotation(quotation)
                     .build();
             try {
                 if (paymentDTO.getPaymentType().equals(PaymentType.FINAL_PAYMENT)) {
-                    Booking booking = quotation.getBooking();
-                    booking.setStatus(BookingStatus.DONE);
-                    booking.setCompletedDate(Date.valueOf(String.valueOf(LocalDateTime.now())));
-                    bookingRepository.save(booking);
+                    // Booking booking = quotation.getBooking();
+                    // booking.setStatus(BookingStatus.DONE);
+                    // booking.setCompletedDate(Date.valueOf(String.valueOf(LocalDateTime.now())));
+                    // bookingRepository.save(booking);
                 }
                 paymentRepository.save(payment);
                 response.sendRedirect("https://www.youtube.com/");

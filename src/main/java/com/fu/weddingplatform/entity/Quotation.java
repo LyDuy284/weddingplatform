@@ -62,14 +62,6 @@ public class Quotation {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "booking_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private Booking booking;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "service_id")
     @EqualsAndHashCode.Include
     @ToString.Include
@@ -80,4 +72,10 @@ public class Quotation {
     @ToString.Include
     @JsonIgnore
     private Collection<QuoteRequest> quoteRequests;
+
+    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Booking> bookings;
 }
