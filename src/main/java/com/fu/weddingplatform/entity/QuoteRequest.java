@@ -1,17 +1,13 @@
 package com.fu.weddingplatform.entity;
 
 import java.sql.Date;
-import java.util.Collection;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -35,32 +31,23 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-@Table(name = "promotion")
-public class Promotion {
+@Table(name = "quote_request")
+public class QuoteRequest {
 
     @Id
-    @GeneratedValue(generator = "promotion-id")
-    @GenericGenerator(name = "promotion-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.PromotionIdGenerate")
+    @GeneratedValue(generator = "quote-request-id")
+    @GenericGenerator(name = "quote-request-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.QuoteRequestIdGenerate")
     private String id;
-    @Column(columnDefinition = "text")
-    private String promotionDetails;
-    private int percent;
-    private Date startDate;
-    private Date endDate;
+    private String message;
+    private Date eventDate;
     private String status;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "service_supplier_id")
+    @JoinColumn(name = "quotation_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private ServiceSupplier serviceSupplier;
-
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<PromotionServiceEntity> promotionServices;
+    private Quotation quotation;
 
 }

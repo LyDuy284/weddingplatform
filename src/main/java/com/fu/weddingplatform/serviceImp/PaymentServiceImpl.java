@@ -55,7 +55,8 @@ public class PaymentServiceImpl implements PaymentService {
     ObjectMapper objectMapper;
 
     @Override
-    public String requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp, CreatePaymentDTO paymentRequest) throws JsonProcessingException {
+    public String requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp, CreatePaymentDTO paymentRequest)
+            throws JsonProcessingException {
         Map<String, String> vnp_Params = setVNPParams(req, paymentRequest);
 
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
@@ -67,11 +68,11 @@ public class PaymentServiceImpl implements PaymentService {
             String fieldName = (String) itr.next();
             String fieldValue = (String) vnp_Params.get(fieldName);
             if ((fieldValue != null) && (fieldValue.length() > 0)) {
-                //Build hash data
+                // Build hash data
                 hashData.append(fieldName);
                 hashData.append('=');
                 hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
-                //Build query
+                // Build query
                 query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII));
                 query.append('=');
                 query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
@@ -87,10 +88,11 @@ public class PaymentServiceImpl implements PaymentService {
         return VNPayConstant.VNP_PAY_URL + queryUrl;
     }
 
-    private Map<String, String> setVNPParams(HttpServletRequest req, CreatePaymentDTO paymentRequest) throws JsonProcessingException {
+    private Map<String, String> setVNPParams(HttpServletRequest req, CreatePaymentDTO paymentRequest)
+            throws JsonProcessingException {
         Quotation quotation = quotationRepository.findById(paymentRequest.getQuotationId())
                 .orElseThrow(() -> new ErrorException(QuotationErrorMessage.QUOTATION_NOT_FOUND));
-        if(!quotation.getBooking().getStatus().equals(BookingStatus.CONFIRM)){
+        if (!quotation.getBooking().getStatus().equals(BookingStatus.CONFIRM)) {
             throw new ErrorException(PaymentErrorMessage.CONDITIONS_NOT_VALID);
         }
         String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
@@ -103,7 +105,7 @@ public class PaymentServiceImpl implements PaymentService {
         vnp_Params.put("vnp_CurrCode", "VND");
         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
         vnp_Params.put("vnp_OrderType", VNPayConstant.VNP_ORDER_TYPE);
-        //set order infor
+        // set order infor
         CreatePaymentDTO paymentDTO = CreatePaymentDTO.builder()
                 .quotationId(quotation.getId())
                 .paymentType(paymentRequest.getPaymentType())
@@ -112,9 +114,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         switch (paymentRequest.getPaymentType()) {
             case DEPOSIT ->
-                    vnp_Params.put("vnp_Amount", String.valueOf((int) (quotation.getPrice() * PaymentTypeValue.DEPOSIT_VALUE) * 100L));
+                vnp_Params.put("vnp_Amount",
+                        String.valueOf((int) (quotation.getPrice() * PaymentTypeValue.DEPOSIT_VALUE) * 100L));
             case FINAL_PAYMENT ->
-                    vnp_Params.put("vnp_Amount", String.valueOf((int) (quotation.getPrice() * PaymentTypeValue.FINAL_PAYMENT_VALUE) * 100L));
+                vnp_Params.put("vnp_Amount",
+                        String.valueOf((int) (quotation.getPrice() * PaymentTypeValue.FINAL_PAYMENT_VALUE) * 100L));
         }
 
         vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL);
@@ -136,7 +140,8 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public void responsePaymentVNP(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (!"00".equals(request.getParameter("vnp_ResponseCode"))) {
-            response.sendRedirect(String.format(VNPayConstant.VNP_RETURN_CLIENT_URL, false, request.getParameter("vnp_Amount")));
+            response.sendRedirect(
+                    String.format(VNPayConstant.VNP_RETURN_CLIENT_URL, false, request.getParameter("vnp_Amount")));
         } else {
             String paymentInfor = request.getParameter("vnp_OrderInfo");
             String transactionId = request.getParameter("vnp_TransactionNo");
@@ -146,7 +151,8 @@ public class PaymentServiceImpl implements PaymentService {
                     .orElseThrow(() -> new ErrorException(QuotationErrorMessage.QUOTATION_NOT_FOUND));
             Payment payment = Payment.builder()
                     .transactionId(Integer.parseInt(transactionId))
-                    .description(String.format(PaymentSuccessMessage.PAYMENT_DESCRIPTION, quotation.getCouple().getId(), amount, quotation.getService().getId()))
+                    .description(String.format(PaymentSuccessMessage.PAYMENT_DESCRIPTION, quotation.getCouple().getId(),
+                            amount, quotation.getService().getId()))
                     .amount(amount)
                     .paymentType(paymentDTO.getPaymentType())
                     .dateCreated(Date.valueOf(String.valueOf(LocalDateTime.now())))
@@ -154,8 +160,8 @@ public class PaymentServiceImpl implements PaymentService {
                     .couple(quotation.getCouple())
                     .quotation(quotation)
                     .build();
-            try{
-                if(paymentDTO.getPaymentType().equals(PaymentType.FINAL_PAYMENT)){
+            try {
+                if (paymentDTO.getPaymentType().equals(PaymentType.FINAL_PAYMENT)) {
                     Booking booking = quotation.getBooking();
                     booking.setStatus(BookingStatus.DONE);
                     booking.setCompletedDate(Date.valueOf(String.valueOf(LocalDateTime.now())));
@@ -163,7 +169,7 @@ public class PaymentServiceImpl implements PaymentService {
                 }
                 paymentRepository.save(payment);
                 response.sendRedirect("https://www.youtube.com/");
-            }catch (ErrorException ex){
+            } catch (ErrorException ex) {
                 response.sendRedirect("https://www.youtube.com/");
             }
         }

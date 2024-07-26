@@ -10,24 +10,25 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-public class QuoteDetailIdGenerate implements IdentifierGenerator {
+public class QuoteRequestIdGenerate implements IdentifierGenerator {
 
     @SneakyThrows
     @Override
-    public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
+    public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o)
+            throws HibernateException {
         Connection connection = sharedSessionContractImplementor.connection();
         int count = 1;
         Statement statement = connection.createStatement();
         ResultSet rs = statement.executeQuery("SELECT CAST(SUBSTRING_INDEX(id, '-', -1) AS UNSIGNED) AS number \n" +
-                "FROM quote_detail \n" +
+                "FROM quote_request \n" +
                 "ORDER BY id DESC \n" +
                 "LIMIT 1; ");
         if (rs.next()) {
             int maxId = rs.getInt("number") + 1;
-            return String.format("QUOTE-DETAIL-%d", maxId);
+            return String.format("QUOTE-REQUEST-%d", maxId);
 
         } else {
-            return String.format("QUOTE-DETAIL-%d", count);
+            return String.format("QUOTE-REQUEST-%d", count);
         }
     }
 }

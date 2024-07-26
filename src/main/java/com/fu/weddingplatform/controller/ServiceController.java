@@ -23,6 +23,8 @@ import com.fu.weddingplatform.request.service.CreateServiceDTO;
 import com.fu.weddingplatform.request.service.UpdateServiceDTO;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
+import com.fu.weddingplatform.response.service.ServiceByCategoryAndSupplierResponse;
+import com.fu.weddingplatform.response.service.ServiceByCategoryResponse;
 import com.fu.weddingplatform.response.service.ServiceBySupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.service.ServiceService;
@@ -102,7 +104,43 @@ public class ServiceController {
                 pageSize, sortBy, isAscending);
         ListResponseDTO<ServiceBySupplierResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-        responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
+        responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_SUPPLIER);
+        responseDTO.setData(serviceResponses);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("getAllServicesByCategoryAndSupplier/")
+    public ResponseEntity<?> getAllServicesByCategoryAndSupplier(@RequestParam String categoryId,
+            @RequestParam String supplierId,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "true") boolean isAscending) {
+        List<ServiceByCategoryAndSupplierResponse> serviceResponses = service.getAllServicesByCategoryAndSupplier(
+                categoryId,
+                supplierId,
+                pageNo,
+                pageSize, sortBy, isAscending);
+        ListResponseDTO<ServiceByCategoryAndSupplierResponse> responseDTO = new ListResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY_AND_SUPPLIER);
+        responseDTO.setData(serviceResponses);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("getAllServicesByCategory/")
+    public ResponseEntity<?> getAllServicesByCategory(@RequestParam String categoryId,
+            @RequestParam(defaultValue = "0") int pageNo,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "true") boolean isAscending) {
+        List<ServiceByCategoryResponse> serviceResponses = service.getAllServicesByCategory(
+                categoryId,
+                pageNo,
+                pageSize, sortBy, isAscending);
+        ListResponseDTO<ServiceByCategoryResponse> responseDTO = new ListResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY);
         responseDTO.setData(serviceResponses);
         return ResponseEntity.ok().body(responseDTO);
     }

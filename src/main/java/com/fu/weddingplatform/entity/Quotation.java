@@ -79,11 +79,5 @@ public class Quotation {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<QuoteDetail> quoteDetails;
-
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Payment> payments;
+    private Collection<QuoteRequest> quoteRequests;
 }

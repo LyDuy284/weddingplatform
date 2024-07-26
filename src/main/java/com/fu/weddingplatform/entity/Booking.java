@@ -47,4 +47,10 @@ public class Booking {
     @ToString.Include
     @JsonIgnore
     private Collection<Quotation> quotations;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Payment> payments;
 }

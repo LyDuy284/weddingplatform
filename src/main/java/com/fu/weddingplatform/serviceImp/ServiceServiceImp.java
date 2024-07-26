@@ -32,6 +32,8 @@ import com.fu.weddingplatform.request.service.CreateServiceDTO;
 import com.fu.weddingplatform.request.service.UpdateServiceDTO;
 import com.fu.weddingplatform.response.category.CategoryResponse;
 import com.fu.weddingplatform.response.promotion.PromotionByServiceResponse;
+import com.fu.weddingplatform.response.service.ServiceByCategoryAndSupplierResponse;
+import com.fu.weddingplatform.response.service.ServiceByCategoryResponse;
 import com.fu.weddingplatform.response.service.ServiceBySupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
@@ -264,4 +266,86 @@ public class ServiceServiceImp implements ServiceService {
 
         return response;
     }
+
+    @Override
+    public List<ServiceByCategoryAndSupplierResponse> getAllServicesByCategoryAndSupplier(String categoryId,
+            String supplierId, int pageNo,
+            int pageSize, String sortBy, boolean isAscending) {
+        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(supplierId).orElseThrow(
+                () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
+
+        List<ServiceByCategoryAndSupplierResponse> response = new ArrayList<ServiceByCategoryAndSupplierResponse>();
+        Page<Services> servicePages;
+
+        if (isAscending) {
+            servicePages = serviceRepository
+                    .findByCategoryAndServiceSupplier(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()),
+                            category,
+                            serviceSupplier);
+        } else {
+            servicePages = serviceRepository
+                    .findByCategoryAndServiceSupplier(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()),
+                            category,
+                            serviceSupplier);
+        }
+
+        if (servicePages.hasContent()) {
+            for (Services service : servicePages) {
+                ServiceByCategoryAndSupplierResponse serviceResponse = modelMapper.map(service,
+                        ServiceByCategoryAndSupplierResponse.class);
+                List<PromotionByServiceResponse> promotions = promotionService
+                        .getAllPromotionByService(service.getId());
+                serviceResponse.setPromotions(promotions);
+                response.add(serviceResponse);
+            }
+        } else {
+            throw new ErrorException(ServiceErrorMessage.EMPTY);
+        }
+
+        return response;
+    }
+
+    @Override
+    public List<ServiceByCategoryResponse> getAllServicesByCategory(String categoryId, int pageNo, int pageSize,
+            String sortBy, boolean isAscending) {
+
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
+
+        List<ServiceByCategoryResponse> response = new ArrayList<ServiceByCategoryResponse>();
+        Page<Services> servicePages;
+
+        if (isAscending) {
+            servicePages = serviceRepository
+                    .findByCategory(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()),
+                            category);
+        } else {
+            servicePages = serviceRepository
+                    .findByCategory(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()),
+                            category);
+        }
+
+        if (servicePages.hasContent()) {
+            for (Services service : servicePages) {
+                ServiceByCategoryResponse serviceResponse = modelMapper.map(service,
+                        ServiceByCategoryResponse.class);
+                List<PromotionByServiceResponse> promotions = promotionService
+                        .getAllPromotionByService(service.getId());
+                serviceResponse.setPromotions(promotions);
+                response.add(serviceResponse);
+                ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(service.getServiceSupplier(),
+                        ServiceSupplierResponse.class);
+                serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
+                response.add(serviceResponse);
+            }
+        } else {
+            throw new ErrorException(ServiceErrorMessage.EMPTY);
+        }
+
+        return response;
+    }
+
 }
