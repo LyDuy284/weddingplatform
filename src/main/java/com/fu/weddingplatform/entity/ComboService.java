@@ -22,8 +22,6 @@ public class ComboService {
     @GeneratedValue(generator = "combo-service-id")
     @GenericGenerator(name = "combo-service-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ComboServiceIdGenerate")
     private String id;
-    @Column(columnDefinition = "text")
-    private String description;
     private String status;
 
     @JsonIgnore
@@ -37,9 +35,9 @@ public class ComboService {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "staff_id")
+    @JoinColumn(name = "combo_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Staff staff;
+    private Combo combo;
 
 }

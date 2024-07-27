@@ -49,5 +49,5 @@ public class Staff {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<ComboService> comboServices;
+    private Collection<Combo> combo;
 }
