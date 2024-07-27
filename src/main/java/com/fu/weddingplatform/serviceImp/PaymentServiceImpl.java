@@ -2,22 +2,23 @@ package com.fu.weddingplatform.serviceImp;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fu.weddingplatform.constant.booking.BookingConstant;
+import com.fu.weddingplatform.constant.booking.BookingErrorMessage;
 import com.fu.weddingplatform.constant.booking.BookingStatus;
 import com.fu.weddingplatform.constant.payment.PaymentErrorMessage;
 import com.fu.weddingplatform.constant.payment.PaymentStatus;
 import com.fu.weddingplatform.constant.payment.PaymentSuccessMessage;
 import com.fu.weddingplatform.constant.payment.PaymentTypeValue;
 import com.fu.weddingplatform.constant.payment.vnpay.VNPayConstant;
-import com.fu.weddingplatform.constant.quotation.QuotationErrorMessage;
-import com.fu.weddingplatform.entity.Booking;
-import com.fu.weddingplatform.entity.Payment;
-import com.fu.weddingplatform.entity.Quotation;
+import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
+import com.fu.weddingplatform.constant.transaction.TransactionSuccessMessage;
+import com.fu.weddingplatform.constant.wallet.WalletErrorMessage;
+import com.fu.weddingplatform.entity.*;
+import com.fu.weddingplatform.enums.PaymentMethod;
 import com.fu.weddingplatform.enums.PaymentType;
+import com.fu.weddingplatform.enums.TransactionType;
 import com.fu.weddingplatform.exception.ErrorException;
-import com.fu.weddingplatform.repository.BookingRepository;
-import com.fu.weddingplatform.repository.CoupleRepository;
-import com.fu.weddingplatform.repository.PaymentRepository;
-import com.fu.weddingplatform.repository.QuotationRepository;
+import com.fu.weddingplatform.repository.*;
 import com.fu.weddingplatform.request.payment.CreatePaymentDTO;
 import com.fu.weddingplatform.service.PaymentService;
 import com.fu.weddingplatform.utils.VNPayUtil;
@@ -32,7 +33,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -53,6 +53,12 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    WalletRepository walletRepository;
+
+    @Autowired
+    TransactionRepository transactionRepository;
 
     @Override
     public String requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp, CreatePaymentDTO paymentRequest)
@@ -90,11 +96,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     private Map<String, String> setVNPParams(HttpServletRequest req, CreatePaymentDTO paymentRequest)
             throws JsonProcessingException {
-        Quotation quotation = quotationRepository.findById(paymentRequest.getQuotationId())
-                .orElseThrow(() -> new ErrorException(QuotationErrorMessage.NOT_FOUND));
-        // if (!quotation.getBooking().getStatus().equals(BookingStatus.CONFIRM)) {
-        // throw new ErrorException(PaymentErrorMessage.CONDITIONS_NOT_VALID);
-        // }
+        Booking booking = bookingRepository.findById(paymentRequest.getBookingId()).
+                orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
+        if (!booking.getStatus().equals(BookingStatus.CONFIRM)) {
+            throw new ErrorException(PaymentErrorMessage.CONDITIONS_NOT_VALID);
+        }
         String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
         String vnp_IpAddr = req.getRemoteAddr();
         Map<String, String> vnp_Params = new HashMap<>();
@@ -107,18 +113,21 @@ public class PaymentServiceImpl implements PaymentService {
         vnp_Params.put("vnp_OrderType", VNPayConstant.VNP_ORDER_TYPE);
         // set order infor
         CreatePaymentDTO paymentDTO = CreatePaymentDTO.builder()
-                .quotationId(quotation.getId())
+                .bookingId(booking.getId())
                 .paymentType(paymentRequest.getPaymentType())
                 .build();
         vnp_Params.put("vnp_OrderInfo", objectMapper.writeValueAsString(paymentDTO));
 
+        int amount = booking.getBookingDetails().stream().mapToInt(BookingDetail::getPrice).sum();
         switch (paymentRequest.getPaymentType()) {
-            case DEPOSIT ->
+            case DEPOSIT -> vnp_Params.put("vnp_Amount",
+                    String.valueOf((int) (amount * PaymentTypeValue.DEPOSIT_VALUE) * 100L));
+            case FINAL_PAYMENT -> {
+                paymentRepository.findByBookingType(paymentRequest.getBookingId(), PaymentType.DEPOSIT)
+                        .orElseThrow(() -> new ErrorException(PaymentErrorMessage.DEPOSIT_NOT_PAID));
                 vnp_Params.put("vnp_Amount",
-                        String.valueOf((int) (quotation.getPrice() * PaymentTypeValue.DEPOSIT_VALUE) * 100L));
-            case FINAL_PAYMENT ->
-                vnp_Params.put("vnp_Amount",
-                        String.valueOf((int) (quotation.getPrice() * PaymentTypeValue.FINAL_PAYMENT_VALUE) * 100L));
+                        String.valueOf((int) (amount * PaymentTypeValue.FINAL_PAYMENT_VALUE) * 100L));
+            }
         }
 
         vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL);
@@ -144,35 +153,45 @@ public class PaymentServiceImpl implements PaymentService {
                     String.format(VNPayConstant.VNP_RETURN_CLIENT_URL, false, request.getParameter("vnp_Amount")));
         } else {
             String paymentInfor = request.getParameter("vnp_OrderInfo");
-            String transactionId = request.getParameter("vnp_TransactionNo");
+            String vnpTransactionNo = request.getParameter("vnp_TransactionNo");
             int amount = Integer.parseInt(request.getParameter("vnp_Amount")) / 100;
             CreatePaymentDTO paymentDTO = objectMapper.readValue(paymentInfor, CreatePaymentDTO.class);
-            Quotation quotation = quotationRepository.findById(paymentDTO.getQuotationId())
-                    .orElseThrow(() -> new ErrorException(QuotationErrorMessage.NOT_FOUND));
+            Booking booking = bookingRepository.findById(paymentDTO.getBookingId())
+                    .orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
+            var a = LocalDateTime.now();
             Payment payment = Payment.builder()
-                    .transactionId(Integer.parseInt(transactionId))
-                    .description(String.format(PaymentSuccessMessage.PAYMENT_DESCRIPTION, quotation.getCouple().getId(),
-                            amount, quotation.getService().getId()))
+                    .tradingCode(Integer.parseInt(vnpTransactionNo))
+                    .description(String.format(PaymentSuccessMessage.PAYMENT_DESCRIPTION, booking.getCouple().getId(),
+                            amount, booking.getId()))
+                    .paymentMethod(PaymentMethod.VNPAY)
                     .amount(amount)
                     .paymentType(paymentDTO.getPaymentType())
-                    .dateCreated(Date.valueOf(String.valueOf(LocalDateTime.now())))
+                    .dateCreated(new Date(System.currentTimeMillis()))
                     .paymentStatus(PaymentStatus.COMPLETED)
-                    .couple(quotation.getCouple())
-                    // .quotation(quotation)
+                    .couple(booking.getCouple())
+                    .booking(booking)
                     .build();
-            try {
-                if (paymentDTO.getPaymentType().equals(PaymentType.FINAL_PAYMENT)) {
-                    // Booking booking = quotation.getBooking();
-                    // booking.setStatus(BookingStatus.DONE);
-                    // booking.setCompletedDate(Date.valueOf(String.valueOf(LocalDateTime.now())));
-                    // bookingRepository.save(booking);
-                }
-                paymentRepository.save(payment);
-                response.sendRedirect("https://www.youtube.com/");
-            } catch (ErrorException ex) {
-                response.sendRedirect("https://www.youtube.com/");
+            if (paymentDTO.getPaymentType().equals(PaymentType.FINAL_PAYMENT)) {
+                completeMoneyForServiceSupplier(booking, booking.getQuotation().getServiceSupplier().getId());
             }
+            paymentRepository.save(payment);
+            response.sendRedirect("https://www.youtube.com/");
         }
     }
 
+    private void completeMoneyForServiceSupplier(Booking booking, String serviceSuplierId){
+        int totalPrice = booking.getBookingDetails().stream().mapToInt(BookingDetail::getPrice).sum();
+        double amount = totalPrice * (1 - BookingConstant.BOOKING_COMMISSION_VALUE);
+        Wallet wallet = walletRepository.findByServiceSupplierId(serviceSuplierId)
+                .orElseThrow(() -> new ErrorException(WalletErrorMessage.NOT_FOUND));
+        wallet.setBalance(wallet.getBalance() + (int)amount);
+        Transaction transaction = Transaction.builder()
+                .dateCreated(new Date(System.currentTimeMillis()))
+                .amount((int)amount)
+                .description(String.format(TransactionSuccessMessage.TRANSACTION_COMPLETED_DESCRIPTION, booking.getId(), amount))
+                .transactionType(TransactionType.PLUS)
+                .wallet(wallet)
+                .build();
+        transactionRepository.save(transaction);
+    }
 }

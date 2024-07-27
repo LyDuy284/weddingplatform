@@ -36,7 +36,7 @@ public class BookingDetail {
     @GeneratedValue(generator = "booking-detail-id")
     @GenericGenerator(name = "booking-detail-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingDetailIdGenerator")
     private String id;
-    private float price;
+    private int price;
     private String status;
 
     @JsonIgnore

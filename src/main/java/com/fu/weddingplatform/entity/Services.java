@@ -46,7 +46,7 @@ public class Services {
     private String description;
     @Column(columnDefinition = "text")
     private String images;
-    private float price;
+    private int price;
     private String status;
 
     @JsonIgnore
