@@ -91,7 +91,7 @@ public class PaymentServiceImpl implements PaymentService {
     private Map<String, String> setVNPParams(HttpServletRequest req, CreatePaymentDTO paymentRequest)
             throws JsonProcessingException {
         Quotation quotation = quotationRepository.findById(paymentRequest.getQuotationId())
-                .orElseThrow(() -> new ErrorException(QuotationErrorMessage.QUOTATION_NOT_FOUND));
+                .orElseThrow(() -> new ErrorException(QuotationErrorMessage.NOT_FOUND));
         // if (!quotation.getBooking().getStatus().equals(BookingStatus.CONFIRM)) {
         // throw new ErrorException(PaymentErrorMessage.CONDITIONS_NOT_VALID);
         // }
@@ -148,7 +148,7 @@ public class PaymentServiceImpl implements PaymentService {
             int amount = Integer.parseInt(request.getParameter("vnp_Amount")) / 100;
             CreatePaymentDTO paymentDTO = objectMapper.readValue(paymentInfor, CreatePaymentDTO.class);
             Quotation quotation = quotationRepository.findById(paymentDTO.getQuotationId())
-                    .orElseThrow(() -> new ErrorException(QuotationErrorMessage.QUOTATION_NOT_FOUND));
+                    .orElseThrow(() -> new ErrorException(QuotationErrorMessage.NOT_FOUND));
             Payment payment = Payment.builder()
                     .transactionId(Integer.parseInt(transactionId))
                     .description(String.format(PaymentSuccessMessage.PAYMENT_DESCRIPTION, quotation.getCouple().getId(),

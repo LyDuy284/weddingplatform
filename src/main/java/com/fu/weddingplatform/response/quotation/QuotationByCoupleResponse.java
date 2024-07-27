@@ -15,15 +15,13 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class QuotationResponse {
+public class QuotationByCoupleResponse {
   private String id;
   private String serviceSupplierId;
-  private String coupleId;
   private String serviceId;
   private float price;
   private String message;
   private Date eventDate;
   private String createAt;
   private String status;
-
 }

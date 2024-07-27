@@ -1,5 +1,6 @@
 package com.fu.weddingplatform.entity;
 
+import java.sql.Date;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
@@ -41,6 +42,9 @@ public class Quotation {
     @GenericGenerator(name = "quotation-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.QuoteIdGenerate")
     private String id;
     private int price;
+    private String message;
+    private Date eventDate;
+    private String createAt;
     private String status;
 
     @JsonIgnore
@@ -66,12 +70,6 @@ public class Quotation {
     @EqualsAndHashCode.Include
     @ToString.Include
     private Services service;
-
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<QuoteRequest> quoteRequests;
 
     @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include

@@ -1,4 +1,4 @@
-package com.fu.weddingplatform.response.quoteResquest;
+package com.fu.weddingplatform.response.quotation;
 
 import java.sql.Date;
 
@@ -15,9 +15,13 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class QuoteResquestResponse {
+public class QuotationBySupplierResponse {
   private String id;
+  private String coupleId;
+  private String serviceId;
+  private float price;
   private String message;
   private Date eventDate;
+  private String createAt;
   private String status;
 }
