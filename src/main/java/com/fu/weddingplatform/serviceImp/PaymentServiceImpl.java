@@ -158,7 +158,6 @@ public class PaymentServiceImpl implements PaymentService {
             CreatePaymentDTO paymentDTO = objectMapper.readValue(paymentInfor, CreatePaymentDTO.class);
             Booking booking = bookingRepository.findById(paymentDTO.getBookingId())
                     .orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
-            var a = LocalDateTime.now();
             Payment payment = Payment.builder()
                     .tradingCode(Integer.parseInt(vnpTransactionNo))
                     .description(String.format(PaymentSuccessMessage.PAYMENT_DESCRIPTION, booking.getCouple().getId(),
