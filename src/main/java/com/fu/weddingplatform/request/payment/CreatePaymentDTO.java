@@ -12,8 +12,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Builder
 public class CreatePaymentDTO implements Serializable {
-    @JsonProperty("quotationId")
-    String quotationId;
+    @JsonProperty("bookingId")
+    String bookingId;
     @JsonProperty("paymentType")
     PaymentType paymentType;
 }

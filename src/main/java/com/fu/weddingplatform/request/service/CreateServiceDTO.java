@@ -27,5 +27,5 @@ public class CreateServiceDTO {
     private String name;
     private String description;
     @Min(value = 0, message = "Value must be greater than 0")
-    private float price;
+    private int price;
 }

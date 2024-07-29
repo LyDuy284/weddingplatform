@@ -29,13 +29,13 @@ public class CoupleServiceImp implements CoupleService {
     ModelMapper modelMapper;
 
     @Override
-    public List<CoupleResponse> getAllCouple(int pageSize, int size, String sortBy, boolean isAscending) {
+    public List<CoupleResponse> getAllCouple(int pageNo, int pageSize, String sortBy, boolean isAscending) {
         List<CoupleResponse> coupleResponseList = new ArrayList<>();
         Page<Couple> couplePage;
         if (isAscending) {
-            couplePage = coupleRepository.findAll(PageRequest.of(pageSize, size, Sort.by(sortBy).ascending()));
+            couplePage = coupleRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()));
         } else {
-            couplePage = coupleRepository.findAll(PageRequest.of(pageSize, size, Sort.by(sortBy).descending()));
+            couplePage = coupleRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()));
         }
 
         if (couplePage.hasContent()) {
