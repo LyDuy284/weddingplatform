@@ -1,14 +1,31 @@
 package com.fu.weddingplatform.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.*;
+import java.sql.Date;
+import java.util.Collection;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.*;
-import java.util.Collection;
-import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Getter
@@ -23,7 +40,7 @@ public class Booking {
     @GeneratedValue(generator = "booking-id")
     @GenericGenerator(name = "booking-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingIdGenerate")
     private String id;
-    private Date bookingDate;
+    private String createdAt;
     private Date completedDate;
     private String status;
 
@@ -54,4 +71,10 @@ public class Booking {
     @ToString.Include
     @JsonIgnore
     private Collection<Payment> payments;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<BookingHistory> bookingHistories;
 }
