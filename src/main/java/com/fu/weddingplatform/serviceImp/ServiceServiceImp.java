@@ -29,6 +29,7 @@ import com.fu.weddingplatform.repository.PromotionServiceRepository;
 import com.fu.weddingplatform.repository.ServiceRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.request.service.CreateServiceDTO;
+import com.fu.weddingplatform.request.service.FilterServiceDTO;
 import com.fu.weddingplatform.request.service.UpdateServiceDTO;
 import com.fu.weddingplatform.response.category.CategoryResponse;
 import com.fu.weddingplatform.response.promotion.PromotionByServiceResponse;
@@ -74,11 +75,20 @@ public class ServiceServiceImp implements ServiceService {
                                 .serviceSupplier(serviceSupplier)
                                 .description(createDTO.getDescription())
                                 .type(createDTO.getType())
+                                .images(createDTO.getImages())
                                 .price(createDTO.getPrice())
                                 .status(Status.ACTIVATED)
                                 .build();
 
                 Services serviceSaved = serviceRepository.save(service);
+
+                List<String> listImages = new ArrayList<String>();
+                if (serviceSaved.getImages() != null && serviceSaved.getImages() != "") {
+                        String[] imageArray = serviceSaved.getImages().split("\n,");
+                        for (String image : imageArray) {
+                                listImages.add(image.trim());
+                        }
+                }
 
                 List<String> listPromotionIds = Arrays.stream(createDTO.getListPromotionIds().split(","))
                                 .map(String::trim)
@@ -102,13 +112,14 @@ public class ServiceServiceImp implements ServiceService {
                         }
                 }
                 ServiceResponse response = modelMapper.map(serviceSaved, ServiceResponse.class);
+
                 CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
                 ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(serviceSupplier,
                                 ServiceSupplierResponse.class);
                 response.setCategoryResponse(categoryResponse);
                 response.setServiceSupplierResponse(serviceSupplierResponse);
                 response.setPromotions(lisitPromotionResponse);
-
+                response.setListImages(listImages);
                 return response;
         }
 
@@ -133,6 +144,14 @@ public class ServiceServiceImp implements ServiceService {
 
                 serviceRepository.save(service);
 
+                List<String> listImages = new ArrayList<String>();
+                if (service.getImages() != null && service.getImages() != "") {
+                        String[] imageArray = service.getImages().split("\n,");
+                        for (String image : imageArray) {
+                                listImages.add(image.trim());
+                        }
+                }
+
                 ServiceResponse response = modelMapper.map(service, ServiceResponse.class);
                 CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
                 ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
@@ -140,6 +159,7 @@ public class ServiceServiceImp implements ServiceService {
                                 ServiceSupplierResponse.class);
                 response.setCategoryResponse(categoryResponse);
                 response.setServiceSupplierResponse(serviceSupplierResponse);
+                response.setListImages(listImages);
                 List<PromotionByServiceResponse> promotions = promotionService
                                 .getAllPromotionByService(updateDTO.getId());
                 response.setPromotions(promotions);
@@ -150,8 +170,15 @@ public class ServiceServiceImp implements ServiceService {
         public ServiceResponse getServiceById(String id) {
                 Services service = serviceRepository.findById(id).orElseThrow(
                                 () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
-
+                List<String> listImages = new ArrayList<String>();
+                if (service.getImages() != null && service.getImages() != "") {
+                        String[] imageArray = service.getImages().split("\n,");
+                        for (String image : imageArray) {
+                                listImages.add(image.trim());
+                        }
+                }
                 ServiceResponse response = modelMapper.map(service, ServiceResponse.class);
+                response.setListImages(listImages);
                 CategoryResponse categoryResponse = modelMapper.map(service.getCategory(), CategoryResponse.class);
                 ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(service.getServiceSupplier(),
                                 ServiceSupplierResponse.class);
@@ -183,6 +210,14 @@ public class ServiceServiceImp implements ServiceService {
                                 ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
                                                 service.getServiceSupplier(),
                                                 ServiceSupplierResponse.class);
+                                List<String> listImages = new ArrayList<String>();
+                                if (service.getImages() != null && service.getImages() != "") {
+                                        String[] imageArray = service.getImages().split("\n,");
+                                        for (String image : imageArray) {
+                                                listImages.add(image.trim());
+                                        }
+                                }
+                                serviceResponse.setListImages(listImages);
                                 serviceResponse.setCategoryResponse(categoryResponse);
                                 serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
                                 List<PromotionByServiceResponse> promotions = promotionService
@@ -222,6 +257,14 @@ public class ServiceServiceImp implements ServiceService {
                                 ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
                                                 service.getServiceSupplier(),
                                                 ServiceSupplierResponse.class);
+                                List<String> listImages = new ArrayList<String>();
+                                if (service.getImages() != null && service.getImages() != "") {
+                                        String[] imageArray = service.getImages().split("\n,");
+                                        for (String image : imageArray) {
+                                                listImages.add(image.trim());
+                                        }
+                                }
+                                serviceResponse.setListImages(listImages);
                                 serviceResponse.setCategoryResponse(categoryResponse);
                                 serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
                                 List<PromotionByServiceResponse> promotions = promotionService
@@ -272,6 +315,14 @@ public class ServiceServiceImp implements ServiceService {
                                 serviceResponse.setCategoryResponse(categoryResponse);
                                 List<PromotionByServiceResponse> promotions = promotionService
                                                 .getAllPromotionByService(service.getId());
+                                List<String> listImages = new ArrayList<String>();
+                                if (service.getImages() != null && service.getImages() != "") {
+                                        String[] imageArray = service.getImages().split("\n,");
+                                        for (String image : imageArray) {
+                                                listImages.add(image.trim());
+                                        }
+                                }
+                                serviceResponse.setListImages(listImages);
                                 serviceResponse.setPromotions(promotions);
                                 response.add(serviceResponse);
                         }
@@ -315,6 +366,16 @@ public class ServiceServiceImp implements ServiceService {
                                                 ServiceByCategoryAndSupplierResponse.class);
                                 List<PromotionByServiceResponse> promotions = promotionService
                                                 .getAllPromotionByService(service.getId());
+                                List<String> listImages = new ArrayList<String>();
+                                if (service.getImages() != null && service.getImages() != "") {
+                                        String[] imageArray = service.getImages().split("\n,");
+                                        for (String image : imageArray) {
+                                                listImages.add(image.trim());
+                                        }
+                                }
+
+                                serviceResponse.setListImages(listImages);
+
                                 serviceResponse.setPromotions(promotions);
                                 response.add(serviceResponse);
                         }
@@ -356,6 +417,17 @@ public class ServiceServiceImp implements ServiceService {
                                 ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
                                                 service.getServiceSupplier(),
                                                 ServiceSupplierResponse.class);
+
+                                List<String> listImages = new ArrayList<String>();
+                                if (service.getImages() != null && service.getImages() != "") {
+                                        String[] imageArray = service.getImages().split("\n,");
+                                        for (String image : imageArray) {
+                                                listImages.add(image.trim());
+                                        }
+                                }
+
+                                serviceResponse.setListImages(listImages);
+
                                 serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
                                 response.add(serviceResponse);
                         }
@@ -363,6 +435,44 @@ public class ServiceServiceImp implements ServiceService {
                         throw new ErrorException(ServiceErrorMessage.EMPTY);
                 }
 
+                return response;
+        }
+
+        @Override
+        public List<ServiceResponse> filterService(String categoryId, String type, int minPrice, int maxPrice) {
+
+                categoryRepository.findById(categoryId).orElseThrow(
+                                () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
+
+                List<Services> listServices = serviceRepository.filterService(categoryId, type, minPrice, maxPrice);
+
+                if (listServices.size() == 0) {
+                        throw new ErrorException(ServiceErrorMessage.EMPTY);
+                }
+
+                List<ServiceResponse> response = new ArrayList<ServiceResponse>();
+                for (Services service : listServices) {
+                        ServiceResponse serviceResponse = modelMapper.map(service, ServiceResponse.class);
+                        CategoryResponse categoryResponse = modelMapper.map(service.getCategory(),
+                                        CategoryResponse.class);
+                        ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
+                                        service.getServiceSupplier(),
+                                        ServiceSupplierResponse.class);
+                        List<String> listImages = new ArrayList<String>();
+                        if (service.getImages() != null && service.getImages() != "") {
+                                String[] imageArray = service.getImages().split("\n,");
+                                for (String image : imageArray) {
+                                        listImages.add(image.trim());
+                                }
+                        }
+                        serviceResponse.setListImages(listImages);
+                        serviceResponse.setCategoryResponse(categoryResponse);
+                        serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
+                        List<PromotionByServiceResponse> promotions = promotionService
+                                        .getAllPromotionByService(service.getId());
+                        serviceResponse.setPromotions(promotions);
+                        response.add(serviceResponse);
+                }
                 return response;
         }
 

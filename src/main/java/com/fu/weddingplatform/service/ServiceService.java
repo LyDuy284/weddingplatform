@@ -1,6 +1,7 @@
 package com.fu.weddingplatform.service;
 
 import com.fu.weddingplatform.request.service.CreateServiceDTO;
+import com.fu.weddingplatform.request.service.FilterServiceDTO;
 import com.fu.weddingplatform.request.service.UpdateServiceDTO;
 import com.fu.weddingplatform.response.service.ServiceByCategoryAndSupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceByCategoryResponse;
@@ -38,5 +39,7 @@ public interface ServiceService {
                         boolean isAscending);
 
         public ServiceResponse updateServiceStatus(String supplierId, String status);
+
+        public List<ServiceResponse> filterService(String categoryId, String type, int minPrice, int maxPrice);
 
 }

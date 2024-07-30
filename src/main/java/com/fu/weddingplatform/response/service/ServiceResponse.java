@@ -25,7 +25,7 @@ public class ServiceResponse {
     private String description;
     private String type;
     private float price;
-    private String image;
+    private List<String> listImages;
     private String status;
     private CategoryResponse categoryResponse;
     private ServiceSupplierResponse serviceSupplierResponse;

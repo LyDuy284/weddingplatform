@@ -25,6 +25,7 @@ public class CreateServiceDTO {
     private String serviceSupplierId;
     private String listPromotionIds;
     private String type;
+    private String images;
     private String name;
     private String description;
     @Min(value = 0, message = "Value must be greater than 0")

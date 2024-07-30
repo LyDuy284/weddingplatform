@@ -144,4 +144,18 @@ public class ServiceController {
         responseDTO.setData(serviceResponses);
         return ResponseEntity.ok().body(responseDTO);
     }
+
+    @GetMapping("filterService/")
+    public ResponseEntity<?> filterService(@RequestParam String categoryId,
+            @RequestParam(defaultValue = "") String type,
+            @RequestParam(defaultValue = "0") int minPrice,
+            @RequestParam(defaultValue = "0") int maxPrice) {
+        List<ServiceResponse> serviceResponses = service.filterService(categoryId, type, minPrice, maxPrice);
+        ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY);
+        responseDTO.setData(serviceResponses);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
 }

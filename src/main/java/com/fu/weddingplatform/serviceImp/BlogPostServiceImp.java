@@ -66,7 +66,7 @@ public class BlogPostServiceImp implements BlogPostService {
             }
 
             List<String> listImages = new ArrayList<String>();
-            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+            if (blogPost.getImages() != null && blogPost.getImages() != "") {
                 String[] imageArray = blogPost.getImages().split("\n,");
                 for (String image : imageArray) {
                     listImages.add(image.trim());
@@ -108,7 +108,7 @@ public class BlogPostServiceImp implements BlogPostService {
             }
 
             List<String> listImages = new ArrayList<String>();
-            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+            if (blogPost.getImages() != null && blogPost.getImages() != "") {
                 String[] imageArray = blogPost.getImages().split("\n,");
                 for (String image : imageArray) {
                     listImages.add(image.trim());
@@ -150,7 +150,7 @@ public class BlogPostServiceImp implements BlogPostService {
             }
 
             List<String> listImages = new ArrayList<String>();
-            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+            if (blogPost.getImages() != null && blogPost.getImages() != "") {
                 String[] imageArray = blogPost.getImages().split("\n,");
                 for (String image : imageArray) {
                     listImages.add(image.trim());
@@ -192,7 +192,7 @@ public class BlogPostServiceImp implements BlogPostService {
             }
 
             List<String> listImages = new ArrayList<String>();
-            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+            if (blogPost.getImages() != null && blogPost.getImages() != "") {
                 String[] imageArray = blogPost.getImages().split("\n,");
                 for (String image : imageArray) {
                     listImages.add(image.trim());
@@ -237,7 +237,7 @@ public class BlogPostServiceImp implements BlogPostService {
             }
 
             List<String> listImages = new ArrayList<String>();
-            if (blogPost.getImages() != null || blogPost.getImages() != "") {
+            if (blogPost.getImages() != null && blogPost.getImages() != "") {
                 String[] imageArray = blogPost.getImages().split("\n,");
                 for (String image : imageArray) {
                     listImages.add(image.trim());
@@ -271,7 +271,7 @@ public class BlogPostServiceImp implements BlogPostService {
         }
 
         List<String> listImages = new ArrayList<String>();
-        if (blogPost.getImages() != null || blogPost.getImages() != "") {
+        if (blogPost.getImages() != null && blogPost.getImages() != "") {
             String[] imageArray = blogPost.getImages().split("\n,");
             for (String image : imageArray) {
                 listImages.add(image.trim());
@@ -317,7 +317,7 @@ public class BlogPostServiceImp implements BlogPostService {
         response = modelMapper.map(newBlog, BlogPostResponse.class);
 
         List<String> listImages = new ArrayList<String>();
-        if (newBlog.getImages() != null || newBlog.getImages() != "") {
+        if (newBlog.getImages() != null && newBlog.getImages() != "") {
             String[] imageArray = newBlog.getImages().split("\n,");
             for (String image : imageArray) {
                 listImages.add(image.trim());
@@ -351,7 +351,7 @@ public class BlogPostServiceImp implements BlogPostService {
         response.setServiceSupplierId(blogPost.getServiceSupplier().getId());
 
         List<String> listImages = new ArrayList<String>();
-        if (blogPost.getImages() != null || blogPost.getImages() != "") {
+        if (blogPost.getImages() != null && blogPost.getImages() != "") {
             String[] imageArray = blogPost.getImages().split("\n,");
             for (String image : imageArray) {
                 listImages.add(image.trim());
@@ -382,7 +382,7 @@ public class BlogPostServiceImp implements BlogPostService {
         response = modelMapper.map(blogPostSaved, BlogPostResponse.class);
 
         List<String> listImages = new ArrayList<String>();
-        if (blogPostSaved.getImages() != null || blogPostSaved.getImages() != "") {
+        if (blogPostSaved.getImages() != null && blogPostSaved.getImages() != "") {
             String[] imageArray = blogPostSaved.getImages().split("\n,");
             for (String image : imageArray) {
                 listImages.add(image.trim());
@@ -414,7 +414,7 @@ public class BlogPostServiceImp implements BlogPostService {
         response = modelMapper.map(blogPostSaved, BlogPostResponse.class);
 
         List<String> listImages = new ArrayList<String>();
-        if (blogPostSaved.getImages() != null || blogPostSaved.getImages() != "") {
+        if (blogPostSaved.getImages() != null && blogPostSaved.getImages() != "") {
             String[] imageArray = blogPostSaved.getImages().split("\n,");
             for (String image : imageArray) {
                 listImages.add(image.trim());
