@@ -21,9 +21,11 @@ public class Wallet {
     @GenericGenerator(name = "wallet-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.WalletIdGenerator")
     private String id;
     private int balance;
+
     @OneToOne
     @JoinColumn(name = "service_supplier_id", unique = true)
     private ServiceSupplier serviceSupplier;
+
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include

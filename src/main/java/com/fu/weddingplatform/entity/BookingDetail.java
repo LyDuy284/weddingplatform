@@ -1,5 +1,6 @@
 package com.fu.weddingplatform.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -37,6 +38,8 @@ public class BookingDetail {
     @GenericGenerator(name = "booking-detail-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingDetailIdGenerator")
     private String id;
     private int price;
+    @Column(columnDefinition = "text")
+    private String message;
     private String status;
 
     @JsonIgnore

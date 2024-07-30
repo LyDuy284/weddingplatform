@@ -59,14 +59,14 @@ public class BookingController {
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
-  @GetMapping("getById")
-  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
-  public ResponseEntity<?> getBookingById(@RequestParam String id) {
-    BookingResponse data = bookingService.getBookingById(id);
-    ResponseDTO<BookingResponse> response = new ResponseDTO<>();
+  @GetMapping("getBySupplier")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE_SUPPLIER)
+  public ResponseEntity<?> getBookingById(@RequestParam String supplierId) {
+    List<BookingResponse> data = bookingService.getAllBookingBySupplier(supplierId);
+    ListResponseDTO<BookingResponse> response = new ListResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
-    response.setMessage(BookingSuccessMessage.GET_BY_ID);
+    response.setMessage(BookingSuccessMessage.GET_ALL_BY_SUPPLIER);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 

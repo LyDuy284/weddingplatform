@@ -30,6 +30,7 @@ import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.entity.Role;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Staff;
+import com.fu.weddingplatform.entity.Wallet;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.jwt.JwtConfig;
 import com.fu.weddingplatform.repository.AccountRepository;
@@ -37,6 +38,7 @@ import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.repository.RoleRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.repository.StaffRepository;
+import com.fu.weddingplatform.repository.WalletRepository;
 import com.fu.weddingplatform.request.Auth.LoginDTO;
 import com.fu.weddingplatform.request.Auth.RegisterAdminDTO;
 import com.fu.weddingplatform.request.Auth.RegisterCoupleDTO;
@@ -66,6 +68,7 @@ public class AuthServiceImp implements AuthService {
     private final CoupleRepository coupleRepository;
     private final StaffRepository staffRepository;
     private final ServiceSupplierRepository serviceSupplierRepository;
+    private final WalletRepository walletRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -289,6 +292,13 @@ public class AuthServiceImp implements AuthService {
                 .build();
 
         ServiceSupplier newServiceSupplier = serviceSupplierRepository.save(serviceSupplier);
+
+        Wallet wallet = new Wallet().builder()
+                .balance(0)
+                .serviceSupplier(newServiceSupplier)
+                .build();
+
+        walletRepository.save(wallet);
 
         response = modelMapper.map(accountSaved, RegsiterServiceSupplierReponse.class);
 

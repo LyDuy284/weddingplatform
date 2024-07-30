@@ -210,13 +210,6 @@ public class BookingServiceImp implements BookingService {
   }
 
   @Override
-  public List<BookingResponse> getAllBookingBySupplier(String supplierId, int pageNo, int pageSize, String sortBy,
-      boolean isAscending) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAllBookingBySupplier'");
-  }
-
-  @Override
   public List<BookingResponse> getAllBookingByCouple(String coupleId, int pageNo, int pageSize, String sortBy,
       boolean isAscending) {
 
@@ -243,6 +236,28 @@ public class BookingServiceImp implements BookingService {
     } else {
       throw new ErrorException(BookingErrorMessage.EMPTY_LIST);
     }
+    return response;
+  }
+
+  @Override
+  public List<BookingResponse> getAllBookingBySupplier(String supplierId) {
+
+    serviceSupplierRepository.findById(supplierId).orElseThrow(
+        () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+
+    List<String> listBookingIds = bookingRepository.findBookingIdBySupplierId(supplierId);
+
+    if (listBookingIds.size() == 0) {
+      throw new ErrorException(BookingErrorMessage.EMPTY_LIST);
+    }
+
+    List<BookingResponse> response = new ArrayList<>();
+
+    for (String bookingId : listBookingIds) {
+      BookingResponse bookingResponse = getBookingById(bookingId);
+      response.add(bookingResponse);
+    }
+
     return response;
   }
 

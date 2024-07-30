@@ -96,8 +96,8 @@ public class PaymentServiceImpl implements PaymentService {
 
     private Map<String, String> setVNPParams(HttpServletRequest req, CreatePaymentDTO paymentRequest)
             throws JsonProcessingException {
-        Booking booking = bookingRepository.findById(paymentRequest.getBookingId()).
-                orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
+        Booking booking = bookingRepository.findById(paymentRequest.getBookingId())
+                .orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
         if (!booking.getStatus().equals(BookingStatus.CONFIRM)) {
             throw new ErrorException(PaymentErrorMessage.CONDITIONS_NOT_VALID);
         }
@@ -171,23 +171,25 @@ public class PaymentServiceImpl implements PaymentService {
                     .booking(booking)
                     .build();
             if (paymentDTO.getPaymentType().equals(PaymentType.FINAL_PAYMENT)) {
-                completeMoneyForServiceSupplier(booking, booking.getQuotation().getServiceSupplier().getId());
+                // completeMoneyForServiceSupplier(booking,
+                // booking.getQuotation().getServiceSupplier().getId());
             }
             paymentRepository.save(payment);
             response.sendRedirect("https://www.youtube.com/");
         }
     }
 
-    private void completeMoneyForServiceSupplier(Booking booking, String serviceSuplierId){
+    private void completeMoneyForServiceSupplier(Booking booking, String serviceSuplierId) {
         int totalPrice = booking.getBookingDetails().stream().mapToInt(BookingDetail::getPrice).sum();
         double amount = totalPrice * (1 - BookingConstant.BOOKING_COMMISSION_VALUE);
         Wallet wallet = walletRepository.findByServiceSupplierId(serviceSuplierId)
                 .orElseThrow(() -> new ErrorException(WalletErrorMessage.NOT_FOUND));
-        wallet.setBalance(wallet.getBalance() + (int)amount);
+        wallet.setBalance(wallet.getBalance() + (int) amount);
         Transaction transaction = Transaction.builder()
                 .dateCreated(new Date(System.currentTimeMillis()))
-                .amount((int)amount)
-                .description(String.format(TransactionSuccessMessage.TRANSACTION_COMPLETED_DESCRIPTION, booking.getId(), amount))
+                .amount((int) amount)
+                .description(String.format(TransactionSuccessMessage.TRANSACTION_COMPLETED_DESCRIPTION, booking.getId(),
+                        amount))
                 .transactionType(TransactionType.PLUS)
                 .wallet(wallet)
                 .build();

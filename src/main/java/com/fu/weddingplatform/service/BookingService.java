@@ -9,11 +9,7 @@ import com.fu.weddingplatform.response.booking.BookingResponse;
 public interface BookingService {
   public BookingResponse createBooking(CreateBookingDTO createDTO);
 
-  public List<BookingResponse> getAllBookingBySupplier(String supplierId,
-      int pageNo,
-      int pageSize,
-      String sortBy,
-      boolean isAscending);
+  public List<BookingResponse> getAllBookingBySupplier(String supplierId);
 
   public List<BookingResponse> getAllBookingByCouple(String coupleId,
       int pageNo,
