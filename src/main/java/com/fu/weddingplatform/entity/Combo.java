@@ -1,5 +1,6 @@
 package com.fu.weddingplatform.entity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
@@ -44,12 +45,13 @@ public class Combo {
   @Column(columnDefinition = "text")
   private String description;
   private String status;
+  private String image;
 
   @OneToMany(mappedBy = "combo", cascade = CascadeType.ALL)
   @EqualsAndHashCode.Include
   @ToString.Include
   @JsonIgnore
-  private Collection<ComboService> comboServices;
+  private Collection<ComboServices> comboServices;
 
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
