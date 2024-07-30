@@ -70,7 +70,7 @@ public class Services {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<ComboService> comboServices;
+    private Collection<ComboServices> comboServices;
 
     @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include

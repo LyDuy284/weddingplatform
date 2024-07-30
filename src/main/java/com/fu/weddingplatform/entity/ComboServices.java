@@ -16,7 +16,7 @@ import javax.persistence.*;
 @ToString
 @Builder
 @Table(name = "combo_service")
-public class ComboService {
+public class ComboServices {
 
     @Id
     @GeneratedValue(generator = "combo-service-id")
