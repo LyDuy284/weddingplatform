@@ -1,4 +1,4 @@
-package com.fu.weddingplatform.request.booking;
+package com.fu.weddingplatform.response.booking;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class ServiceBookingDTO {
+public class ServiceBookingResponse {
   private String serviceId;
-  private String note;
+  private int price;
 }

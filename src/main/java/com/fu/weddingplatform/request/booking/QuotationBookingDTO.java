@@ -13,7 +13,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class ServiceBookingDTO {
-  private String serviceId;
+public class QuotationBookingDTO {
+  private String quoationId;
   private String note;
 }

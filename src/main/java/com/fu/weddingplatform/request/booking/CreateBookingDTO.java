@@ -21,4 +21,5 @@ public class CreateBookingDTO {
   private String supplierId;
   private Date completeDate;
   private List<ServiceBookingDTO> listService;
+  private List<QuotationBookingDTO> listQuotations;
 }

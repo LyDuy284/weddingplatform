@@ -20,10 +20,9 @@ public class TransactionIdGenerator implements IdentifierGenerator {
     Connection connection = sharedSessionContractImplementor.connection();
     int count = 1;
     Statement statement = connection.createStatement();
-    ResultSet rs = statement.executeQuery("SELECT CAST(SUBSTRING_INDEX(id, '-', -1) AS UNSIGNED) AS number \n" +
+    ResultSet rs = statement.executeQuery("SELECT MAX(CAST(SUBSTRING_INDEX(id, '-', -1) AS UNSIGNED)) AS number \n" +
         "FROM transaction \n" +
-        "ORDER BY id DESC \n" +
-        "LIMIT 1; ");
+        "ORDER BY id DESC \n");
     if (rs.next()) {
       int maxId = rs.getInt("number") + 1;
       return String.format("TRANSACTION-%d", maxId);

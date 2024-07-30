@@ -3,8 +3,6 @@ package com.fu.weddingplatform.response.booking;
 import java.sql.Date;
 import java.util.List;
 
-import com.fu.weddingplatform.request.booking.ServiceBookingDTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +21,7 @@ public class BookingResponse {
   private String coupleId;
   private String createdAt;
   private Date completedDate;
-  private List<ServiceBookingDTO> serviceBookings;
+  private List<ServiceBookingResponse> serviceBookings;
   private int totalPrice;
   private String status;
 }

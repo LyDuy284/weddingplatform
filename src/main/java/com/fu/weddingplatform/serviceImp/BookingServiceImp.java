@@ -25,17 +25,21 @@ import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.BookingHistory;
 import com.fu.weddingplatform.entity.Couple;
+import com.fu.weddingplatform.entity.Quotation;
 import com.fu.weddingplatform.entity.Services;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.BookingHistoryRepository;
 import com.fu.weddingplatform.repository.BookingRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
+import com.fu.weddingplatform.repository.QuotationRepository;
 import com.fu.weddingplatform.repository.ServiceRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
+import com.fu.weddingplatform.request.booking.QuotationBookingDTO;
 import com.fu.weddingplatform.request.booking.ServiceBookingDTO;
 import com.fu.weddingplatform.response.booking.BookingResponse;
+import com.fu.weddingplatform.response.booking.ServiceBookingResponse;
 import com.fu.weddingplatform.service.BookingService;
 
 @Service
@@ -58,6 +62,9 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private BookingHistoryRepository bookingHistoryRepository;
+
+  @Autowired
+  private QuotationRepository quotationRepository;
 
   @Autowired
   private ModelMapper modelMapper;
@@ -95,7 +102,8 @@ public class BookingServiceImp implements BookingService {
         .build();
 
     Booking bookingSaved = bookingRepository.save(booking);
-    List<ServiceBookingDTO> serviceBookingResponse = new ArrayList<>();
+    List<ServiceBookingResponse> listServiceBookingResponses = new ArrayList<>();
+
     List<BookingDetail> listBookingDetails = new ArrayList<>();
     int totalPrice = 0;
     for (ServiceBookingDTO serviceBooking : createDTO.getListService()) {
@@ -113,21 +121,50 @@ public class BookingServiceImp implements BookingService {
       BookingDetail bookingDetail = new BookingDetail().builder()
           .service(service.get())
           .booking(bookingSaved)
-          .price(serviceBooking.getPrice())
+          .price(service.get().getPrice())
           .status(Status.ACTIVATED)
           .build();
+      listBookingDetails.add(bookingDetail);
+    }
+
+    for (QuotationBookingDTO quotationBookingDTO : createDTO.getListQuotations()) {
+      Optional<Quotation> quotation = quotationRepository.findById(quotationBookingDTO.getQuoationId().trim());
+
+      if (quotation.isEmpty()) {
+        bookingRepository.delete(bookingSaved);
+        throw new ErrorException(ServiceErrorMessage.NOT_FOUND);
+      }
+
+      if (!(quotation.get().getServiceSupplier().getId().equalsIgnoreCase(createDTO.getSupplierId()))) {
+        throw new ErrorException(BookingErrorMessage.ALL_SERVICES_HAVE_THE_SAME_SUPPLIER);
+      }
+
+      if (!(quotation.get().getStatus().equalsIgnoreCase(Status.QUOTED))) {
+        bookingRepository.delete(bookingSaved);
+        throw new ErrorException(BookingErrorMessage.SERVICE_MUST_BE_QUOTED);
+      }
+
+      BookingDetail bookingDetail = new BookingDetail().builder()
+          .service(quotation.get().getService())
+          .booking(bookingSaved)
+          .price(quotation.get().getPrice())
+          .note(quotationBookingDTO.getNote())
+          .quotation(quotation.get())
+          .status(Status.ACTIVATED)
+          .build();
+
       listBookingDetails.add(bookingDetail);
     }
 
     for (BookingDetail bookingDetail : listBookingDetails) {
 
       BookingDetail bookingDetailSaved = bookingDetailRepository.save(bookingDetail);
-      ServiceBookingDTO serviceBookingDTO = new ServiceBookingDTO().builder()
+      ServiceBookingResponse serviceBookingResponse = new ServiceBookingResponse().builder()
           .serviceId(bookingDetail.getService().getId())
           .price(bookingDetailSaved.getPrice())
           .build();
       totalPrice += bookingDetailSaved.getPrice();
-      serviceBookingResponse.add(serviceBookingDTO);
+      listServiceBookingResponses.add(serviceBookingResponse);
     }
 
     BookingHistory bookingHistory = new BookingHistory().builder()
@@ -139,7 +176,7 @@ public class BookingServiceImp implements BookingService {
 
     BookingResponse response = modelMapper.map(bookingSaved, BookingResponse.class);
     response.setCoupleId(couple.getId());
-    response.setServiceBookings(serviceBookingResponse);
+    response.setServiceBookings(listServiceBookingResponses);
     response.setTotalPrice(totalPrice);
 
     return response;
@@ -192,19 +229,19 @@ public class BookingServiceImp implements BookingService {
 
     int totalPrice = 0;
 
-    List<ServiceBookingDTO> serviceBookingResponse = new ArrayList<>();
+    List<ServiceBookingResponse> listServiceBookingResponses = new ArrayList<>();
 
     for (BookingDetail bookingDetail : booking.getBookingDetails()) {
-      ServiceBookingDTO serviceBookingDTO = new ServiceBookingDTO().builder()
+      ServiceBookingResponse serviceBookingResponse = new ServiceBookingResponse().builder()
           .serviceId(bookingDetail.getService().getId())
           .price(bookingDetail.getPrice())
           .build();
 
       totalPrice += bookingDetail.getPrice();
-      serviceBookingResponse.add(serviceBookingDTO);
+      listServiceBookingResponses.add(serviceBookingResponse);
     }
 
-    response.setServiceBookings(serviceBookingResponse);
+    response.setServiceBookings(listServiceBookingResponses);
     response.setTotalPrice(totalPrice);
     return response;
   }
