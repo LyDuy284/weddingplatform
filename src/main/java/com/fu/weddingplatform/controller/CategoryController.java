@@ -68,4 +68,14 @@ public class CategoryController {
         responseDTO.setData(category);
         return ResponseEntity.ok().body(responseDTO);
     }
+
+    @GetMapping("getCategoryName/")
+    public ResponseEntity<?> getCategoryName() {
+        List<String> category = categoryService.getCategoryName();
+        ListResponseDTO<String> responseDTO = new ListResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(CategorySuccessMessage.GET_ALL_NAME);
+        responseDTO.setData(category);
+        return ResponseEntity.ok().body(responseDTO);
+    }
 }

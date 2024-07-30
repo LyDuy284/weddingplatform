@@ -13,4 +13,6 @@ public interface CategoryService {
 
     public CategoryResponse getCategoryById(String categoryId);
 
+    public List<String> getCategoryName();
+
 }

@@ -67,4 +67,12 @@ public class CategoryServiceImp implements CategoryService {
         }
         return response;
     }
+
+    @Override
+    public List<String> getCategoryName() {
+
+        List<String> response = categoryRepository.getCategoryName();
+
+        return response;
+    }
 }
