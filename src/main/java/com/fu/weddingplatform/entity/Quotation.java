@@ -75,5 +75,5 @@ public class Quotation {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<Booking> bookings;
+    private Collection<BookingDetail> bookingDetails;
 }

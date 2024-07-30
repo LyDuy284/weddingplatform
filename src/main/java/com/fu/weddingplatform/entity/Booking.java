@@ -52,14 +52,6 @@ public class Booking {
     @ToString.Include
     private Couple couple;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "quotation_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private Quotation quotation;
-
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include

@@ -39,7 +39,7 @@ public class BookingDetail {
     private String id;
     private int price;
     @Column(columnDefinition = "text")
-    private String message;
+    private String note;
     private String status;
 
     @JsonIgnore
@@ -58,4 +58,11 @@ public class BookingDetail {
     @ToString.Include
     private Services service;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "quotation_id")
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private Quotation quotation;
 }
