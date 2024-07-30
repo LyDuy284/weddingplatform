@@ -41,6 +41,7 @@ public class Services {
     @GeneratedValue(generator = "service-id")
     @GenericGenerator(name = "service-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ServiceIdGenerate")
     private String id;
+    private String type;
     private String name;
     @Column(columnDefinition = "text")
     private String description;

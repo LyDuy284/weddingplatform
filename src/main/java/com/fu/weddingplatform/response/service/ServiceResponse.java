@@ -23,6 +23,7 @@ public class ServiceResponse {
     private String id;
     private String name;
     private String description;
+    private String type;
     private float price;
     private String image;
     private String status;

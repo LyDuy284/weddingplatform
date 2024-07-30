@@ -73,6 +73,7 @@ public class ServiceServiceImp implements ServiceService {
                                 .category(category)
                                 .serviceSupplier(serviceSupplier)
                                 .description(createDTO.getDescription())
+                                .type(createDTO.getType())
                                 .price(createDTO.getPrice())
                                 .status(Status.ACTIVATED)
                                 .build();
@@ -128,6 +129,7 @@ public class ServiceServiceImp implements ServiceService {
                 service.setPrice(updateDTO.getPrice());
                 service.setImages(updateDTO.getImages());
                 service.setCategory(category);
+                service.setType(updateDTO.getType());
 
                 serviceRepository.save(service);
 

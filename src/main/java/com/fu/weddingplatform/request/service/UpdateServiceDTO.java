@@ -18,6 +18,7 @@ public class UpdateServiceDTO {
     private String id;
     @NotEmpty(message = "Category ID " + ValidationMessage.NOT_EMPTY)
     private String categoryId;
+    private String type;
     private String name;
     private String description;
     @Min(value = 0, message = "Value must be greater than 0")
