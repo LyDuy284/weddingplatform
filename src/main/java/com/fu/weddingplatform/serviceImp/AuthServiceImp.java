@@ -81,11 +81,26 @@ public class AuthServiceImp implements AuthService {
         Authentication authenticate = authenticationManager.authenticate(authentication);
         if (authenticate.isAuthenticated()) {
             String token = Utils.buildJWT(authenticate, account, secretKey, jwtConfig);
+            String userId = null;
+            switch (account.getRole().getName()) {
+                case RoleName.ROLE_STAFF:
+                    userId = account.getStaffs().stream().findFirst().get().getId();
+                    break;
+                case RoleName.ROLE_COUPLE:
+                    userId = account.getCouples().stream().findFirst().get().getId();
+                    break;
+                case RoleName.ROLE_SERVICE_SUPPLIER:
+                    userId = account.getServiceSuppliers().stream().findFirst().get().getId();
+                    break;
+                default:
+                    break;
+            }
             loginResponse = LoginResponse.builder()
                     .accountId(account.getId())
                     .email(account.getEmail())
                     .status(account.getStatus())
                     .roleName(account.getRole().getName())
+                    .userId(userId)
                     .token(token)
                     .build();
 
@@ -340,12 +355,26 @@ public class AuthServiceImp implements AuthService {
                 .claim(("authorities"), simpleGrantedAuthorities).claim("id", account.get().getId())
                 .setIssuedAt((new Date())).setExpiration(java.sql.Date.valueOf(LocalDate.now().plusDays(14)))
                 .signWith(jwtConfig.secretKey()).compact();
-
+        String userId = null;
+        switch (account.get().getRole().getName()) {
+            case RoleName.ROLE_STAFF:
+                userId = account.get().getStaffs().stream().findFirst().get().getId();
+                break;
+            case RoleName.ROLE_COUPLE:
+                userId = account.get().getCouples().stream().findFirst().get().getId();
+                break;
+            case RoleName.ROLE_SERVICE_SUPPLIER:
+                userId = account.get().getServiceSuppliers().stream().findFirst().get().getId();
+                break;
+            default:
+                break;
+        }
         return LoginResponse.builder()
                 .accountId(account.get().getId())
                 .email(account.get().getEmail())
                 .status(account.get().getStatus())
                 .roleName(account.get().getRole().getName())
+                .userId(userId)
                 .token(tokenResponse)
                 .build();
     }
