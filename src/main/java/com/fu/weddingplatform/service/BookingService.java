@@ -5,6 +5,7 @@ import java.util.List;
 import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.response.booking.BookingResponse;
+import com.fu.weddingplatform.response.booking.BookingStatusResponse;
 
 public interface BookingService {
   public BookingResponse createBooking(CreateBookingDTO createDTO);
@@ -24,5 +25,7 @@ public interface BookingService {
   public Booking saveStatus(String bookingId, String status);
 
   public BookingResponse convertBookingToBookingResponse(Booking booking);
+
+  public List<BookingStatusResponse> getBookingStatusById(String bookingId);
 
 }

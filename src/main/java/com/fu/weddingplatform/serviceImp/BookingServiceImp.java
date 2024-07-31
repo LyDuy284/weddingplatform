@@ -39,6 +39,7 @@ import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.request.booking.QuotationBookingDTO;
 import com.fu.weddingplatform.request.booking.ServiceBookingDTO;
 import com.fu.weddingplatform.response.booking.BookingResponse;
+import com.fu.weddingplatform.response.booking.BookingStatusResponse;
 import com.fu.weddingplatform.response.booking.ServiceBookingResponse;
 import com.fu.weddingplatform.service.BookingService;
 
@@ -293,6 +294,25 @@ public class BookingServiceImp implements BookingService {
     for (String bookingId : listBookingIds) {
       BookingResponse bookingResponse = getBookingById(bookingId);
       response.add(bookingResponse);
+    }
+
+    return response;
+  }
+
+  @Override
+  public List<BookingStatusResponse> getBookingStatusById(String bookingId) {
+    Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+        () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
+
+    List<BookingStatusResponse> response = new ArrayList<BookingStatusResponse>();
+
+    for (BookingHistory bookingHistory : booking.getBookingHistories()) {
+      BookingStatusResponse bookingStatus = new BookingStatusResponse().builder()
+          .status(bookingHistory.getStatus())
+          .createAt(bookingHistory.getCreatedAt())
+          .build();
+
+      response.add(bookingStatus);
     }
 
     return response;

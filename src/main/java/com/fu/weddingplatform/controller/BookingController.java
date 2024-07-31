@@ -23,6 +23,7 @@ import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.booking.BookingResponse;
+import com.fu.weddingplatform.response.booking.BookingStatusResponse;
 import com.fu.weddingplatform.service.BookingService;
 
 @RestController
@@ -121,6 +122,17 @@ public class BookingController {
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
     response.setMessage(BookingSuccessMessage.CANCLE);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
+  @GetMapping("getBookingStatus")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE_SUPPLIER)
+  public ResponseEntity<?> getBookingStatusById(@RequestParam String bookingId) {
+    List<BookingStatusResponse> data = bookingService.getBookingStatusById(bookingId);
+    ListResponseDTO<BookingStatusResponse> response = new ListResponseDTO<>();
+    response.setData(data);
+    response.setStatus(ResponseStatusDTO.SUCCESS);
+    response.setMessage(BookingSuccessMessage.GET_ALL_BY_COUPLE);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
