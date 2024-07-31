@@ -132,7 +132,7 @@ public class BookingController {
     ListResponseDTO<BookingStatusResponse> response = new ListResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
-    response.setMessage(BookingSuccessMessage.GET_ALL_BY_COUPLE);
+    response.setMessage(BookingSuccessMessage.GET_STATUS);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 

@@ -4,7 +4,9 @@ import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.account.AccountSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
+import com.fu.weddingplatform.request.account.UpdateSupplierDTO;
 import com.fu.weddingplatform.response.Account.AccountResponse;
+import com.fu.weddingplatform.response.Account.SupplierResponse;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.service.AccountService;
@@ -76,6 +78,17 @@ public class AccountController {
         AccountResponse data = accountService.updateAccountStatus(id, Status.ACTIVATED);
         responseDTO.setData(data);
         responseDTO.setMessage(AccountSuccessMessage.ACTIVATE_ACCOUNT);
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @PutMapping("updateSupplierProfile")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+    public ResponseEntity<?> updateSupplierProfile(@RequestBody UpdateSupplierDTO updateSupplierDTO) {
+        ResponseDTO<SupplierResponse> responseDTO = new ResponseDTO<>();
+        SupplierResponse data = accountService.updateSupplierProfile(updateSupplierDTO);
+        responseDTO.setData(data);
+        responseDTO.setMessage(AccountSuccessMessage.UPDATE_ACCOUNT);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }

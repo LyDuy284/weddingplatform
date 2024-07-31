@@ -28,6 +28,7 @@ public class Account {
     private String password;
     private String email;
     private String name;
+    private String image;
     private String phoneNumber;
     private String address;
     private String status;
