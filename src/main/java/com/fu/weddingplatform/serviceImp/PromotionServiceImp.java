@@ -124,28 +124,25 @@ public class PromotionServiceImp implements PromotionService {
   }
 
   @Override
-  public List<PromotionBySupplierResponse> getPromotionBySupplier(String supplierId, int pageNo, int pageSize,
-      String sortBy,
-      boolean isAscending) {
+  public List<PromotionBySupplierResponse> getPromotionBySupplier(String supplierId) {
 
-    ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(supplierId).orElseThrow(
+    serviceSupplierRepository.findById(supplierId).orElseThrow(
         () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
     List<PromotionBySupplierResponse> response = new ArrayList<PromotionBySupplierResponse>();
-    Page<Promotion> promotionPage;
-    if (isAscending) {
-      promotionPage = promotionRepository.findByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED,
-          PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()));
-    } else {
-      promotionPage = promotionRepository.findByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED,
-          PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()));
-    }
 
-    if (!promotionPage.hasContent()) {
+    ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    LocalDate localDate = LocalDate.now(vietnamZoneId);
+    String currentDate = localDate.format(dateFormatter);
+
+    List<Promotion> listPromotions = promotionRepository.findBySupplier(supplierId, currentDate);
+
+    if (listPromotions.isEmpty()) {
       throw new ErrorException(PromotionErrorMessage.EMPTY);
     }
 
-    for (Promotion promotion : promotionPage.getContent()) {
+    for (Promotion promotion : listPromotions) {
 
       PromotionBySupplierResponse promotionBySupplierResponse = modelMapper.map(promotion,
           PromotionBySupplierResponse.class);

@@ -55,17 +55,11 @@ public class PromotionController {
   }
 
   @GetMapping("getPromotionBySupplier/{id}")
-  public ResponseEntity<?> getPromotionBySupplier(@RequestParam String supplierId,
-      @RequestParam(defaultValue = "0") int pageNo,
-      @RequestParam(defaultValue = "10") int pageSize,
-      @RequestParam(defaultValue = "id") String sortBy,
-      @RequestParam(defaultValue = "true") boolean isAscending) {
-    List<PromotionBySupplierResponse> response = promotionService.getPromotionBySupplier(supplierId, pageNo, pageSize,
-        sortBy,
-        isAscending);
+  public ResponseEntity<?> getPromotionBySupplier(@RequestParam String supplierId) {
+    List<PromotionBySupplierResponse> response = promotionService.getPromotionBySupplier(supplierId);
     ListResponseDTO<PromotionBySupplierResponse> responseDTO = new ListResponseDTO<>();
     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    responseDTO.setMessage(PromotionSuccessMessage.GET_BY_ID);
+    responseDTO.setMessage(PromotionSuccessMessage.GET_ALL_BY_SUPPLIER);
     responseDTO.setData(response);
     return ResponseEntity.ok().body(responseDTO);
   }
@@ -77,7 +71,7 @@ public class PromotionController {
     List<PromotionByServiceResponse> response = promotionService.getPromotionByService(id, pageNo, pageSize);
     ListResponseDTO<PromotionByServiceResponse> responseDTO = new ListResponseDTO<>();
     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    responseDTO.setMessage(PromotionSuccessMessage.GET_BY_ID);
+    responseDTO.setMessage(PromotionSuccessMessage.GET_ALL_BY_SERVICE);
     responseDTO.setData(response);
     return ResponseEntity.ok().body(responseDTO);
   }

@@ -29,7 +29,6 @@ import com.fu.weddingplatform.repository.PromotionServiceRepository;
 import com.fu.weddingplatform.repository.ServiceRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.request.service.CreateServiceDTO;
-import com.fu.weddingplatform.request.service.FilterServiceDTO;
 import com.fu.weddingplatform.request.service.UpdateServiceDTO;
 import com.fu.weddingplatform.response.category.CategoryResponse;
 import com.fu.weddingplatform.response.promotion.PromotionByServiceResponse;
@@ -83,10 +82,13 @@ public class ServiceServiceImp implements ServiceService {
                 Services serviceSaved = serviceRepository.save(service);
 
                 List<String> listImages = new ArrayList<String>();
-                if (serviceSaved.getImages() != null && serviceSaved.getImages() != "") {
+                if (serviceSaved.getImages().trim() != null
+                                && !(serviceSaved.getImages().trim().equalsIgnoreCase(""))) {
                         String[] imageArray = serviceSaved.getImages().split("\n,");
                         for (String image : imageArray) {
-                                listImages.add(image.trim());
+                                if (image.trim() != "") {
+                                        listImages.add(image.trim());
+                                }
                         }
                 }
 
@@ -145,13 +147,14 @@ public class ServiceServiceImp implements ServiceService {
                 serviceRepository.save(service);
 
                 List<String> listImages = new ArrayList<String>();
-                if (service.getImages() != null && service.getImages() != "") {
+                if (service.getImages().trim() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
                         String[] imageArray = service.getImages().split("\n,");
                         for (String image : imageArray) {
-                                listImages.add(image.trim());
+                                if (image.trim() != "") {
+                                        listImages.add(image.trim());
+                                }
                         }
                 }
-
                 ServiceResponse response = modelMapper.map(service, ServiceResponse.class);
                 CategoryResponse categoryResponse = modelMapper.map(category, CategoryResponse.class);
                 ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
@@ -171,10 +174,12 @@ public class ServiceServiceImp implements ServiceService {
                 Services service = serviceRepository.findById(id).orElseThrow(
                                 () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
                 List<String> listImages = new ArrayList<String>();
-                if (service.getImages() != null && service.getImages() != "") {
+                if (service.getImages().trim() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
                         String[] imageArray = service.getImages().split("\n,");
                         for (String image : imageArray) {
-                                listImages.add(image.trim());
+                                if (image.trim() != "") {
+                                        listImages.add(image.trim());
+                                }
                         }
                 }
                 ServiceResponse response = modelMapper.map(service, ServiceResponse.class);
@@ -211,10 +216,13 @@ public class ServiceServiceImp implements ServiceService {
                                                 service.getServiceSupplier(),
                                                 ServiceSupplierResponse.class);
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages() != null && service.getImages() != "") {
+                                if (service.getImages().trim() != null
+                                                && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
-                                                listImages.add(image.trim());
+                                                if (image.trim() != "") {
+                                                        listImages.add(image.trim());
+                                                }
                                         }
                                 }
                                 serviceResponse.setListImages(listImages);
@@ -258,10 +266,13 @@ public class ServiceServiceImp implements ServiceService {
                                                 service.getServiceSupplier(),
                                                 ServiceSupplierResponse.class);
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages() != null && service.getImages() != "") {
+                                if (service.getImages().trim() != null
+                                                && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
-                                                listImages.add(image.trim());
+                                                if (image.trim() != "") {
+                                                        listImages.add(image.trim());
+                                                }
                                         }
                                 }
                                 serviceResponse.setListImages(listImages);
@@ -316,10 +327,13 @@ public class ServiceServiceImp implements ServiceService {
                                 List<PromotionByServiceResponse> promotions = promotionService
                                                 .getAllPromotionByService(service.getId());
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages() != null && service.getImages() != "") {
+                                if (service.getImages().trim() != null
+                                                && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
-                                                listImages.add(image.trim());
+                                                if (image.trim() != "") {
+                                                        listImages.add(image.trim());
+                                                }
                                         }
                                 }
                                 serviceResponse.setListImages(listImages);
@@ -367,10 +381,13 @@ public class ServiceServiceImp implements ServiceService {
                                 List<PromotionByServiceResponse> promotions = promotionService
                                                 .getAllPromotionByService(service.getId());
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages() != null && service.getImages() != "") {
+                                if (service.getImages().trim() != null
+                                                && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
-                                                listImages.add(image.trim());
+                                                if (image.trim() != "") {
+                                                        listImages.add(image.trim());
+                                                }
                                         }
                                 }
 
@@ -419,10 +436,13 @@ public class ServiceServiceImp implements ServiceService {
                                                 ServiceSupplierResponse.class);
 
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages() != null && service.getImages() != "") {
+                                if (service.getImages().trim() != null
+                                                && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
-                                                listImages.add(image.trim());
+                                                if (image.trim() != "") {
+                                                        listImages.add(image.trim());
+                                                }
                                         }
                                 }
 
@@ -459,10 +479,12 @@ public class ServiceServiceImp implements ServiceService {
                                         service.getServiceSupplier(),
                                         ServiceSupplierResponse.class);
                         List<String> listImages = new ArrayList<String>();
-                        if (service.getImages() != null && service.getImages() != "") {
+                        if (service.getImages().trim() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                 String[] imageArray = service.getImages().split("\n,");
                                 for (String image : imageArray) {
-                                        listImages.add(image.trim());
+                                        if (image.trim() != "") {
+                                                listImages.add(image.trim());
+                                        }
                                 }
                         }
                         serviceResponse.setListImages(listImages);

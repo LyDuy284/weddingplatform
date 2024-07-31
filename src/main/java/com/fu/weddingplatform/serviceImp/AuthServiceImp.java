@@ -26,6 +26,7 @@ import com.fu.weddingplatform.constant.role.RoleErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleName;
 import com.fu.weddingplatform.constant.validation.ValidationMessage;
 import com.fu.weddingplatform.entity.Account;
+import com.fu.weddingplatform.entity.Area;
 import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.entity.Role;
 import com.fu.weddingplatform.entity.ServiceSupplier;
@@ -34,6 +35,7 @@ import com.fu.weddingplatform.entity.Wallet;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.jwt.JwtConfig;
 import com.fu.weddingplatform.repository.AccountRepository;
+import com.fu.weddingplatform.repository.AreaRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.repository.RoleRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
@@ -70,6 +72,7 @@ public class AuthServiceImp implements AuthService {
     private final ServiceSupplierRepository serviceSupplierRepository;
     private final WalletRepository walletRepository;
     private final ModelMapper modelMapper;
+    private final AreaRepository areaRepository;
 
     @Override
     public LoginResponse login(LoginDTO loginDTO) {
@@ -287,6 +290,7 @@ public class AuthServiceImp implements AuthService {
                     .name(registerDTO.getName())
                     .address(registerDTO.getAddress())
                     .email(registerDTO.getEmail())
+                    .image(registerDTO.getImage())
                     .phoneNumber(registerDTO.getPhoneNumber())
                     .provider(AccountProvider.LOCAL)
                     .role(role)
@@ -308,6 +312,15 @@ public class AuthServiceImp implements AuthService {
 
         ServiceSupplier newServiceSupplier = serviceSupplierRepository.save(serviceSupplier);
 
+        Area area = Area.builder()
+                .province(registerDTO.getProvince())
+                .district(registerDTO.getDistrict())
+                .ward(registerDTO.getWard())
+                .apartmentNumber(registerDTO.getApartmentNumber())
+                .serviceSupplier(serviceSupplier)
+                .status(Status.ACTIVATED)
+                .build();
+        areaRepository.save(area);
         Wallet wallet = new Wallet().builder()
                 .balance(0)
                 .serviceSupplier(newServiceSupplier)

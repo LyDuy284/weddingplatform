@@ -22,6 +22,7 @@ public class RegisterServiceSupplierDTO {
     @Size(min = ValidationSize.PASSWORD_MIN, max = ValidationSize.PASSWORD_MAX, message = ValidationMessage.PASSWORD_INVALID_MESSAGE)
     private String password;
     private String supplierName;
+    private String image;
     private String contactPersonName;
     @NotNull(message = ValidationMessage.PHONE_NUMBER_NOT_NULL)
     @ValidPhoneNumber
@@ -34,4 +35,8 @@ public class RegisterServiceSupplierDTO {
     @NotNull(message = ValidationMessage.PHONE_NUMBER_NOT_NULL)
     @ValidPhoneNumber
     private String phoneNumber;
+    private String province;
+    private String district;
+    private String ward;
+    private String apartmentNumber;
 }

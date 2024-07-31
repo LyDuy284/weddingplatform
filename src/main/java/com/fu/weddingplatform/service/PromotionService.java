@@ -13,9 +13,7 @@ public interface PromotionService {
 
         public PromotionResponse getPromotionById(String id);
 
-        public List<PromotionBySupplierResponse> getPromotionBySupplier(String supplierId, int pageNo, int pageSize,
-                        String sortBy,
-                        boolean isAscending);
+        public List<PromotionBySupplierResponse> getPromotionBySupplier(String supplierId);
 
         public List<PromotionByServiceResponse> getPromotionByService(String serviceId,
                         int pageNo,
