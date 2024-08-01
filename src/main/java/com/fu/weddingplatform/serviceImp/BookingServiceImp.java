@@ -41,7 +41,11 @@ import com.fu.weddingplatform.request.booking.ServiceBookingDTO;
 import com.fu.weddingplatform.response.booking.BookingResponse;
 import com.fu.weddingplatform.response.booking.BookingStatusResponse;
 import com.fu.weddingplatform.response.booking.ServiceBookingResponse;
+import com.fu.weddingplatform.response.couple.CoupleResponse;
+import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.service.BookingService;
+import com.fu.weddingplatform.service.CoupleService;
+import com.fu.weddingplatform.service.ServiceService;
 
 @Service
 public class BookingServiceImp implements BookingService {
@@ -66,6 +70,12 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private QuotationRepository quotationRepository;
+
+  @Autowired
+  private ServiceService serviceService;
+
+  @Autowired
+  private CoupleService coupleService;
 
   @Autowired
   private ModelMapper modelMapper;
@@ -160,10 +170,14 @@ public class BookingServiceImp implements BookingService {
     for (BookingDetail bookingDetail : listBookingDetails) {
 
       BookingDetail bookingDetailSaved = bookingDetailRepository.save(bookingDetail);
+      ServiceResponse serviceResponse = serviceService
+          .getServiceById(bookingDetailSaved.getService().getId());
+
       ServiceBookingResponse serviceBookingResponse = new ServiceBookingResponse().builder()
-          .serviceId(bookingDetail.getService().getId())
-          .price(bookingDetailSaved.getPrice())
+          .service(serviceResponse)
+          .bookingPrice(bookingDetail.getPrice())
           .build();
+
       totalPrice += bookingDetailSaved.getPrice();
       listServiceBookingResponses.add(serviceBookingResponse);
     }
@@ -176,8 +190,9 @@ public class BookingServiceImp implements BookingService {
     bookingHistoryRepository.save(bookingHistory);
 
     BookingResponse response = modelMapper.map(bookingSaved, BookingResponse.class);
-    response.setCoupleId(couple.getId());
+    CoupleResponse coupleResponse = coupleService.getCoupleById(couple.getId());
     response.setServiceBookings(listServiceBookingResponses);
+    response.setCouple(coupleResponse);
     response.setTotalPrice(totalPrice);
 
     return response;
@@ -226,22 +241,28 @@ public class BookingServiceImp implements BookingService {
   @Override
   public BookingResponse convertBookingToBookingResponse(Booking booking) {
     BookingResponse response = modelMapper.map(booking, BookingResponse.class);
-    response.setCoupleId(booking.getCouple().getId());
+    CoupleResponse coupleResponse = coupleService.getCoupleById(booking.getCouple().getId());
 
     int totalPrice = 0;
 
     List<ServiceBookingResponse> listServiceBookingResponses = new ArrayList<>();
 
     for (BookingDetail bookingDetail : booking.getBookingDetails()) {
+
+      BookingDetail bookingDetailSaved = bookingDetailRepository.save(bookingDetail);
+      ServiceResponse serviceResponse = serviceService
+          .getServiceById(bookingDetailSaved.getService().getId());
+
       ServiceBookingResponse serviceBookingResponse = new ServiceBookingResponse().builder()
-          .serviceId(bookingDetail.getService().getId())
-          .price(bookingDetail.getPrice())
+          .service(serviceResponse)
+          .bookingPrice(bookingDetail.getPrice())
           .build();
 
-      totalPrice += bookingDetail.getPrice();
+      totalPrice += bookingDetailSaved.getPrice();
       listServiceBookingResponses.add(serviceBookingResponse);
-    }
 
+    }
+    response.setCouple(coupleResponse);
     response.setServiceBookings(listServiceBookingResponses);
     response.setTotalPrice(totalPrice);
     return response;

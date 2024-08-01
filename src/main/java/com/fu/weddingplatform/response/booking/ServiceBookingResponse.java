@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.response.booking;
 
+import com.fu.weddingplatform.response.service.ServiceResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,6 +16,6 @@ import lombok.ToString;
 @ToString
 @Builder
 public class ServiceBookingResponse {
-  private String serviceId;
-  private int price;
+  private ServiceResponse service;
+  private int bookingPrice;
 }
