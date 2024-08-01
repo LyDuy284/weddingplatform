@@ -1,10 +1,10 @@
 package com.fu.weddingplatform.service;
 
+import java.util.List;
+
 import com.fu.weddingplatform.request.blogPost.CreateBlogDTO;
 import com.fu.weddingplatform.request.blogPost.UpdateBlogDTO;
 import com.fu.weddingplatform.response.BlogPost.BlogPostResponse;
-
-import java.util.List;
 
 public interface BlogPostService {
     public List<BlogPostResponse> getAllBlogPosts(int pageNo, int pageSize);

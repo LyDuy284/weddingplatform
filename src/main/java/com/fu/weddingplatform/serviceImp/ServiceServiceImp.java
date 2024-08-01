@@ -1,9 +1,7 @@
 package com.fu.weddingplatform.serviceImp;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -148,7 +146,7 @@ public class ServiceServiceImp implements ServiceService {
                 if (promotionByService != null
                                 && !(promotionByService.getId().equalsIgnoreCase(updateDTO.getPromotionId()))) {
 
-                        Promotion promotion = promotionRepository.findById(updateDTO.getPromotionId()).orElseThrow(
+                        Promotion promotion = promotionRepository.findById(promotionByService.getId()).orElseThrow(
                                         () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
 
                         Promotion newPromotion = promotionRepository.findById(updateDTO.getPromotionId()).orElseThrow(
@@ -160,13 +158,20 @@ public class ServiceServiceImp implements ServiceService {
                         promotionServiceEntity.setStatus(Status.DISABLED);
                         promotionServiceRepository.save(promotionServiceEntity);
 
-                        PromotionServiceEntity newPromotionServiceEntity = new PromotionServiceEntity.builder()
+                        PromotionServiceEntity newPromotionService = new PromotionServiceEntity().builder()
                                         .promotion(newPromotion)
-                                        .service(service)
                                         .status(Status.ACTIVATED)
-                                        .build();
+                                        .service(service).build();
 
-                        promotionByService = promotionRepository.save(newPromotionServiceEntity);
+                        PromotionServiceEntity newPromotionServiceEntity = promotionServiceRepository
+                                        .save(newPromotionService);
+
+                        promotionResponse = modelMapper.map(newPromotionServiceEntity,
+                                        PromotionByServiceResponse.class);
+                } else {
+                        if (promotionByService != null) {
+                                promotionResponse = promotionByService;
+                        }
                 }
 
                 List<String> listImages = new ArrayList<String>();
@@ -186,7 +191,7 @@ public class ServiceServiceImp implements ServiceService {
                 response.setCategoryResponse(categoryResponse);
                 response.setServiceSupplierResponse(serviceSupplierResponse);
                 response.setListImages(listImages);
-                response.setPromotionService(promotionByService);
+                response.setPromotionService(promotionResponse);
                 return response;
         }
 
@@ -210,8 +215,8 @@ public class ServiceServiceImp implements ServiceService {
                                 ServiceSupplierResponse.class);
                 response.setCategoryResponse(categoryResponse);
                 response.setServiceSupplierResponse(serviceSupplierResponse);
-                List<PromotionByServiceResponse> promotions = promotionService.getAllPromotionByService(id);
-                response.setPromotions(promotions);
+                PromotionByServiceResponse promotions = promotionService.getPromotionByService(id);
+                response.setPromotionService(promotions);
                 return response;
         }
 
@@ -249,9 +254,9 @@ public class ServiceServiceImp implements ServiceService {
                                 serviceResponse.setListImages(listImages);
                                 serviceResponse.setCategoryResponse(categoryResponse);
                                 serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
-                                List<PromotionByServiceResponse> promotions = promotionService
-                                                .getAllPromotionByService(service.getId());
-                                serviceResponse.setPromotions(promotions);
+                                PromotionByServiceResponse promotions = promotionService
+                                                .getPromotionByService(service.getId());
+                                serviceResponse.setPromotionService(promotions);
                                 response.add(serviceResponse);
                         }
                 } else {
@@ -299,9 +304,9 @@ public class ServiceServiceImp implements ServiceService {
                                 serviceResponse.setListImages(listImages);
                                 serviceResponse.setCategoryResponse(categoryResponse);
                                 serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
-                                List<PromotionByServiceResponse> promotions = promotionService
-                                                .getAllPromotionByService(service.getId());
-                                serviceResponse.setPromotions(promotions);
+                                PromotionByServiceResponse promotions = promotionService
+                                                .getPromotionByService(service.getId());
+                                serviceResponse.setPromotionService(promotions);
                                 response.add(serviceResponse);
                         }
                 } else {
@@ -345,8 +350,8 @@ public class ServiceServiceImp implements ServiceService {
                                 CategoryResponse categoryResponse = modelMapper.map(service.getCategory(),
                                                 CategoryResponse.class);
                                 serviceResponse.setCategoryResponse(categoryResponse);
-                                List<PromotionByServiceResponse> promotions = promotionService
-                                                .getAllPromotionByService(service.getId());
+                                PromotionByServiceResponse promotions = promotionService
+                                                .getPromotionByService(service.getId());
                                 List<String> listImages = new ArrayList<String>();
                                 if (service.getImages().trim() != null
                                                 && !(service.getImages().trim().equalsIgnoreCase(""))) {
@@ -358,7 +363,7 @@ public class ServiceServiceImp implements ServiceService {
                                         }
                                 }
                                 serviceResponse.setListImages(listImages);
-                                serviceResponse.setPromotions(promotions);
+                                serviceResponse.setPromotionService(promotions);
                                 response.add(serviceResponse);
                         }
                 } else {
@@ -399,8 +404,8 @@ public class ServiceServiceImp implements ServiceService {
                         for (Services service : servicePages) {
                                 ServiceByCategoryAndSupplierResponse serviceResponse = modelMapper.map(service,
                                                 ServiceByCategoryAndSupplierResponse.class);
-                                List<PromotionByServiceResponse> promotions = promotionService
-                                                .getAllPromotionByService(service.getId());
+                                PromotionByServiceResponse promotions = promotionService
+                                                .getPromotionByService(service.getId());
                                 List<String> listImages = new ArrayList<String>();
                                 if (service.getImages().trim() != null
                                                 && !(service.getImages().trim().equalsIgnoreCase(""))) {
@@ -448,8 +453,8 @@ public class ServiceServiceImp implements ServiceService {
                         for (Services service : servicePages) {
                                 ServiceByCategoryResponse serviceResponse = modelMapper.map(service,
                                                 ServiceByCategoryResponse.class);
-                                List<PromotionByServiceResponse> promotions = promotionService
-                                                .getAllPromotionByService(service.getId());
+                                PromotionByServiceResponse promotions = promotionService
+                                                .getPromotionByService(service.getId());
                                 serviceResponse.setPromotions(promotions);
                                 response.add(serviceResponse);
                                 ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
@@ -511,9 +516,8 @@ public class ServiceServiceImp implements ServiceService {
                         serviceResponse.setListImages(listImages);
                         serviceResponse.setCategoryResponse(categoryResponse);
                         serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
-                        List<PromotionByServiceResponse> promotions = promotionService
-                                        .getAllPromotionByService(service.getId());
-                        serviceResponse.setPromotions(promotions);
+                        PromotionByServiceResponse promotions = promotionService.getPromotionByService(service.getId());
+                        serviceResponse.setPromotionService(promotions);
                         response.add(serviceResponse);
                 }
                 return response;

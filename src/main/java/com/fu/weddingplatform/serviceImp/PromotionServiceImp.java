@@ -160,11 +160,10 @@ public class PromotionServiceImp implements PromotionService {
     LocalDate localDate = LocalDate.now(vietnamZoneId);
     String currentDate = localDate.format(dateFormatter);
     Promotion promotion = promotionRepository.findByService(serviceId, currentDate);
-
-    if (promotion == null) {
-      throw new ErrorException(PromotionErrorMessage.EMPTY);
+    PromotionByServiceResponse response = null;
+    if (promotion != null) {
+      response = modelMapper.map(promotion, PromotionByServiceResponse.class);
     }
-    PromotionByServiceResponse response = modelMapper.map(promotion, PromotionByServiceResponse.class);
     return response;
   }
 

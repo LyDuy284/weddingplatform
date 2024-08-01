@@ -24,5 +24,5 @@ public class ServiceByCategoryAndSupplierResponse {
   private List<String> listImages;
   private float price;
   private String status;
-  private List<PromotionByServiceResponse> promotions;
+  private PromotionByServiceResponse promotions;
 }

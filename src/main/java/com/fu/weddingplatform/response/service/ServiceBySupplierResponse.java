@@ -26,5 +26,5 @@ public class ServiceBySupplierResponse {
   private float price;
   private String status;
   private CategoryResponse categoryResponse;
-  private List<PromotionByServiceResponse> promotions;
+  private PromotionByServiceResponse promotionService;
 }

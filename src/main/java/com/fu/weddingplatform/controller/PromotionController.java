@@ -65,11 +65,9 @@ public class PromotionController {
   }
 
   @GetMapping("getPromotionByService/{id}")
-  public ResponseEntity<?> getPromotionByService(@RequestParam String id,
-      @RequestParam(defaultValue = "0") int pageNo,
-      @RequestParam(defaultValue = "10") int pageSize) {
-    List<PromotionByServiceResponse> response = promotionService.getPromotionByService(id, pageNo, pageSize);
-    ListResponseDTO<PromotionByServiceResponse> responseDTO = new ListResponseDTO<>();
+  public ResponseEntity<?> getPromotionByService(@RequestParam String id) {
+    PromotionByServiceResponse response = promotionService.getPromotionByService(id);
+    ResponseDTO<PromotionByServiceResponse> responseDTO = new ResponseDTO<>();
     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
     responseDTO.setMessage(PromotionSuccessMessage.GET_ALL_BY_SERVICE);
     responseDTO.setData(response);
