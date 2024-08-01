@@ -16,4 +16,6 @@ public interface PromotionServiceRepository extends JpaRepository<PromotionServi
 
   public List<PromotionServiceEntity> findByService(Services service);
 
+  PromotionServiceEntity findByServiceAndPromotion(Services service, Promotion promotion);
+
 }

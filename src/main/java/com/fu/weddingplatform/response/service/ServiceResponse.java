@@ -29,5 +29,5 @@ public class ServiceResponse {
     private String status;
     private CategoryResponse categoryResponse;
     private ServiceSupplierResponse serviceSupplierResponse;
-    private List<PromotionByServiceResponse> promotions;
+    private PromotionByServiceResponse promotionService;
 }

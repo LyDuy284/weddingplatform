@@ -35,6 +35,7 @@ public class PromotionServiceEntity {
   @GeneratedValue(generator = "promotion-service-id")
   @GenericGenerator(name = "promotion-service-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.PromotionServiceIdGenerate")
   private String id;
+  private String status;
 
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)

@@ -15,9 +15,6 @@ public interface PromotionService {
 
         public List<PromotionBySupplierResponse> getPromotionBySupplier(String supplierId);
 
-        public List<PromotionByServiceResponse> getPromotionByService(String serviceId,
-                        int pageNo,
-                        int pageSize);
+        public PromotionByServiceResponse getPromotionByService(String serviceId);
 
-        public List<PromotionByServiceResponse> getAllPromotionByService(String serviceId);
 }

@@ -23,7 +23,7 @@ public class CreateServiceDTO {
     private String categoryId;
     @NotEmpty(message = "Service Supplier ID " + ValidationMessage.NOT_EMPTY)
     private String serviceSupplierId;
-    private String listPromotionIds;
+    private String promotionId;
     private String type;
     private String images;
     private String name;

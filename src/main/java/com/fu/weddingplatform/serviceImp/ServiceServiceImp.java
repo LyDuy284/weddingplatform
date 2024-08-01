@@ -64,7 +64,7 @@ public class ServiceServiceImp implements ServiceService {
                 Category category = categoryRepository.findById(createDTO.getCategoryId()).orElseThrow(
                                 () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
 
-                if (createDTO.getPrice() <= 0) {
+                if (createDTO.getPrice() < 0) {
                         throw new ErrorException("Price" + ValidationMessage.GREATER_THAN_ZERO);
                 }
 
@@ -92,26 +92,23 @@ public class ServiceServiceImp implements ServiceService {
                         }
                 }
 
-                List<String> listPromotionIds = Arrays.stream(createDTO.getListPromotionIds().split(","))
-                                .map(String::trim)
-                                .collect(Collectors.toList());
-                List<PromotionByServiceResponse> lisitPromotionResponse = new ArrayList<>();
-                if (listPromotionIds.size() > 0 && createDTO.getListPromotionIds().trim() != "") {
-                        for (String promotionId : listPromotionIds) {
-                                Promotion promotion = promotionRepository.findById(promotionId).orElseThrow(
-                                                () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
+                PromotionByServiceResponse promotionResponse = new PromotionByServiceResponse();
 
-                                PromotionByServiceResponse promotionResponse = modelMapper.map(promotion,
-                                                PromotionByServiceResponse.class);
+                if (createDTO.getPromotionId() != null && createDTO.getPromotionId().trim() != "") {
 
-                                lisitPromotionResponse.add(promotionResponse);
+                        Promotion promotion = promotionRepository.findById(createDTO.getPromotionId()
+                                        .trim()).orElseThrow(
+                                                        () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
 
-                                PromotionServiceEntity promotionService = new PromotionServiceEntity().builder()
-                                                .promotion(promotion)
-                                                .service(serviceSaved).build();
+                        promotionResponse = modelMapper.map(promotion, PromotionByServiceResponse.class);
 
-                                promotionServiceRepository.save(promotionService);
-                        }
+                        PromotionServiceEntity promotionService = new PromotionServiceEntity().builder()
+                                        .promotion(promotion)
+                                        .status(Status.ACTIVATED)
+                                        .service(serviceSaved).build();
+
+                        promotionServiceRepository.save(promotionService);
+
                 }
                 ServiceResponse response = modelMapper.map(serviceSaved, ServiceResponse.class);
 
@@ -120,7 +117,7 @@ public class ServiceServiceImp implements ServiceService {
                                 ServiceSupplierResponse.class);
                 response.setCategoryResponse(categoryResponse);
                 response.setServiceSupplierResponse(serviceSupplierResponse);
-                response.setPromotions(lisitPromotionResponse);
+                response.setPromotionService(promotionResponse);
                 response.setListImages(listImages);
                 return response;
         }
@@ -131,20 +128,46 @@ public class ServiceServiceImp implements ServiceService {
                 Services service = serviceRepository.findById(updateDTO.getId()).orElseThrow(
                                 () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
 
-                Category category = categoryRepository.findById(updateDTO.getCategoryId()).orElseThrow(
-                                () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
-
-                if (updateDTO.getPrice() <= 0) {
+                Category category = service.getCategory();
+                if (updateDTO.getPrice() < 0) {
                         throw new ErrorException("Price" + ValidationMessage.GREATER_THAN_ZERO);
                 }
                 service.setName(updateDTO.getName());
                 service.setDescription(updateDTO.getDescription());
                 service.setPrice(updateDTO.getPrice());
                 service.setImages(updateDTO.getImages());
-                service.setCategory(category);
                 service.setType(updateDTO.getType());
 
                 serviceRepository.save(service);
+
+                PromotionByServiceResponse promotionByService = promotionService
+                                .getPromotionByService(updateDTO.getId());
+
+                PromotionByServiceResponse promotionResponse = new PromotionByServiceResponse();
+
+                if (promotionByService != null
+                                && !(promotionByService.getId().equalsIgnoreCase(updateDTO.getPromotionId()))) {
+
+                        Promotion promotion = promotionRepository.findById(updateDTO.getPromotionId()).orElseThrow(
+                                        () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
+
+                        Promotion newPromotion = promotionRepository.findById(updateDTO.getPromotionId()).orElseThrow(
+                                        () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
+
+                        PromotionServiceEntity promotionServiceEntity = promotionServiceRepository
+                                        .findByServiceAndPromotion(service, promotion);
+
+                        promotionServiceEntity.setStatus(Status.DISABLED);
+                        promotionServiceRepository.save(promotionServiceEntity);
+
+                        PromotionServiceEntity newPromotionServiceEntity = new PromotionServiceEntity.builder()
+                                        .promotion(newPromotion)
+                                        .service(service)
+                                        .status(Status.ACTIVATED)
+                                        .build();
+
+                        promotionByService = promotionRepository.save(newPromotionServiceEntity);
+                }
 
                 List<String> listImages = new ArrayList<String>();
                 if (service.getImages().trim() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
@@ -163,9 +186,7 @@ public class ServiceServiceImp implements ServiceService {
                 response.setCategoryResponse(categoryResponse);
                 response.setServiceSupplierResponse(serviceSupplierResponse);
                 response.setListImages(listImages);
-                List<PromotionByServiceResponse> promotions = promotionService
-                                .getAllPromotionByService(updateDTO.getId());
-                response.setPromotions(promotions);
+                response.setPromotionService(promotionByService);
                 return response;
         }
 

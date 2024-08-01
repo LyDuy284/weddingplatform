@@ -1,14 +1,13 @@
 package com.fu.weddingplatform.service;
 
+import java.util.List;
+
 import com.fu.weddingplatform.request.service.CreateServiceDTO;
-import com.fu.weddingplatform.request.service.FilterServiceDTO;
 import com.fu.weddingplatform.request.service.UpdateServiceDTO;
 import com.fu.weddingplatform.response.service.ServiceByCategoryAndSupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceByCategoryResponse;
 import com.fu.weddingplatform.response.service.ServiceBySupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
-
-import java.util.List;
 
 public interface ServiceService {
 

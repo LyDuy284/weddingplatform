@@ -11,9 +11,6 @@ import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
@@ -31,9 +28,9 @@ import com.fu.weddingplatform.repository.PromotionServiceRepository;
 import com.fu.weddingplatform.repository.ServiceRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.request.promotion.CreatePromotionDTO;
-import com.fu.weddingplatform.response.promotion.PromotionResponse;
 import com.fu.weddingplatform.response.promotion.PromotionByServiceResponse;
 import com.fu.weddingplatform.response.promotion.PromotionBySupplierResponse;
+import com.fu.weddingplatform.response.promotion.PromotionResponse;
 import com.fu.weddingplatform.service.PromotionService;
 
 @Service
@@ -153,47 +150,21 @@ public class PromotionServiceImp implements PromotionService {
   }
 
   @Override
-  public List<PromotionByServiceResponse> getPromotionByService(String serviceId, int pageNo,
-      int pageSize) {
+  public PromotionByServiceResponse getPromotionByService(String serviceId) {
 
     serviceRepository.findById(serviceId).orElseThrow(
         () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
 
-    List<PromotionByServiceResponse> response = new ArrayList<PromotionByServiceResponse>();
-
     ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     LocalDate localDate = LocalDate.now(vietnamZoneId);
     String currentDate = localDate.format(dateFormatter);
-    List<Promotion> promotionResult = promotionRepository.findByService(serviceId, currentDate, pageNo * pageSize,
-        pageSize);
+    Promotion promotion = promotionRepository.findByService(serviceId, currentDate);
 
-    if (promotionResult.size() == 0) {
+    if (promotion == null) {
       throw new ErrorException(PromotionErrorMessage.EMPTY);
     }
-    for (Promotion promotion : promotionResult) {
-      PromotionByServiceResponse promotionResponse = modelMapper.map(promotion, PromotionByServiceResponse.class);
-      response.add(promotionResponse);
-    }
-
-    return response;
-  }
-
-  @Override
-  public List<PromotionByServiceResponse> getAllPromotionByService(String serviceId) {
-    List<PromotionByServiceResponse> response = new ArrayList<PromotionByServiceResponse>();
-
-    ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
-    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    LocalDate localDate = LocalDate.now(vietnamZoneId);
-    String currentDate = localDate.format(dateFormatter);
-
-    List<Promotion> promotionResult = promotionRepository.findByService(serviceId, currentDate);
-    for (Promotion promotion : promotionResult) {
-      PromotionByServiceResponse promotionResponse = modelMapper.map(promotion, PromotionByServiceResponse.class);
-      response.add(promotionResponse);
-    }
-
+    PromotionByServiceResponse response = modelMapper.map(promotion, PromotionByServiceResponse.class);
     return response;
   }
 

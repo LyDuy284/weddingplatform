@@ -16,12 +16,12 @@ import com.fu.weddingplatform.constant.validation.ValidationMessage;
 public class UpdateServiceDTO {
     @NotEmpty(message = "Service ID " + ValidationMessage.NOT_EMPTY)
     private String id;
-    @NotEmpty(message = "Category ID " + ValidationMessage.NOT_EMPTY)
-    private String categoryId;
     private String type;
     private String name;
     private String description;
     @Min(value = 0, message = "Value must be greater than 0")
     private int price;
     private String images;
+    @NotEmpty(message = "Promotion ID " + ValidationMessage.NOT_EMPTY)
+    private String promotionId;
 }
