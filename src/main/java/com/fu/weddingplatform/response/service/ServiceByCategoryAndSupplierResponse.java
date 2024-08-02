@@ -22,6 +22,7 @@ public class ServiceByCategoryAndSupplierResponse {
   private String name;
   private String description;
   private List<String> listImages;
+  private String type;
   private float price;
   private String status;
   private PromotionByServiceResponse promotions;

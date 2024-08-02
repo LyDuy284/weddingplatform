@@ -24,6 +24,7 @@ public class ServiceBySupplierResponse {
   private String description;
   private List<String> listImages;
   private float price;
+  private String type;
   private String status;
   private CategoryResponse categoryResponse;
   private PromotionByServiceResponse promotionService;

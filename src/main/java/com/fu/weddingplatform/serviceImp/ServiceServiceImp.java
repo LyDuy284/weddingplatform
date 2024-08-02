@@ -344,7 +344,7 @@ public class ServiceServiceImp implements ServiceService {
                 }
 
                 if (servicePages.hasContent()) {
-                        for (Services service : servicePages) {
+                        for (Services service : servicePages.getContent()) {
                                 ServiceBySupplierResponse serviceResponse = modelMapper.map(service,
                                                 ServiceBySupplierResponse.class);
                                 CategoryResponse categoryResponse = modelMapper.map(service.getCategory(),
@@ -401,7 +401,7 @@ public class ServiceServiceImp implements ServiceService {
                 }
 
                 if (servicePages.hasContent()) {
-                        for (Services service : servicePages) {
+                        for (Services service : servicePages.getContent()) {
                                 ServiceByCategoryAndSupplierResponse serviceResponse = modelMapper.map(service,
                                                 ServiceByCategoryAndSupplierResponse.class);
                                 PromotionByServiceResponse promotions = promotionService
@@ -450,13 +450,12 @@ public class ServiceServiceImp implements ServiceService {
                 }
 
                 if (servicePages.hasContent()) {
-                        for (Services service : servicePages) {
+                        for (Services service : servicePages.getContent()) {
                                 ServiceByCategoryResponse serviceResponse = modelMapper.map(service,
                                                 ServiceByCategoryResponse.class);
                                 PromotionByServiceResponse promotions = promotionService
                                                 .getPromotionByService(service.getId());
                                 serviceResponse.setPromotions(promotions);
-                                response.add(serviceResponse);
                                 ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
                                                 service.getServiceSupplier(),
                                                 ServiceSupplierResponse.class);
