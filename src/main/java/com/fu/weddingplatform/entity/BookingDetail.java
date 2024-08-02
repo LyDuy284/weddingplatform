@@ -1,6 +1,17 @@
 package com.fu.weddingplatform.entity;
 
-import javax.persistence.*;
+import java.util.Collection;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -15,9 +26,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import java.sql.Date;
-import java.util.Collection;
 
 @Entity
 @AllArgsConstructor
@@ -34,6 +42,7 @@ public class BookingDetail {
     @GenericGenerator(name = "booking-detail-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingDetailIdGenerator")
     private String id;
     private int price;
+    private int originalPrice;
     @Column(columnDefinition = "text")
     private String note;
     private String status;
@@ -68,4 +77,18 @@ public class BookingDetail {
     @ToString.Include
     @JsonIgnore
     private Collection<PaymentBookingService> paymentBookingServices;
+
+    @OneToMany(mappedBy = "bookingDetail", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<BookingHistory> bookingHistories;
+
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "promotion_service_id")
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private PromotionServiceEntity promotionService;
 }

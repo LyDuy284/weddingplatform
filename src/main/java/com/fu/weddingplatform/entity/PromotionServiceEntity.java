@@ -1,11 +1,15 @@
 package com.fu.weddingplatform.entity;
 
+import java.util.Collection;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -52,5 +56,11 @@ public class PromotionServiceEntity {
   @EqualsAndHashCode.Include
   @ToString.Include
   private Services service;
+
+  @OneToMany(mappedBy = "promotionService", cascade = CascadeType.ALL)
+  @EqualsAndHashCode.Include
+  @ToString.Include
+  @JsonIgnore
+  private Collection<BookingDetail> bookingDetails;
 
 }

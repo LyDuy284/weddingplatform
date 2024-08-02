@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.entity;
 
-import java.sql.Date;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
@@ -57,11 +56,4 @@ public class Booking {
     @JsonIgnore
     private Collection<BookingDetail> bookingDetails;
 
-
-
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<BookingHistory> bookingHistories;
 }

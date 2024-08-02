@@ -8,19 +8,19 @@ import com.fu.weddingplatform.response.quotation.QuotationBySupplierResponse;
 import com.fu.weddingplatform.response.quotation.QuotationResponse;
 
 public interface QuotationService {
-  public QuotationResponse createQuoteResquest(CreateQuoteRequestDTO createDTO);
+    public QuotationResponse createQuoteResquest(CreateQuoteRequestDTO createDTO);
 
-  public QuotationResponse quoteService(String quoteRequestId, int price);
+    public QuotationResponse quoteService(String quoteRequestId, int price);
 
-  public List<QuotationByCoupleResponse> getQuoteRequestByCouple(String coupleId,
-      int pageNo,
-      int pageSize,
-      String sortBy,
-      boolean isAscending);
+    public List<QuotationByCoupleResponse> getQuoteRequestByCouple(String coupleId,
+            int pageNo,
+            int pageSize,
+            String sortBy,
+            boolean isAscending);
 
-  public List<QuotationBySupplierResponse> getQuoteRequestBySupplier(String supplierId,
-      int pageNo,
-      int pageSize,
-      String sortBy,
-      boolean isAscending);
+    public List<QuotationBySupplierResponse> getQuoteRequestBySupplier(String supplierId,
+            int pageNo,
+            int pageSize,
+            String sortBy,
+            boolean isAscending);
 }

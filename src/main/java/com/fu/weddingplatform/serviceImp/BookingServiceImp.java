@@ -1,9 +1,7 @@
 package com.fu.weddingplatform.serviceImp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.booking.BookingErrorMessage;
 import com.fu.weddingplatform.constant.booking.BookingStatus;
+import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
 import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
 import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
@@ -42,10 +41,13 @@ import com.fu.weddingplatform.response.booking.BookingResponse;
 import com.fu.weddingplatform.response.booking.BookingStatusResponse;
 import com.fu.weddingplatform.response.booking.ServiceBookingResponse;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
+import com.fu.weddingplatform.response.promotion.PromotionByServiceResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.service.BookingService;
 import com.fu.weddingplatform.service.CoupleService;
+import com.fu.weddingplatform.service.PromotionService;
 import com.fu.weddingplatform.service.ServiceService;
+import com.fu.weddingplatform.utils.Utils;
 
 @Service
 public class BookingServiceImp implements BookingService {
@@ -80,6 +82,9 @@ public class BookingServiceImp implements BookingService {
   @Autowired
   private ModelMapper modelMapper;
 
+  @Autowired
+  private PromotionService promotionService;
+
   @Override
   public BookingResponse createBooking(CreateBookingDTO createDTO) {
 
@@ -90,16 +95,7 @@ public class BookingServiceImp implements BookingService {
         () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
     ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
-
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    LocalDateTime localDateTime = LocalDateTime.now(vietnamZoneId);
     LocalDate currentDate = LocalDate.now(vietnamZoneId);
-
-    LocalDate completeDate = createDTO.getCompleteDate().toLocalDate();
-
-    if (currentDate.isEqual(completeDate) || currentDate.isAfter(completeDate)) {
-      throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_GREATER_THAN_CURRENT_DATE);
-    }
 
     if (createDTO.getListService().size() <= 0) {
       throw new ErrorException(BookingErrorMessage.EMPTY_LIST_SERVICE);
@@ -107,8 +103,8 @@ public class BookingServiceImp implements BookingService {
 
     Booking booking = new Booking().builder()
         .couple(couple)
-        .createdAt(localDateTime.format(dateTimeFormatter))
-        .status(BookingStatus.WAITING)
+        .createdAt(Utils.formatVNDatetimeNow())
+        .status(BookingStatus.PENDING)
         .build();
 
     Booking bookingSaved = bookingRepository.save(booking);
@@ -128,12 +124,27 @@ public class BookingServiceImp implements BookingService {
         throw new ErrorException(BookingErrorMessage.ALL_SERVICES_HAVE_THE_SAME_SUPPLIER);
       }
 
+      LocalDate completeDate = serviceBooking.getDateCompleted().toLocalDate();
+
+      if (currentDate.isEqual(completeDate) || currentDate.isAfter(completeDate)) {
+        throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_GREATER_THAN_CURRENT_DATE);
+      }
+
+      PromotionByServiceResponse promotion = promotionService.getPromotionByService(service.get().getId());
+
       BookingDetail bookingDetail = new BookingDetail().builder()
           .service(service.get())
           .booking(bookingSaved)
+          .completedDate(completeDate.toString())
+          .originalPrice(service.get().getPrice())
           .price(service.get().getPrice())
-          .status(Status.ACTIVATED)
+          .status(BookingDetailStatus.WAITING)
           .build();
+
+      if (promotion != null) {
+        bookingDetail.setPrice(service.get().getPrice() - service.get().getPrice() * promotion.getPercent());
+      }
+
       listBookingDetails.add(bookingDetail);
     }
 
@@ -153,15 +164,29 @@ public class BookingServiceImp implements BookingService {
         bookingRepository.delete(bookingSaved);
         throw new ErrorException(BookingErrorMessage.SERVICE_MUST_BE_QUOTED);
       }
+      LocalDate completeDate = quotation.get().getEventDate().toLocalDate();
+
+      if (currentDate.isEqual(completeDate) || currentDate.isAfter(completeDate)) {
+        throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_GREATER_THAN_CURRENT_DATE);
+      }
+
+      PromotionByServiceResponse promotion = promotionService
+          .getPromotionByService(quotation.get().getService().getId());
 
       BookingDetail bookingDetail = new BookingDetail().builder()
           .service(quotation.get().getService())
           .booking(bookingSaved)
+          .originalPrice(quotation.get().getPrice())
           .price(quotation.get().getPrice())
           .note(quotationBookingDTO.getNote())
           .quotation(quotation.get())
-          .status(Status.ACTIVATED)
+          .completedDate(completeDate.toString())
+          .status(BookingDetailStatus.WAITING)
           .build();
+
+      if (promotion != null) {
+        bookingDetail.setPrice(quotation.get().getPrice() - quotation.get().getPrice() * promotion.getPercent());
+      }
 
       listBookingDetails.add(bookingDetail);
     }
@@ -179,14 +204,14 @@ public class BookingServiceImp implements BookingService {
 
       totalPrice += bookingDetailSaved.getPrice();
       listServiceBookingResponses.add(serviceBookingResponse);
-    }
 
-    BookingHistory bookingHistory = new BookingHistory().builder()
-        .createdAt(localDateTime.format(dateTimeFormatter))
-        .booking(bookingSaved)
-        .status(bookingSaved.getStatus())
-        .build();
-    bookingHistoryRepository.save(bookingHistory);
+      BookingHistory bookingHistory = new BookingHistory().builder()
+          .createdAt(Utils.formatVNDatetimeNow())
+          .bookingDetail(bookingDetailSaved)
+          .status(bookingDetail.getStatus())
+          .build();
+      bookingHistoryRepository.save(bookingHistory);
+    }
 
     BookingResponse response = modelMapper.map(bookingSaved, BookingResponse.class);
     CoupleResponse coupleResponse = coupleService.getCoupleById(couple.getId());
@@ -222,17 +247,18 @@ public class BookingServiceImp implements BookingService {
     booking.setStatus(status);
     Booking response = bookingRepository.save(booking);
 
-    ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+    // ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
 
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-    LocalDateTime localDateTime = LocalDateTime.now(vietnamZoneId);
+    // DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd
+    // HH:mm:ss");
+    // LocalDateTime localDateTime = LocalDateTime.now(vietnamZoneId);
 
-    BookingHistory bookingHistory = new BookingHistory().builder()
-        .createdAt(localDateTime.format(dateTimeFormatter))
-        .booking(booking)
-        .status(status)
-        .build();
-    bookingHistoryRepository.save(bookingHistory);
+    // BookingHistory bookingHistory = new BookingHistory().builder()
+    // .createdAt(localDateTime.format(dateTimeFormatter))
+    // .booking(booking)
+    // .status(status)
+    // .build();
+    // bookingHistoryRepository.save(bookingHistory);
 
     return response;
   }
@@ -248,16 +274,18 @@ public class BookingServiceImp implements BookingService {
 
     for (BookingDetail bookingDetail : booking.getBookingDetails()) {
 
-      BookingDetail bookingDetailSaved = bookingDetailRepository.save(bookingDetail);
       ServiceResponse serviceResponse = serviceService
-          .getServiceById(bookingDetailSaved.getService().getId());
+          .getServiceById(bookingDetail.getService().getId());
 
       ServiceBookingResponse serviceBookingResponse = new ServiceBookingResponse().builder()
           .service(serviceResponse)
+          .completedDate(bookingDetail.getCompletedDate())
+          .originalPrice(bookingDetail.getOriginalPrice())
           .bookingPrice(bookingDetail.getPrice())
+          .status(bookingDetail.getStatus())
           .build();
 
-      totalPrice += bookingDetailSaved.getPrice();
+      totalPrice += bookingDetail.getPrice();
       listServiceBookingResponses.add(serviceBookingResponse);
 
     }
@@ -326,14 +354,14 @@ public class BookingServiceImp implements BookingService {
 
     List<BookingStatusResponse> response = new ArrayList<BookingStatusResponse>();
 
-    for (BookingHistory bookingHistory : booking.getBookingHistories()) {
-      BookingStatusResponse bookingStatus = new BookingStatusResponse().builder()
-          .status(bookingHistory.getStatus())
-          .createAt(bookingHistory.getCreatedAt())
-          .build();
+    // for (BookingHistory bookingHistory : booking.getBookingHistories()) {
+    // BookingStatusResponse bookingStatus = new BookingStatusResponse().builder()
+    // .status(bookingHistory.getStatus())
+    // .createAt(bookingHistory.getCreatedAt())
+    // .build();
 
-      response.add(bookingStatus);
-    }
+    // response.add(bookingStatus);
+    // }
 
     return response;
   }

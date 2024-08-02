@@ -43,5 +43,5 @@ public class BookingHistory {
   @JoinColumn(name = "booking_id")
   @EqualsAndHashCode.Include
   @ToString.Include
-  private Booking booking;
+  private BookingDetail bookingDetail;
 }

@@ -92,32 +92,10 @@ public class BookingController {
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
-  @PutMapping("processing")
-  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
-  public ResponseEntity<?> processingBookingById(@RequestParam String id) {
-    BookingResponse data = bookingService.updateBookingStatus(id, BookingStatus.ON_PROCESSING);
-    ResponseDTO<BookingResponse> response = new ResponseDTO<>();
-    response.setData(data);
-    response.setStatus(ResponseStatusDTO.SUCCESS);
-    response.setMessage(BookingSuccessMessage.PROCESSING);
-    return new ResponseEntity<>(response, HttpStatus.OK);
-  }
-
-  @PutMapping("done")
-  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
-  public ResponseEntity<?> doneBookingById(@RequestParam String id) {
-    BookingResponse data = bookingService.updateBookingStatus(id, BookingStatus.COMPLETED);
-    ResponseDTO<BookingResponse> response = new ResponseDTO<>();
-    response.setData(data);
-    response.setStatus(ResponseStatusDTO.SUCCESS);
-    response.setMessage(BookingSuccessMessage.COMPLETED);
-    return new ResponseEntity<>(response, HttpStatus.OK);
-  }
-
   @PutMapping("cancle")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
   public ResponseEntity<?> cancleBookingById(@RequestParam String id) {
-    BookingResponse data = bookingService.updateBookingStatus(id, BookingStatus.CANCEL);
+    BookingResponse data = bookingService.updateBookingStatus(id, BookingStatus.CANCLE);
     ResponseDTO<BookingResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);

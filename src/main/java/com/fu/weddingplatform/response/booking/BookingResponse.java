@@ -22,7 +22,6 @@ public class BookingResponse {
   private String id;
   private CoupleResponse couple;
   private String createdAt;
-  private Date completedDate;
   private List<ServiceBookingResponse> serviceBookings;
   private int totalPrice;
   private String status;
