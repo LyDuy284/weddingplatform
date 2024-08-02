@@ -80,7 +80,7 @@ public class ServiceServiceImp implements ServiceService {
                 Services serviceSaved = serviceRepository.save(service);
 
                 List<String> listImages = new ArrayList<String>();
-                if (serviceSaved.getImages().trim() != null
+                if (serviceSaved.getImages() != null
                                 && !(serviceSaved.getImages().trim().equalsIgnoreCase(""))) {
                         String[] imageArray = serviceSaved.getImages().split("\n,");
                         for (String image : imageArray) {
@@ -175,7 +175,7 @@ public class ServiceServiceImp implements ServiceService {
                 }
 
                 List<String> listImages = new ArrayList<String>();
-                if (service.getImages().trim() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
+                if (service.getImages() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
                         String[] imageArray = service.getImages().split("\n,");
                         for (String image : imageArray) {
                                 if (image.trim() != "") {
@@ -200,7 +200,7 @@ public class ServiceServiceImp implements ServiceService {
                 Services service = serviceRepository.findById(id).orElseThrow(
                                 () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
                 List<String> listImages = new ArrayList<String>();
-                if (service.getImages().trim() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
+                if (service.getImages() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
                         String[] imageArray = service.getImages().split("\n,");
                         for (String image : imageArray) {
                                 if (image.trim() != "") {
@@ -242,7 +242,7 @@ public class ServiceServiceImp implements ServiceService {
                                                 service.getServiceSupplier(),
                                                 ServiceSupplierResponse.class);
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages().trim() != null
+                                if (service.getImages() != null
                                                 && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
@@ -292,7 +292,7 @@ public class ServiceServiceImp implements ServiceService {
                                                 service.getServiceSupplier(),
                                                 ServiceSupplierResponse.class);
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages().trim() != null
+                                if (service.getImages() != null
                                                 && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
@@ -353,7 +353,7 @@ public class ServiceServiceImp implements ServiceService {
                                 PromotionByServiceResponse promotions = promotionService
                                                 .getPromotionByService(service.getId());
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages().trim() != null
+                                if (service.getImages() != null
                                                 && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
@@ -407,7 +407,7 @@ public class ServiceServiceImp implements ServiceService {
                                 PromotionByServiceResponse promotions = promotionService
                                                 .getPromotionByService(service.getId());
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages().trim() != null
+                                if (service.getImages() != null
                                                 && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
@@ -462,7 +462,7 @@ public class ServiceServiceImp implements ServiceService {
                                                 ServiceSupplierResponse.class);
 
                                 List<String> listImages = new ArrayList<String>();
-                                if (service.getImages().trim() != null
+                                if (service.getImages() != null
                                                 && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                         String[] imageArray = service.getImages().split("\n,");
                                         for (String image : imageArray) {
@@ -505,7 +505,7 @@ public class ServiceServiceImp implements ServiceService {
                                         service.getServiceSupplier(),
                                         ServiceSupplierResponse.class);
                         List<String> listImages = new ArrayList<String>();
-                        if (service.getImages().trim() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
+                        if (service.getImages() != null && !(service.getImages().trim().equalsIgnoreCase(""))) {
                                 String[] imageArray = service.getImages().split("\n,");
                                 for (String image : imageArray) {
                                         if (image.trim() != "") {
