@@ -153,6 +153,7 @@ public class PaymentServiceImpl implements PaymentService {
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
         cld.add(Calendar.MINUTE, 15);
+        cld.add(Calendar.HOUR_OF_DAY, 7);
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
@@ -193,15 +194,12 @@ public class PaymentServiceImpl implements PaymentService {
                     case DEPOSIT -> bookingDetail.setStatus(BookingDetailStatus.DEPOSITED);
                     case FINAL_PAYMENT -> bookingDetail.setStatus(BookingDetailStatus.COMPLETED);
                 }
-                bookingDetail.setStatus(BookingDetailStatus.DEPOSITED);
-
                 PaymentBookingService paymentBookingService = PaymentBookingService.builder()
                         .createAt(Utils.formatVNDatetimeNow())
                         .bookingDetail(bookingDetail)
                         .payment(paymentSave)
                         .status("ACTIVE")
                         .build();
-
                 paymentBookingServiceRepository.saveAndFlush(paymentBookingService);
             }
 
