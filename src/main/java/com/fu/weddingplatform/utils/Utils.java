@@ -3,6 +3,7 @@ package com.fu.weddingplatform.utils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
@@ -34,11 +35,24 @@ public class Utils {
         return token;
     };
 
-    public static String formatVNDatetimeNow(){
+    public static String formatVNDatetimeNow() {
         ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime localDateTime = LocalDateTime.now(vietnamZoneId);
         return localDateTime.format(dateTimeFormatter);
+    }
+
+    public static LocalDate getCurrentDate() {
+        ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+        ZonedDateTime vietnamZonedDateTime = ZonedDateTime.now(vietnamZoneId);
+        LocalDate vietnamLocalDate = vietnamZonedDateTime.toLocalDate();
+        return vietnamLocalDate;
+    }
+
+    public static LocalDate convertStringToLocalDate(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localDate = LocalDate.parse(date, formatter);
+        return localDate;
     }
 
 }

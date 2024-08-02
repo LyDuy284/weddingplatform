@@ -3,7 +3,7 @@ package com.fu.weddingplatform.service;
 import com.fu.weddingplatform.entity.BookingDetail;
 
 public interface BookingDetailService {
-  public BookingDetail updateBookingServiceStatus(String bookingDetailId, String status);
+  public BookingDetail updateBookingServiceStatus(BookingDetail bookingDetail, String status);
 
   public BookingDetail confirmBookingService(String bookingDetailId);
 
