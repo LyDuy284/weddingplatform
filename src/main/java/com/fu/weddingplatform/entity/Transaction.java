@@ -24,7 +24,7 @@ public class Transaction {
     @GeneratedValue(generator = "transaction-id")
     @GenericGenerator(name = "transaction-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.TransactionIdGenerator")
     private String id;
-    private Date dateCreated;
+    private String dateCreated;
     private int amount;
     @Column(columnDefinition = "text")
     private String description;

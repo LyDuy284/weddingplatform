@@ -1,6 +1,7 @@
 package com.fu.weddingplatform.entity;
 
 import java.sql.Date;
+import java.util.Collection;
 
 import javax.persistence.*;
 
@@ -35,7 +36,7 @@ public class Payment {
     private String id;
     @Column(unique = true)
     private int tradingCode;
-    private Date dateCreated;
+    private String dateCreated;
     private int amount;
     @Column(columnDefinition = "text")
     private String description;
@@ -51,11 +52,18 @@ public class Payment {
     @EqualsAndHashCode.Include
     @ToString.Include
     private Couple couple;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "booking_id")
+    @JoinColumn(name = "booking_detail_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Booking booking;
+    private BookingDetail bookingDetail;
+
+    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<PaymentBookingService> paymentBookingServices;
 }
