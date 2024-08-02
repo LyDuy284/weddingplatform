@@ -39,8 +39,10 @@ public class Rating {
     @GeneratedValue(generator = "rating-id")
     @GenericGenerator(name = "rating-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.RatingIdGenerate")
     private String id;
-    private int ratingValue;
-    private Date dateCreated;
+    private int ratingQuantityValue;
+    private int ratingTimeValue;
+    private int ratingQualityValue;
+    private String dateCreated;
     @Column(columnDefinition = "text")
     private String description;
     private String status;

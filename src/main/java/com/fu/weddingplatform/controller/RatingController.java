@@ -24,14 +24,14 @@ public class RatingController {
     @Autowired
     RatingService ratingService;
 
-    @GetMapping("getAllRating")
-    public ResponseEntity<?> getAllRating(@RequestParam(required = false) String coupleId,
+    @GetMapping("getRatingByFilter")
+    public ResponseEntity<?> getRatingByFilter(@RequestParam(required = false) String coupleId,
                                           @RequestParam(required = false) String serviceId,
                                           @RequestParam(defaultValue = "0") int pageNo,
                                           @RequestParam(defaultValue = "10") int pageSize,
                                           @RequestParam(defaultValue = "id") String sortBy,
                                           @RequestParam(defaultValue = "true") boolean isAscending){
-        List<RatingResponse> ratingResponseList = ratingService.getAllRating(coupleId, serviceId, pageNo, pageSize, sortBy, isAscending);
+        List<RatingResponse> ratingResponseList = ratingService.getRatingByFilter(coupleId, serviceId, pageNo, pageSize, sortBy, isAscending);
         ListResponseDTO<RatingResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(RatingSuccessMessage.GET_ALL);
