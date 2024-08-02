@@ -24,6 +24,8 @@ import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.BookingHistory;
 import com.fu.weddingplatform.entity.Couple;
+import com.fu.weddingplatform.entity.Promotion;
+import com.fu.weddingplatform.entity.PromotionServiceEntity;
 import com.fu.weddingplatform.entity.Quotation;
 import com.fu.weddingplatform.entity.Services;
 import com.fu.weddingplatform.exception.ErrorException;
@@ -31,6 +33,8 @@ import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.BookingHistoryRepository;
 import com.fu.weddingplatform.repository.BookingRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
+import com.fu.weddingplatform.repository.PromotionRepository;
+import com.fu.weddingplatform.repository.PromotionServiceRepository;
 import com.fu.weddingplatform.repository.QuotationRepository;
 import com.fu.weddingplatform.repository.ServiceRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
@@ -85,6 +89,12 @@ public class BookingServiceImp implements BookingService {
   @Autowired
   private PromotionService promotionService;
 
+  @Autowired
+  private PromotionServiceRepository promotionServiceRepository;
+
+  @Autowired
+  private PromotionRepository promotionRepository;
+
   @Override
   public BookingResponse createBooking(CreateBookingDTO createDTO) {
 
@@ -114,7 +124,9 @@ public class BookingServiceImp implements BookingService {
     int totalPrice = 0;
     for (ServiceBookingDTO serviceBooking : createDTO.getListService()) {
       Optional<Services> service = serviceRepository.findById(serviceBooking.getServiceId().trim());
-
+      if (service.get().getPrice() == 0) {
+        throw new ErrorException(BookingErrorMessage.SERVICE_MUST_BE_QUOTED);
+      }
       if (service.isEmpty()) {
         bookingRepository.delete(bookingSaved);
         throw new ErrorException(ServiceErrorMessage.NOT_FOUND);
@@ -130,11 +142,21 @@ public class BookingServiceImp implements BookingService {
         throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_GREATER_THAN_CURRENT_DATE);
       }
 
-      PromotionByServiceResponse promotion = promotionService.getPromotionByService(service.get().getId());
+      PromotionByServiceResponse promotionResponse = promotionService.getPromotionByService(service.get().getId());
+
+      Optional<Promotion> promotion = promotionRepository.findById(promotionResponse.getId());
+
+      PromotionServiceEntity promotionServiceEntity = null;
+
+      if (promotion.isPresent()) {
+        promotionServiceEntity = promotionServiceRepository
+            .findByServiceAndPromotion(service.get(), promotion.get());
+      }
 
       BookingDetail bookingDetail = new BookingDetail().builder()
           .service(service.get())
           .booking(bookingSaved)
+          .promotionService(promotionServiceEntity)
           .completedDate(completeDate.toString())
           .originalPrice(service.get().getPrice())
           .price(service.get().getPrice())
@@ -142,7 +164,9 @@ public class BookingServiceImp implements BookingService {
           .build();
 
       if (promotion != null) {
-        bookingDetail.setPrice(service.get().getPrice() - service.get().getPrice() * promotion.getPercent());
+        bookingDetail
+            .setPrice(
+                (int) (service.get().getPrice() - service.get().getPrice() * promotion.get().getPercent() * 0.01));
       }
 
       listBookingDetails.add(bookingDetail);
@@ -170,8 +194,17 @@ public class BookingServiceImp implements BookingService {
         throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_GREATER_THAN_CURRENT_DATE);
       }
 
-      PromotionByServiceResponse promotion = promotionService
+      PromotionByServiceResponse promotionResponse = promotionService
           .getPromotionByService(quotation.get().getService().getId());
+
+      Optional<Promotion> promotion = promotionRepository.findById(promotionResponse.getId());
+
+      PromotionServiceEntity promotionServiceEntity = null;
+
+      if (promotion.isPresent()) {
+        promotionServiceEntity = promotionServiceRepository
+            .findByServiceAndPromotion(quotation.get().getService(), promotion.get());
+      }
 
       BookingDetail bookingDetail = new BookingDetail().builder()
           .service(quotation.get().getService())
@@ -180,12 +213,14 @@ public class BookingServiceImp implements BookingService {
           .price(quotation.get().getPrice())
           .note(quotationBookingDTO.getNote())
           .quotation(quotation.get())
+          .promotionService(promotionServiceEntity)
           .completedDate(completeDate.toString())
           .status(BookingDetailStatus.WAITING)
           .build();
 
       if (promotion != null) {
-        bookingDetail.setPrice(quotation.get().getPrice() - quotation.get().getPrice() * promotion.getPercent());
+        bookingDetail.setPrice(
+            (int) (quotation.get().getPrice() - quotation.get().getPrice() * promotion.get().getPercent() * 0.01));
       }
 
       listBookingDetails.add(bookingDetail);
@@ -199,6 +234,9 @@ public class BookingServiceImp implements BookingService {
 
       ServiceBookingResponse serviceBookingResponse = new ServiceBookingResponse().builder()
           .service(serviceResponse)
+          .completedDate(bookingDetail.getCompletedDate())
+          .originalPrice(bookingDetail.getOriginalPrice())
+          .status(bookingDetail.getStatus())
           .bookingPrice(bookingDetail.getPrice())
           .build();
 

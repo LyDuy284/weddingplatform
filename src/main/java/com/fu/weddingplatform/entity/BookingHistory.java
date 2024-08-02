@@ -40,7 +40,7 @@ public class BookingHistory {
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @Fetch(FetchMode.JOIN)
-  @JoinColumn(name = "booking_id")
+  @JoinColumn(name = "booking_detail_id")
   @EqualsAndHashCode.Include
   @ToString.Include
   private BookingDetail bookingDetail;

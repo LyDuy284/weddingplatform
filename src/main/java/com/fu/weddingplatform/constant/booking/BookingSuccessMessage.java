@@ -10,6 +10,7 @@ public class BookingSuccessMessage {
   public static final String REJECT = "Reject booking successfully";
   public static final String PAYMENT = "Payment booking successfully";
   public static final String PROCESSING = "Booking is on processing";
+  public static final String DONE = "Booking is done";
   public static final String CANCLE = "Cancle booking successfully";
   public static final String COMPLETED = "Complete booking successfully";
 }
