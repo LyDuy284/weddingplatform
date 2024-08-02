@@ -108,7 +108,6 @@ public class BookingServiceImp implements BookingService {
     Booking booking = new Booking().builder()
         .couple(couple)
         .createdAt(localDateTime.format(dateTimeFormatter))
-        .completedDate(createDTO.getCompleteDate())
         .status(BookingStatus.WAITING)
         .build();
 

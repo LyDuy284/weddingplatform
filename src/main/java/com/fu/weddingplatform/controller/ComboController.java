@@ -27,8 +27,8 @@ public class ComboController {
     @Autowired
     ComboService comboService;
 
-    @PostMapping("getAllCombo")
-    public ResponseEntity<?> getAllCombo(@RequestParam(required = false) String comboName,
+    @GetMapping("getComboByFilter")
+    public ResponseEntity<?> getComboByFilter(@RequestParam(required = false) String comboName,
                                          @RequestParam(defaultValue = "0") int pageNo,
                                          @RequestParam(defaultValue = "10") int pageSize,
                                          @RequestParam(defaultValue = "id") String sortBy,

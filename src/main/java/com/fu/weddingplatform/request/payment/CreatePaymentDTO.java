@@ -5,6 +5,7 @@ import com.fu.weddingplatform.enums.PaymentType;
 import lombok.*;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,7 +14,7 @@ import java.io.Serializable;
 @Builder
 public class CreatePaymentDTO implements Serializable {
     @JsonProperty("bookingId")
-    String bookingId;
+    List<String> listBookingDetailId;
     @JsonProperty("paymentType")
     PaymentType paymentType;
 }

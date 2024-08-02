@@ -41,7 +41,6 @@ public class Booking {
     @GenericGenerator(name = "booking-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingIdGenerate")
     private String id;
     private String createdAt;
-    private Date completedDate;
     private String status;
 
     @JsonIgnore
@@ -58,11 +57,7 @@ public class Booking {
     @JsonIgnore
     private Collection<BookingDetail> bookingDetails;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Payment> payments;
+
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include

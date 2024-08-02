@@ -117,7 +117,7 @@ public class BookingController {
   @PutMapping("cancle")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
   public ResponseEntity<?> cancleBookingById(@RequestParam String id) {
-    BookingResponse data = bookingService.updateBookingStatus(id, BookingStatus.CANCLE);
+    BookingResponse data = bookingService.updateBookingStatus(id, BookingStatus.CANCEL);
     ResponseDTO<BookingResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);

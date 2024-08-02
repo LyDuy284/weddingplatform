@@ -7,7 +7,7 @@ import com.fu.weddingplatform.response.rating.RatingResponse;
 import java.util.List;
 
 public interface RatingService {
-    List<RatingResponse> getAllRating(String coupleId, String serviceId, int pageNo, int pageSize, String sortBy, boolean isAscending);
+    List<RatingResponse> getRatingByFilter(String coupleId, String serviceId, int pageNo, int pageSize, String sortBy, boolean isAscending);
     RatingResponse getRatingById(String id);
     RatingResponse createRating(CreateRatingDTO request);
     RatingResponse updateRating(UpdateRatingDTO request);

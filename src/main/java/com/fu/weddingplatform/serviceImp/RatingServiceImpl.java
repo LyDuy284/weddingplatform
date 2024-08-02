@@ -17,6 +17,7 @@ import com.fu.weddingplatform.request.rating.UpdateRatingDTO;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
 import com.fu.weddingplatform.response.rating.RatingResponse;
 import com.fu.weddingplatform.service.RatingService;
+import com.fu.weddingplatform.utils.Utils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,6 +26,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +46,7 @@ public class RatingServiceImpl implements RatingService {
     RatingRepository ratingRepository;
 
     @Override
-    public List<RatingResponse> getAllRating(String coupleId, String serviceId, int pageNo, int pageSize, String sortBy, boolean isAscending) {
+    public List<RatingResponse> getRatingByFilter(String coupleId, String serviceId, int pageNo, int pageSize, String sortBy, boolean isAscending) {
         Specification<Rating> specification = buildRatingSpecification(coupleId, serviceId);
         Page<Rating> ratingPage;
         if (isAscending) {
@@ -88,11 +90,14 @@ public class RatingServiceImpl implements RatingService {
         Services service = serviceRepository.findById(request.getServiceId())
                 .orElseThrow(() -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
         Rating rating = Rating.builder()
+                .ratingQualityValue(request.getRatingQualityValue())
+                .ratingQuantityValue(request.getRatingQuantityValue())
+                .ratingTimeValue(request.getRatingTimeValue())
                 .description(request.getDescription())
                 .service(service)
                 .couple(couple)
                 .status(RatingStatus.ACTIVATED)
-                .dateCreated(request.getDateCreated())
+                .dateCreated(Utils.formatVNDatetimeNow())
                 .build();
         Rating ratingCreated = ratingRepository.save(rating);
         return modelMapper.map(ratingCreated, RatingResponse.class);
@@ -103,7 +108,9 @@ public class RatingServiceImpl implements RatingService {
     public RatingResponse updateRating(UpdateRatingDTO request) {
         Rating ratingUpdate = ratingRepository.findByIdAndCouple(request.getId(), request.getCoupleId())
                 .orElseThrow(() -> new ErrorException(RatingErrorMessage.NOT_FOUND_BY_COUPLE));
-        ratingUpdate.setRatingValue(request.getRatingValue());
+        ratingUpdate.setRatingQualityValue(request.getRatingQualityValue());
+        ratingUpdate.setRatingQuantityValue(request.getRatingQuantityValue());
+        ratingUpdate.setRatingTimeValue(request.getRatingTimeValue());
         ratingUpdate.setDescription(request.getDescription());
         Rating ratingUpdated = ratingRepository.save(ratingUpdate);
         return modelMapper.map(ratingUpdated, RatingResponse.class);

@@ -16,8 +16,10 @@ import java.sql.Date;
 @Builder
 public class RatingResponse {
     String id;
-    Date dateCreated;
-    int ratingValue;
+    String dateCreated;
+    int ratingQuantityValue;
+    int ratingTimeValue;
+    int ratingQualityValue;
     String description;
     String status;
     CoupleResponse couple;
