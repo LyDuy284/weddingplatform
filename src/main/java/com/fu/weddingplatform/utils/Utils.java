@@ -5,7 +5,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.crypto.SecretKey;
 
@@ -53,6 +55,17 @@ public class Utils {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate localDate = LocalDate.parse(date, formatter);
         return localDate;
+    }
+
+    public static List<String> parseStringToListImages(String imageString) {
+        List<String> result = new ArrayList<String>();
+        if (imageString != null && imageString != "") {
+            String[] imageArray = imageString.split("\n,");
+            for (String image : imageArray) {
+                result.add(image.trim());
+            }
+        }
+        return result;
     }
 
 }

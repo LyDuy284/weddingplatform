@@ -236,81 +236,56 @@ public class BookingServiceImp implements BookingService {
     return response;
   }
 
-  // @Override
-  // public BookingResponse getBookingById(String bookingId) {
-  // Booking booking = bookingRepository.findById(bookingId).orElseThrow(
-  // () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
-  // BookingResponse response = convertBookingToBookingResponse(booking);
-  // return response;
-  // }
+  @Override
+  public BookingResponse getBookingById(String bookingId) {
+    Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+        () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
+    BookingResponse response = convertBookingToBookingResponse(booking);
+    return response;
+  }
 
-  // @Override
-  // public BookingResponse updateBookingStatus(String bookingId, String status) {
+  @Override
+  public BookingResponse convertBookingToBookingResponse(Booking booking) {
+    BookingResponse response = modelMapper.map(booking, BookingResponse.class);
+    CoupleResponse coupleResponse = coupleService.getCoupleById(booking.getCouple().getId());
 
-  // Booking booking = saveStatus(bookingId, status);
+    int totalPrice = 0;
 
-  // BookingResponse response = convertBookingToBookingResponse(booking);
-  // return response;
-  // }
+    List<BookingDetailResponse> listBookingDetailResponses = new ArrayList<>();
 
-  // @Override
-  // public Booking saveStatus(String bookingId, String status) {
-  // Booking booking = bookingRepository.findById(bookingId).orElseThrow(
-  // () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
+    for (BookingDetail bookingDetail : booking.getBookingDetails()) {
 
-  // booking.setStatus(status);
-  // Booking response = bookingRepository.save(booking);
+      totalPrice += bookingDetail.getPrice();
 
-  // // ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+      ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+          .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
-  // // DateTimeFormatter dateTimeFormatter =
-  // DateTimeFormatter.ofPattern("yyyy-MM-dd
-  // // HH:mm:ss");
-  // // LocalDateTime localDateTime = LocalDateTime.now(vietnamZoneId);
+      PromotionServiceSupplier promotionServiceSupplier = bookingDetail.getInvoiceDetails().stream().findFirst().get()
+          .getPromotionServiceSupplier();
+      Promotion promotion = null;
+      if (promotionServiceSupplier != null) {
+        promotion = promotionServiceSupplier.getPromotion();
+      }
 
-  // // BookingHistory bookingHistory = new BookingHistory().builder()
-  // // .createdAt(localDateTime.format(dateTimeFormatter))
-  // // .booking(booking)
-  // // .status(status)
-  // // .build();
-  // // bookingHistoryRepository.save(bookingHistory);
+      PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
 
-  // return response;
-  // }
+      BookingDetailResponse bookingDetailResponse = modelMapper.map(bookingDetail, BookingDetailResponse.class);
+      bookingDetailResponse.setPromotionResponse(promotionResponse);
+      bookingDetailResponse.setServiceSupplierResponse(serviceSupplierResponse);
+      listBookingDetailResponses.add(bookingDetailResponse);
 
-  // @Override
-  // public BookingResponse convertBookingToBookingResponse(Booking booking) {
-  // BookingResponse response = modelMapper.map(booking, BookingResponse.class);
-  // CoupleResponse coupleResponse =
-  // coupleService.getCoupleById(booking.getCouple().getId());
+    }
+    response.setCouple(coupleResponse);
+    response.setListBookingDetail(listBookingDetailResponses);
+    response.setTotalPrice(totalPrice);
+    return response;
+  }
 
-  // int totalPrice = 0;
-
-  // List<ServiceBookingResponse> listServiceBookingResponses = new ArrayList<>();
-
-  // for (BookingDetail bookingDetail : booking.getBookingDetails()) {
-
-  // // ServiceResponse serviceResponse = serviceService
-  // // .getServiceById(bookingDetail.getService().getId());
-
-  // ServiceBookingResponse serviceBookingResponse = new
-  // ServiceBookingResponse().builder()
-  // // .service(serviceResponse)
-  // .completedDate(bookingDetail.getCompletedDate())
-  // .originalPrice(bookingDetail.getOriginalPrice())
-  // .bookingPrice(bookingDetail.getPrice())
-  // .status(bookingDetail.getStatus())
-  // .build();
-
-  // totalPrice += bookingDetail.getPrice();
-  // listServiceBookingResponses.add(serviceBookingResponse);
-
-  // }
-  // response.setCouple(coupleResponse);
-  // response.setServiceBookings(listServiceBookingResponses);
-  // response.setTotalPrice(totalPrice);
-  // return response;
-  // }
+  @Override
+  public List<BookingResponse> getAllBookingBySupplier(String supplierId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getAllBookingBySupplier'");
+  }
 
   // @Override
   // public List<BookingResponse> getAllBookingByCouple(String coupleId, int

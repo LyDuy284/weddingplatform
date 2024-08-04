@@ -5,9 +5,9 @@ import java.util.List;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.UpdateServiceSupplier;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.response.supplier.ServiceSupplierByService;
-import com.fu.weddingplatform.response.supplier.ServiceSupplierBySupplierReponse;
 
 public interface ServiceSupplierService {
     public ServiceSupplierResponse createServiceSupplier(CreateServiceSupplier createDTO);

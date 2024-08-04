@@ -8,16 +8,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
+import com.fu.weddingplatform.constant.category.CategoryErrorMessage;
 import com.fu.weddingplatform.constant.promotion.PromotionErrorMessage;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
 import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
 import com.fu.weddingplatform.constant.validation.ValidationMessage;
+import com.fu.weddingplatform.entity.Category;
 import com.fu.weddingplatform.entity.Promotion;
 import com.fu.weddingplatform.entity.PromotionServiceSupplier;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Services;
 import com.fu.weddingplatform.entity.Supplier;
 import com.fu.weddingplatform.exception.ErrorException;
+import com.fu.weddingplatform.repository.CategoryRepository;
 import com.fu.weddingplatform.repository.PromotionRepository;
 import com.fu.weddingplatform.repository.PromotionServiceSupplierRepository;
 import com.fu.weddingplatform.repository.ServiceRepository;
@@ -27,9 +30,12 @@ import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.UpdateServiceSupplier;
 import com.fu.weddingplatform.response.Account.SupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
+import com.fu.weddingplatform.response.serviceSupplier.GroupByCategory;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceBaseOnCategory;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBaseOnService;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.response.supplier.ServiceSupplierByService;
-import com.fu.weddingplatform.response.supplier.ServiceSupplierBySupplierReponse;
 import com.fu.weddingplatform.service.ServiceService;
 import com.fu.weddingplatform.service.ServiceSupplierService;
 import com.fu.weddingplatform.service.SupplierService;
@@ -61,6 +67,9 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
 
     @Autowired
     private PromotionRepository promotionRepository;
+
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Override
     public ServiceSupplierResponse createServiceSupplier(CreateServiceSupplier createDTO) {
@@ -149,12 +158,6 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
     }
 
     @Override
-    public List<ServiceSupplierBySupplierReponse> getBySupplier(String id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBySupplier'");
-    }
-
-    @Override
     public List<ServiceSupplierByService> filterByService(String id, String type) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'filterByService'");
@@ -178,6 +181,118 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         response.setListImages(listImages);
 
         return response;
+    }
+
+    @Override
+    public List<ServiceSupplierBySupplierReponse> getBySupplier(String id) {
+        String currentCategoryId = "";
+        String currentServiceId = "";
+        List<Object[]> results = serviceSupplierRepository.getBySupplier(id);
+        List<ServiceSupplierBySupplierReponse> reponse = new ArrayList<>();
+        ServiceSupplierBySupplierReponse serviceSupplierBySupplierReponse = new ServiceSupplierBySupplierReponse();
+        List<ServiceBaseOnCategory> listServices = new ArrayList<>();
+        ServiceBaseOnCategory serviceBaseOnCategory = new ServiceBaseOnCategory();
+        List<ServiceSupplierBaseOnService> listServiceSupplier = new ArrayList<>();
+        ServiceSupplierBaseOnService serviceSupplierBaseOnService = new ServiceSupplierBaseOnService();
+        Category category = new Category();
+        Services service = new Services();
+        ServiceSupplier serviceSupplier = new ServiceSupplier();
+        if (results.size() == 0) {
+            throw new ErrorException(SupplierErrorMessage.EMPTY);
+        }
+        for (Object[] result : results) {
+            String categoryId = result[0].toString().trim();
+            String serviceId = result[1].toString().trim();
+            String serviceSupplierId = result[2].toString().trim();
+
+            if (!(currentCategoryId.equalsIgnoreCase(categoryId))) {
+                currentCategoryId = categoryId;
+                currentServiceId = serviceId;
+                if (serviceSupplierBySupplierReponse.getCategoryId() != null) {
+                    // add to result
+                    serviceBaseOnCategory.setListServiceSupplier(listServiceSupplier);
+                    listServices.add(serviceBaseOnCategory);
+                    serviceSupplierBySupplierReponse.setListServices(listServices);
+                    reponse.add(serviceSupplierBySupplierReponse);
+
+                    serviceSupplierBySupplierReponse = new ServiceSupplierBySupplierReponse();
+                    listServices = new ArrayList<>();
+                    serviceBaseOnCategory = new ServiceBaseOnCategory();
+                    listServiceSupplier = new ArrayList<>();
+                    serviceSupplierBaseOnService = new ServiceSupplierBaseOnService();
+                }
+
+                // Category
+                category = categoryRepository.findById(categoryId).orElseThrow(
+                        () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
+
+                serviceSupplierBySupplierReponse = modelMapper.map(category, ServiceSupplierBySupplierReponse.class);
+
+                // Service
+                service = serviceRepository.findById(currentServiceId).orElseThrow(
+                        () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
+                List<String> serviceImages = Utils.parseStringToListImages(service.getImages());
+                serviceBaseOnCategory = modelMapper.map(service, ServiceBaseOnCategory.class);
+                serviceBaseOnCategory.setListImages(serviceImages);
+
+                // Service supplier
+                serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
+                        () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+                serviceSupplierBaseOnService = modelMapper.map(serviceSupplier, ServiceSupplierBaseOnService.class);
+                List<String> serviceSupplierImages = Utils.parseStringToListImages(serviceSupplier.getImages());
+                serviceSupplierBaseOnService.setListImages(serviceSupplierImages);
+
+                // add service supplier to list of service
+                listServiceSupplier.add(serviceSupplierBaseOnService);
+
+            } else {
+                if ((currentServiceId.equalsIgnoreCase(serviceId))) {
+                    serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
+                            () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+                    serviceSupplierBaseOnService = modelMapper.map(serviceSupplier, ServiceSupplierBaseOnService.class);
+                    List<String> serviceSupplierImages = Utils.parseStringToListImages(serviceSupplier.getImages());
+                    serviceSupplierBaseOnService.setListImages(serviceSupplierImages);
+
+                    // add service supplier to list of service
+                    listServiceSupplier.add(serviceSupplierBaseOnService);
+                } else {
+                    currentServiceId = serviceId;
+                    serviceBaseOnCategory.setListServiceSupplier(listServiceSupplier);
+                    listServiceSupplier = new ArrayList<>();
+                    listServices.add(serviceBaseOnCategory);
+
+                    serviceBaseOnCategory = new ServiceBaseOnCategory();
+                    // service
+                    service = serviceRepository.findById(currentServiceId).orElseThrow(
+                            () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
+                    List<String> serviceImages = Utils.parseStringToListImages(service.getImages());
+                    serviceBaseOnCategory = modelMapper.map(service, ServiceBaseOnCategory.class);
+                    serviceBaseOnCategory.setListImages(serviceImages);
+
+                    // Service supplier
+                    serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
+                            () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+                    serviceSupplierBaseOnService = modelMapper.map(serviceSupplier, ServiceSupplierBaseOnService.class);
+                    List<String> serviceSupplierImages = Utils.parseStringToListImages(serviceSupplier.getImages());
+                    serviceSupplierBaseOnService.setListImages(serviceSupplierImages);
+
+                    // add service supplier to list of service
+                    listServiceSupplier.add(serviceSupplierBaseOnService);
+
+                }
+            }
+
+        }
+        if (serviceSupplierBySupplierReponse.getCategoryId() != null) {
+            // add to result
+            serviceBaseOnCategory.setListServiceSupplier(listServiceSupplier);
+            listServices.add(serviceBaseOnCategory);
+            serviceSupplierBySupplierReponse.setListServices(listServices);
+            reponse.add(serviceSupplierBySupplierReponse);
+
+        }
+
+        return reponse;
     }
 
 }
