@@ -1,9 +1,15 @@
 package com.fu.weddingplatform.request.combo;
 
-import com.fu.weddingplatform.constant.validation.ValidationMessage;
-import lombok.*;
-
 import javax.validation.constraints.NotEmpty;
+
+import com.fu.weddingplatform.constant.validation.ValidationMessage;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 @Getter
 @Setter
 @Builder
@@ -11,9 +17,10 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 public class UpdateComboInfor {
     @NotEmpty(message = "Combo Id " + ValidationMessage.NOT_EMPTY)
-    String id;
+    private String id;
     @NotEmpty(message = "Combo name " + ValidationMessage.NOT_EMPTY)
-    String name;
+    private String name;
     @NotEmpty(message = "Combo description " + ValidationMessage.NOT_EMPTY)
-    String description;
+    private String description;
+    private String image;
 }

@@ -4,7 +4,6 @@ import java.sql.Date;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -42,10 +41,9 @@ public class Promotion {
     @GeneratedValue(generator = "promotion-id")
     @GenericGenerator(name = "promotion-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.PromotionIdGenerate")
     private String id;
-    @Column(columnDefinition = "text")
-    private String promotionDetails;
     private String name;
-    private int percent;
+    private int value;
+    private String type;
     private Date startDate;
     private Date endDate;
     private String status;

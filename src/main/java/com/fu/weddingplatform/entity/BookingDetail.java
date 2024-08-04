@@ -42,7 +42,6 @@ public class BookingDetail {
     @GenericGenerator(name = "booking-detail-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingDetailIdGenerator")
     private String id;
     private int price;
-    private int originalPrice;
     @Column(columnDefinition = "text")
     private String note;
     private String status;
@@ -75,5 +74,11 @@ public class BookingDetail {
     @ToString.Include
     @JsonIgnore
     private Collection<Rating> ratings;
+
+    @OneToMany(mappedBy = "bookingDetail", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<InvoiceDetail> invoiceDetails;
 
 }

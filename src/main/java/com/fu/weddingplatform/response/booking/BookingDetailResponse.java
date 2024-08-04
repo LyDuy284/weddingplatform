@@ -1,8 +1,7 @@
 package com.fu.weddingplatform.response.booking;
 
-import java.util.List;
-
-import com.fu.weddingplatform.response.couple.CoupleResponse;
+import com.fu.weddingplatform.response.promotion.PromotionResponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,12 +16,12 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class BookingResponse {
+public class BookingDetailResponse {
+  private ServiceSupplierResponse serviceSupplierResponse;
   private String id;
-  private CoupleResponse couple;
-  private List<BookingDetailResponse> listBookingDetail;
+  private int price;
   private String note;
-  private int totalPrice;
-  private String createdAt;
+  private String completedDate;
   private String status;
+  private PromotionResponse promotionResponse;
 }

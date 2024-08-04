@@ -17,7 +17,5 @@ import lombok.ToString;
 @Builder
 public class CreateBookingDTO {
   private String coupleId;
-  private String supplierId;
-  private List<ServiceBookingDTO> listService;
-  private List<QuotationBookingDTO> listQuotations;
+  private List<ServiceSupplierBookingDTO> listServiceSupplier;
 }

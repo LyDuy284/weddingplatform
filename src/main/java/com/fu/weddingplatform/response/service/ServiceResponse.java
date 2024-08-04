@@ -23,6 +23,5 @@ public class ServiceResponse {
     private String description;
     private String createAt;
     private List<String> listImages;
-    private String status;
     private CategoryResponse categoryResponse;
 }

@@ -1,170 +1,180 @@
-// package com.fu.weddingplatform.serviceImp;
+package com.fu.weddingplatform.serviceImp;
 
-// import java.sql.Date;
-// import java.time.LocalDate;
-// import java.time.ZoneId;
-// import java.time.format.DateTimeFormatter;
-// import java.util.ArrayList;
-// import java.util.Arrays;
-// import java.util.List;
-// import java.util.stream.Collectors;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
-// import org.modelmapper.ModelMapper;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.stereotype.Service;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
 
-// import com.fu.weddingplatform.constant.Status;
-// import com.fu.weddingplatform.constant.promotion.PromotionErrorMessage;
-// import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
-// import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
-// import com.fu.weddingplatform.constant.validation.ValidationMessage;
-// import com.fu.weddingplatform.entity.Promotion;
-// import com.fu.weddingplatform.entity.PromotionServiceEntity;
-// import com.fu.weddingplatform.entity.ServiceSupplier;
-// import com.fu.weddingplatform.entity.Services;
-// import com.fu.weddingplatform.exception.ErrorException;
-// import com.fu.weddingplatform.repository.PromotionRepository;
-// import com.fu.weddingplatform.repository.PromotionServiceRepository;
-// import com.fu.weddingplatform.repository.ServiceRepository;
-// import com.fu.weddingplatform.repository.ServiceSupplierRepository;
-// import com.fu.weddingplatform.request.promotion.CreatePromotionDTO;
-// import com.fu.weddingplatform.response.promotion.PromotionByServiceResponse;
-// import com.fu.weddingplatform.response.promotion.PromotionBySupplierResponse;
-// import com.fu.weddingplatform.response.promotion.PromotionResponse;
-// import com.fu.weddingplatform.service.PromotionService;
+import com.fu.weddingplatform.constant.Status;
+import com.fu.weddingplatform.constant.promotion.PromotionErrorMessage;
+import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
+import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
+import com.fu.weddingplatform.constant.validation.ValidationMessage;
+import com.fu.weddingplatform.entity.Promotion;
+import com.fu.weddingplatform.entity.PromotionServiceSupplier;
+import com.fu.weddingplatform.entity.ServiceSupplier;
+import com.fu.weddingplatform.entity.Supplier;
+import com.fu.weddingplatform.exception.ErrorException;
+import com.fu.weddingplatform.repository.PromotionRepository;
+import com.fu.weddingplatform.repository.PromotionServiceSupplierRepository;
+import com.fu.weddingplatform.repository.ServiceSupplierRepository;
+import com.fu.weddingplatform.repository.SupplierRepository;
+import com.fu.weddingplatform.request.promotion.CreatePromotionDTO;
+import com.fu.weddingplatform.response.promotion.PromotionByServiceResponse;
+import com.fu.weddingplatform.response.promotion.PromotionBySupplierResponse;
+import com.fu.weddingplatform.response.promotion.PromotionResponse;
+import com.fu.weddingplatform.service.PromotionService;
+import com.fu.weddingplatform.utils.Utils;
 
-// @Service
-// public class PromotionServiceImp implements PromotionService {
+@Service
+@EnableScheduling
 
-//   @Autowired
-//   private PromotionRepository promotionRepository;
+public class PromotionServiceImp implements PromotionService {
 
-//   @Autowired
-//   private ServiceSupplierRepository serviceSupplierRepository;
+  @Autowired
+  private PromotionRepository promotionRepository;
 
-//   @Autowired
-//   private PromotionServiceRepository promotionServiceRepository;
+  @Autowired
+  private ServiceSupplierRepository serviceSupplierRepository;
 
-//   @Autowired
-//   private ServiceRepository serviceRepository;
+  @Autowired
+  private SupplierRepository supplierRepository;
 
-//   @Autowired
-//   private ModelMapper modelMapper;
+  @Autowired
+  private PromotionServiceSupplierRepository promotionServiceSupplierRepository;
 
-//   @Override
-//   public PromotionResponse createPromotion(CreatePromotionDTO createDTO) {
+  @Autowired
+  private ModelMapper modelMapper;
 
-//     ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(createDTO.getSupplierId()).orElseThrow(
-//         () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+  @Override
+  public PromotionResponse createPromotion(CreatePromotionDTO createDTO) {
 
-//     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//     LocalDate startDate = null;
-//     LocalDate endDate = null;
+    Supplier supplier = supplierRepository.findById(createDTO.getSupplierId()).orElseThrow(
+        () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
-//     startDate = LocalDate.parse(createDTO.getStartDate().toString(), dateFormatter);
-//     endDate = LocalDate.parse(createDTO.getEndDate().toString(), dateFormatter);
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    LocalDate startDate = null;
+    LocalDate endDate = null;
 
-//     if (endDate.isBefore(startDate)) {
-//       throw new ErrorException(ValidationMessage.START_DATE_AFTER_END_DATE);
-//     }
+    startDate = LocalDate.parse(createDTO.getStartDate().toString(), dateFormatter);
+    endDate = LocalDate.parse(createDTO.getEndDate().toString(), dateFormatter);
 
-//     if (createDTO.getPercent() <= 0) {
-//       throw new ErrorException("Percent" + ValidationMessage.GREATER_THAN_ZERO);
-//     }
+    if (startDate.isBefore(Utils.getCurrentDate())) {
+      throw new ErrorException(ValidationMessage.NOT_BEFORE_CURRENT_DATE);
+    }
 
-//     Promotion promotion = new Promotion().builder()
-//         .percent(createDTO.getPercent())
-//         .status(Status.ACTIVATED)
-//         .startDate(Date.valueOf(startDate))
-//         .endDate(Date.valueOf(endDate))
-//         .promotionDetails(createDTO.getPromotionDetails())
-//         .serviceSupplier(serviceSupplier)
-//         .build();
+    if (endDate.isBefore(startDate)) {
+      throw new ErrorException(ValidationMessage.START_DATE_AFTER_END_DATE);
+    }
 
-//     Promotion promotionSaved = promotionRepository.save(promotion);
+    if (createDTO.getValue() <= 0) {
+      throw new ErrorException(ValidationMessage.GREATER_THAN_ZERO);
+    }
 
-//     List<String> listSeviceIds = Arrays.stream(createDTO.getListServiceIds().split(","))
-//         .map(String::trim)
-//         .collect(Collectors.toList());
-//     if (listSeviceIds.size() > 0) {
-//       for (String serviceId : listSeviceIds) {
-//         Services service = serviceRepository.findById(serviceId.trim()).orElseThrow(
-//             () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
+    Promotion promotion = Promotion.builder()
+        .value(createDTO.getValue())
+        .type(createDTO.getType())
+        .status(Status.ACTIVATED)
+        .startDate(Date.valueOf(startDate))
+        .endDate(Date.valueOf(endDate))
+        .name(createDTO.getName())
+        .supplier(supplier)
+        .build();
 
-//         PromotionServiceEntity promotionService = new PromotionServiceEntity().builder().promotion(promotionSaved)
-//             .service(service).build();
-//         promotionServiceRepository.save(promotionService);
-//       }
-//     }
+    Promotion promotionSaved = promotionRepository.save(promotion);
+    PromotionResponse promotionResponse = modelMapper.map(promotionSaved, PromotionResponse.class);
+    promotionResponse.setSupplierId(supplier.getId());
+    return promotionResponse;
+  }
 
-//     PromotionResponse promotionResponse = modelMapper.map(promotionSaved, PromotionResponse.class);
-//     promotionResponse.setListServiceIds(listSeviceIds);
-//     promotionResponse.setServiceSupplierId(serviceSupplier.getId());
-//     return promotionResponse;
-//   }
+  @Override
+  public PromotionResponse getPromotionById(String id) {
 
-//   @Override
-//   public PromotionResponse getPromotionById(String id) {
+    Promotion promotion = promotionRepository.findById(id).orElseThrow(
+        () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
+    PromotionResponse response = modelMapper.map(promotion, PromotionResponse.class);
+    response.setSupplierId(promotion.getSupplier().getId());
 
-//     Promotion promotion = promotionRepository.findById(id).orElseThrow(
-//         () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
-//     PromotionResponse response = modelMapper.map(promotion, PromotionResponse.class);
-//     response.setServiceSupplierId(promotion.getServiceSupplier().getId());
+    return response;
+  }
 
-//     List<PromotionServiceEntity> listPromotionService = promotionServiceRepository.findByPromotion(promotion);
-//     List<String> listServiceIds = new ArrayList<String>();
-//     for (PromotionServiceEntity promotionServiceEntity : listPromotionService) {
-//       listServiceIds.add(promotionServiceEntity.getService().getId());
-//     }
-//     response.setListServiceIds(listServiceIds);
-//     return response;
-//   }
+  @Override
+  public List<PromotionBySupplierResponse> getPromotionBySupplier(String supplierId) {
 
-//   @Override
-//   public List<PromotionBySupplierResponse> getPromotionBySupplier(String supplierId) {
+    Supplier supplier = supplierRepository.findById(supplierId).orElseThrow(
+        () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
-//     serviceSupplierRepository.findById(supplierId).orElseThrow(
-//         () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+    List<PromotionBySupplierResponse> response = new ArrayList<PromotionBySupplierResponse>();
 
-//     List<PromotionBySupplierResponse> response = new ArrayList<PromotionBySupplierResponse>();
+    List<Promotion> listPromotions = promotionRepository.findBySupplierAndStatus(supplier, Status.ACTIVATED);
 
-//     ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
-//     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//     LocalDate localDate = LocalDate.now(vietnamZoneId);
-//     String currentDate = localDate.format(dateFormatter);
+    if (listPromotions.isEmpty()) {
+      throw new ErrorException(PromotionErrorMessage.EMPTY);
+    }
 
-//     List<Promotion> listPromotions = promotionRepository.findBySupplier(supplierId, currentDate);
+    for (Promotion promotion : listPromotions) {
 
-//     if (listPromotions.isEmpty()) {
-//       throw new ErrorException(PromotionErrorMessage.EMPTY);
-//     }
+      PromotionBySupplierResponse promotionBySupplierResponse = modelMapper.map(promotion,
+          PromotionBySupplierResponse.class);
+      response.add(promotionBySupplierResponse);
+    }
 
-//     for (Promotion promotion : listPromotions) {
+    return response;
+  }
 
-//       PromotionBySupplierResponse promotionBySupplierResponse = modelMapper.map(promotion,
-//           PromotionBySupplierResponse.class);
-//       response.add(promotionBySupplierResponse);
-//     }
+  @Override
+  public PromotionByServiceResponse getPromotionByServiceSupplier(String serviceSupplierId) {
+    ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
+        () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
 
-//     return response;
-//   }
+    PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository
+        .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
 
-//   @Override
-//   public PromotionByServiceResponse getPromotionByService(String serviceId) {
+    Promotion promotion = null;
 
-//     serviceRepository.findById(serviceId).orElseThrow(
-//         () -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
+    if (promotionServiceSupplier.getId() != null) {
+      promotion = promotionServiceSupplier.getPromotion();
+    }
 
-//     ZoneId vietnamZoneId = ZoneId.of("Asia/Ho_Chi_Minh");
-//     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//     LocalDate localDate = LocalDate.now(vietnamZoneId);
-//     String currentDate = localDate.format(dateFormatter);
-//     Promotion promotion = promotionRepository.findByService(serviceId, currentDate);
-//     PromotionByServiceResponse response = null;
-//     if (promotion != null) {
-//       response = modelMapper.map(promotion, PromotionByServiceResponse.class);
-//     }
-//     return response;
-//   }
+    PromotionByServiceResponse response = null;
+    if (promotion != null) {
+      response = modelMapper.map(promotion, PromotionByServiceResponse.class);
+    }
+    return response;
+  }
 
-// }
+  @Override
+  @Scheduled(cron = "0 0 0 * * *")
+  public void expriedPromotion() {
+
+    String currentDate = Utils.getCurrentDate().toString();
+
+    List<Promotion> promotionList = promotionRepository.findExpriedPromotion(currentDate);
+
+    for (Promotion promotion : promotionList) {
+      for (PromotionServiceSupplier promotionServiceSupplier : promotion.getPromotionServiceSuppliers()) {
+        promotionServiceSupplier.setStatus(Status.EXPRIED);
+        promotionServiceSupplierRepository.save(promotionServiceSupplier);
+      }
+      promotion.setStatus(Status.EXPRIED);
+      promotionRepository.save(promotion);
+    }
+  }
+
+  @Override
+  public PromotionResponse convertPromotionToResponse(Promotion promotion) {
+    if (promotion == null)
+      return null;
+    PromotionResponse promotionResponse = modelMapper.map(promotion, PromotionResponse.class);
+    promotionResponse.setSupplierId(promotion.getSupplier().getId());
+    return promotionResponse;
+  }
+
+}

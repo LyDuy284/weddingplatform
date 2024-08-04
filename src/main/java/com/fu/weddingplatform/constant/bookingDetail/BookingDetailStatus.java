@@ -1,7 +1,7 @@
 package com.fu.weddingplatform.constant.bookingDetail;
 
 public class BookingDetailStatus {
-    public static final String WAITING = "WAITING";
+    public static final String PENDING = "PENDING";
     public static final String CONFIRM = "CONFIRM";
     public static final String REJECT = "REJECT";
     public static final String DEPOSITED = "DEPOSITED";

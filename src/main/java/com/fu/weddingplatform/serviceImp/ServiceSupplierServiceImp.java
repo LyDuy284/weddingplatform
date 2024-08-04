@@ -160,4 +160,24 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         throw new UnsupportedOperationException("Unimplemented method 'filterByService'");
     }
 
+    @Override
+    public ServiceSupplierResponse convertServiceSupplierToResponse(ServiceSupplier serviceSupplier) {
+        ServiceSupplierResponse response = modelMapper.map(serviceSupplier, ServiceSupplierResponse.class);
+        List<String> listImages = new ArrayList<String>();
+        if (serviceSupplier.getImages() != null && serviceSupplier.getImages() != "") {
+            String[] imageArray = serviceSupplier.getImages().split("\n,");
+            for (String image : imageArray) {
+                listImages.add(image.trim());
+            }
+        }
+        ServiceResponse serviceResponse = serviceService.convertServiceToReponse(serviceSupplier.getService());
+        SupplierResponse supplierResponse = supplierService
+                .convertSupplierToSupplierResponse(serviceSupplier.getSupplier());
+        response.setSupplierResponse(supplierResponse);
+        response.setServiceResponse(serviceResponse);
+        response.setListImages(listImages);
+
+        return response;
+    }
+
 }

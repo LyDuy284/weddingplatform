@@ -85,15 +85,25 @@ public class AuthServiceImp implements AuthService {
         if (authenticate.isAuthenticated()) {
             String token = Utils.buildJWT(authenticate, account, secretKey, jwtConfig);
             String userId = null;
+            int balance = 0;
+            Wallet wallet;
             switch (account.getRole().getName()) {
                 case RoleName.ROLE_STAFF:
                     userId = account.getStaffs().stream().findFirst().get().getId();
                     break;
                 case RoleName.ROLE_COUPLE:
                     userId = account.getCouples().stream().findFirst().get().getId();
+                    wallet = account.getCouples().stream().findFirst().get().getWallet();
+                    if (wallet != null) {
+                        balance = wallet.getBalance();
+                    }
                     break;
                 case RoleName.ROLE_SUPPLIER:
                     userId = account.getSupplier().stream().findFirst().get().getId();
+                    wallet = account.getSupplier().stream().findFirst().get().getWallet();
+                    if (wallet != null) {
+                        balance = wallet.getBalance();
+                    }
                     break;
                 default:
                     break;
@@ -104,6 +114,7 @@ public class AuthServiceImp implements AuthService {
                     .status(account.getStatus())
                     .roleName(account.getRole().getName())
                     .userId(userId)
+                    .balance(balance)
                     .token(token)
                     .build();
 
@@ -207,6 +218,7 @@ public class AuthServiceImp implements AuthService {
                 .balance(0)
                 .couple(newCouple)
                 .build();
+        walletRepository.save(wallet);
         response = modelMapper.map(accountSaved, RegsiterCoupleReponse.class);
 
         response.setAccountId(accountSaved.getId());

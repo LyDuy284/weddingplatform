@@ -1,13 +1,13 @@
 package com.fu.weddingplatform.response.rating;
 
-import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.entity.Services;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
-import lombok.*;
 
-import javax.validation.constraints.NotEmpty;
-import java.security.Provider;
-import java.sql.Date;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter

@@ -16,6 +16,6 @@ public class CreateBlogDTO {
     private String title;
     private String content;
     private String images;
-    @NotEmpty(message = "Service Supplier ID " + ValidationMessage.NOT_EMPTY)
-    private String serviceSupplierId;
+    @NotEmpty(message = "Staff ID " + ValidationMessage.NOT_EMPTY)
+    private String staff;
 }

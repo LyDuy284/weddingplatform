@@ -29,7 +29,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "bookng_detail_history")
+@Table(name = "booking_detail_history")
 public class BookingDetailHistory {
     @Id
     @GeneratedValue(generator = "booking-detail-history-id")

@@ -2,6 +2,7 @@ package com.fu.weddingplatform.service;
 
 import java.util.List;
 
+import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.UpdateServiceSupplier;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
@@ -19,5 +20,5 @@ public interface ServiceSupplierService {
 
     public List<ServiceSupplierByService> filterByService(String id, String type);
 
-    
+    public ServiceSupplierResponse convertServiceSupplierToResponse(ServiceSupplier serviceSupplier);
 }

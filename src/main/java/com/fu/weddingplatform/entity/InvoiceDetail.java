@@ -1,15 +1,11 @@
 package com.fu.weddingplatform.entity;
 
-import java.util.Collection;
-
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -33,34 +29,38 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-@Table(name = "promotion_service_supplier")
-public class PromotionServiceSupplier {
+@Table(name = "invoice_detail")
+public class InvoiceDetail {
   @Id
-  @GeneratedValue(generator = "promotion-service-supplier-id")
-  @GenericGenerator(name = "promotion-service-supplier-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.PromotionServiceSupplierIdGenerate")
+  @GeneratedValue(generator = "invoice-detail-id")
+  @GenericGenerator(name = "invoice-detail-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.InvoiceDetailIdGenerator")
   private String id;
   private String status;
+  private int price;
+  private String createAt;
 
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @Fetch(FetchMode.JOIN)
-  @JoinColumn(name = "promotion_id")
+  @JoinColumn(name = "booking_detail_id")
   @EqualsAndHashCode.Include
   @ToString.Include
-  private Promotion promotion;
+  private BookingDetail bookingDetail;
 
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @Fetch(FetchMode.JOIN)
-  @JoinColumn(name = "service_supplier_id")
+  @JoinColumn(name = "invoice_id")
   @EqualsAndHashCode.Include
   @ToString.Include
-  private ServiceSupplier serviceSupplier;
+  private Invoice invoice;
 
-  @OneToMany(mappedBy = "promotionServiceSupplier", cascade = CascadeType.ALL)
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @Fetch(FetchMode.JOIN)
+  @JoinColumn(name = "promotion_serivce_supplier_id")
   @EqualsAndHashCode.Include
   @ToString.Include
-  @JsonIgnore
-  private Collection<InvoiceDetail> invoiceDetails;
+  private PromotionServiceSupplier promotionServiceSupplier;
 
 }

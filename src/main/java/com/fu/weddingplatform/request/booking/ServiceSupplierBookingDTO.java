@@ -15,8 +15,8 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-public class QuotationBookingDTO {
-  private String quoationId;
+public class ServiceSupplierBookingDTO {
+  private String serviceSupplierId;
   private Date dateCompleted;
   private String note;
 }

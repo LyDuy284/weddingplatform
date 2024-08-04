@@ -52,7 +52,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.WAITING))) {
+    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.PENDING))) {
       throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
     }
 
@@ -65,7 +65,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.WAITING))) {
+    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.PENDING))) {
       throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
     }
 
@@ -79,7 +79,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.WAITING))) {
+    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.PENDING))) {
       throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
     }
 

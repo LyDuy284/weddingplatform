@@ -21,12 +21,15 @@ import lombok.ToString;
 @ToString
 @Builder
 public class CreatePromotionDTO {
-  @NotEmpty(message = "Service Supplier ID " + ValidationMessage.NOT_EMPTY)
+  @NotEmpty(message = "Supplier ID " + ValidationMessage.NOT_EMPTY)
   private String supplierId;
   @Min(value = 0, message = "Value must be greater than 0")
-  private int percent;
-  private String listServiceIds;
-  private String promotionDetails;
+  private int value;
+  @NotEmpty(message = "Type " + ValidationMessage.NOT_EMPTY)
+  private String type;
+  private String name;
+  @NotEmpty(message = "Start Date " + ValidationMessage.NOT_EMPTY)
   private Date startDate;
+  @NotEmpty(message = "End Date " + ValidationMessage.NOT_EMPTY)
   private Date endDate;
 }

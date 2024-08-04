@@ -22,7 +22,7 @@ public class BookingDetailHistoryIdGenerator implements IdentifierGenerator {
         Statement statement = connection.createStatement();
         ResultSet rs = statement
                 .executeQuery("SELECT MAX(CAST(SUBSTRING_INDEX(id, '-', -1) AS UNSIGNED)) AS number \n" +
-                        "FROM bookng_detail_history \n" +
+                        "FROM booking_detail_history \n" +
                         "ORDER BY id DESC \n");
         if (rs.next()) {
             int maxId = rs.getInt("number") + 1;

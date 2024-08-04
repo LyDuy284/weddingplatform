@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.entity;
 
-import java.sql.Date;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
@@ -40,7 +39,6 @@ public class Invoice {
     @GenericGenerator(name = "invoice-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.InvoiceIdGennerator")
     private String id;
 
-    private String invoiceNumber;
     private String status;
     private int totalPrice;
     private String createAt;
@@ -54,10 +52,10 @@ public class Invoice {
     private Booking booking;
 
 
-    // @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
-    // @EqualsAndHashCode.Include
-    // @ToString.Include
-    // @JsonIgnore
-    // private Collection<Payment> payments;
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<InvoiceDetail> invoiceDetails;
 
 }

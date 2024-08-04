@@ -17,7 +17,7 @@ import lombok.ToString;
 @Builder
 public class PromotionBySupplierResponse {
   private String id;
-  private String promotionDetails;
+  private String name;
   private int percent;
   private Date startDate;
   private Date endDate;

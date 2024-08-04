@@ -67,17 +67,6 @@ public class BlogPostController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @GetMapping("getAllPendingBlogPosts")
-    public ResponseEntity<?> getAllPendingBlogPosts(@RequestParam(defaultValue = "0") int pageNo,
-            @RequestParam(defaultValue = "10") int pageSize) {
-        ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO<>();
-        List<BlogPostResponse> list = blogPostService.getAllPendingBlogPosts(pageNo, pageSize);
-        responseDTO.setData(list);
-        responseDTO.setMessage(BlogPostSuccessMessage.GET_ALL_PENDING);
-        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-        return ResponseEntity.ok().body(responseDTO);
-    }
-
     @GetMapping("getAllActiveBlogPosts")
     public ResponseEntity<?> getAllActiveBlogPosts(@RequestParam(defaultValue = "0") int pageNo,
             @RequestParam(defaultValue = "10") int pageSize) {
@@ -85,29 +74,6 @@ public class BlogPostController {
         List<BlogPostResponse> list = blogPostService.getAllActiveBlogPosts(pageNo, pageSize);
         responseDTO.setData(list);
         responseDTO.setMessage(BlogPostSuccessMessage.GET_ALL_ACTIVE);
-        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-        return ResponseEntity.ok().body(responseDTO);
-    }
-
-    @GetMapping("getAllRejectedBlogPosts")
-    public ResponseEntity<?> getAllRejectedBlogPosts(@RequestParam(defaultValue = "0") int pageNo,
-            @RequestParam(defaultValue = "10") int pageSize) {
-        ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO<>();
-        List<BlogPostResponse> list = blogPostService.getAllRejectedBlogPosts(pageNo, pageSize);
-        responseDTO.setData(list);
-        responseDTO.setMessage(BlogPostSuccessMessage.GET_ALL_REJECTED);
-        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-        return ResponseEntity.ok().body(responseDTO);
-    }
-
-    @GetMapping("/getAllBlogPostsByServiceSupplier")
-    public ResponseEntity<?> getAllBlogPostsByServiceSupplier(@RequestParam String serviceSupplierId,
-            @RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "10") int pageSize) {
-        ListResponseDTO<BlogPostResponse> responseDTO = new ListResponseDTO<>();
-        List<BlogPostResponse> list = blogPostService.getAllBlogPostsByServiceSupplier(serviceSupplierId, pageNo,
-                pageSize);
-        responseDTO.setData(list);
-        responseDTO.setMessage(BlogPostSuccessMessage.GET_ALL_BY_SERVICE_SUPPLIER);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }
