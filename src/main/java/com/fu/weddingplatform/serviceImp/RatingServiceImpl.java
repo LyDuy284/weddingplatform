@@ -1,34 +1,31 @@
 package com.fu.weddingplatform.serviceImp;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.fu.weddingplatform.constant.booking.BookingStatus;
+import com.fu.weddingplatform.constant.bookingDetail.BookingDetailErrorMessage;
 import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.constant.rating.RatingErrorMessage;
 import com.fu.weddingplatform.constant.rating.RatingStatus;
-import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
+import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.entity.Rating;
-import com.fu.weddingplatform.entity.Services;
+import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.exception.ErrorException;
+import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.repository.RatingRepository;
 import com.fu.weddingplatform.repository.ServiceRepository;
 import com.fu.weddingplatform.request.rating.CreateRatingDTO;
-import com.fu.weddingplatform.request.rating.UpdateRatingDTO;
-import com.fu.weddingplatform.response.couple.CoupleResponse;
 import com.fu.weddingplatform.response.rating.RatingResponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.service.RatingService;
+import com.fu.weddingplatform.service.ServiceSupplierService;
 import com.fu.weddingplatform.utils.Utils;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class RatingServiceImpl implements RatingService {
@@ -45,75 +42,41 @@ public class RatingServiceImpl implements RatingService {
     @Autowired
     RatingRepository ratingRepository;
 
-    @Override
-    public List<RatingResponse> getRatingByFilter(String coupleId, String serviceId, int pageNo, int pageSize, String sortBy, boolean isAscending) {
-        Specification<Rating> specification = buildRatingSpecification(coupleId, serviceId);
-        Page<Rating> ratingPage;
-        if (isAscending) {
-            ratingPage = ratingRepository.findAll(specification, PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()));
-        } else {
-            ratingPage = ratingRepository.findAll(specification, PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()));
-        }
-        return mapPageToListRating(ratingPage);
-    }
+    @Autowired
+    BookingDetailRepository bookingDetailRepository;
 
-    private Specification<Rating> buildRatingSpecification(String coupleId, String serviceId){
-        Specification<Rating> specification = Specification.where(null);
-        if(coupleId != null){
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("couple").get("id"), coupleId));
-        }
-
-        if(serviceId != null){
-            specification = specification.and((root, query, criteriaBuilder) ->
-                    criteriaBuilder.equal(root.get("service").get("id"), serviceId));
-        }
-        return specification;
-    }
-
-    private List<RatingResponse> mapPageToListRating(Page<Rating> ratingPage){
-        List<RatingResponse> ratingResponseList = new ArrayList<>();
-        if (ratingPage.hasContent()) {
-            for (Rating rating : ratingPage) {
-                ratingResponseList.add(modelMapper.map(rating, RatingResponse.class));
-            }
-        } else {
-            throw new ErrorException(RatingErrorMessage.EMPTY_RATING_LIST);
-        }
-        return ratingResponseList;
-    }
+    @Autowired
+    private ServiceSupplierService serviceSupplierService;
 
     @Override
     public RatingResponse createRating(CreateRatingDTO request) {
         Couple couple = coupleRepository.findById(request.getCoupleId())
                 .orElseThrow(() -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
-        Services service = serviceRepository.findById(request.getServiceId())
-                .orElseThrow(() -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
+
+        BookingDetail bookingDetail = bookingDetailRepository.findById(request.getBookingDetailId()).orElseThrow(
+                () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+
+        if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingStatus.COMPLETED))) {
+            throw new ErrorException(BookingDetailErrorMessage.NOT_COMPLETED);
+        }
+
         Rating rating = Rating.builder()
-                .ratingQualityValue(request.getRatingQualityValue())
-                .ratingQuantityValue(request.getRatingQuantityValue())
-                .ratingTimeValue(request.getRatingTimeValue())
-                .description(request.getDescription())
-                // .service(service)
+                .comment(request.getDescription())
+                .rating(request.getRatingValue())
+                .bookingDetail(bookingDetail)
                 .couple(couple)
                 .status(RatingStatus.ACTIVATED)
                 .dateCreated(Utils.formatVNDatetimeNow())
                 .build();
-        Rating ratingCreated = ratingRepository.save(rating);
-        return modelMapper.map(ratingCreated, RatingResponse.class);
-    }
 
+        Rating ratingSaved = ratingRepository.save(rating);
 
-    @Override
-    public RatingResponse updateRating(UpdateRatingDTO request) {
-        Rating ratingUpdate = ratingRepository.findByIdAndCouple(request.getId(), request.getCoupleId())
-                .orElseThrow(() -> new ErrorException(RatingErrorMessage.NOT_FOUND_BY_COUPLE));
-        ratingUpdate.setRatingQualityValue(request.getRatingQualityValue());
-        ratingUpdate.setRatingQuantityValue(request.getRatingQuantityValue());
-        ratingUpdate.setRatingTimeValue(request.getRatingTimeValue());
-        ratingUpdate.setDescription(request.getDescription());
-        Rating ratingUpdated = ratingRepository.save(ratingUpdate);
-        return modelMapper.map(ratingUpdated, RatingResponse.class);
+        ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+                .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+        RatingResponse response = modelMapper.map(ratingSaved, RatingResponse.class);
+        response.setServiceSupplierResponse(serviceSupplierResponse);
+        return response;
     }
 
     @Override
@@ -121,6 +84,31 @@ public class RatingServiceImpl implements RatingService {
         Rating rating = ratingRepository.findById(id)
                 .orElseThrow(() -> new ErrorException(RatingErrorMessage.NOT_FOUND_BY_ID));
         return modelMapper.map(rating, RatingResponse.class);
+    }
+
+    @Override
+    public float getRatingByServiceSupplier(ServiceSupplier serviceSupplier) {
+
+        float response = 0;
+
+        List<BookingDetail> bookingDetailList = bookingDetailRepository.findByServiceSupplierAndStatus(
+                serviceSupplier, BookingStatus.COMPLETED);
+        int totalRating = 0;
+        int times = 0;
+        for (BookingDetail bookingDetail : bookingDetailList) {
+            if (bookingDetail.getRatings().size() > 0) {
+                for (Rating rating : bookingDetail.getRatings()) {
+                    totalRating += rating.getRating();
+                    times++;
+                }
+            }
+        }
+
+        if (times != 0) {
+            response = totalRating / times;
+        }
+
+        return response;
     }
 
 }

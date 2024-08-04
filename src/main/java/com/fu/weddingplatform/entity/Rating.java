@@ -1,7 +1,5 @@
 package com.fu.weddingplatform.entity;
 
-import java.sql.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -39,12 +37,10 @@ public class Rating {
     @GeneratedValue(generator = "rating-id")
     @GenericGenerator(name = "rating-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.RatingIdGenerate")
     private String id;
-    private int ratingQuantityValue;
-    private int ratingTimeValue;
-    private int ratingQualityValue;
+    private int rating;
     private String dateCreated;
     @Column(columnDefinition = "text")
-    private String description;
+    private String comment;
     private String status;
 
     @JsonIgnore

@@ -1,7 +1,6 @@
 package com.fu.weddingplatform.response.rating;
 
-import com.fu.weddingplatform.entity.Services;
-import com.fu.weddingplatform.response.couple.CoupleResponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,13 +14,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class RatingResponse {
-    String id;
-    String dateCreated;
-    int ratingQuantityValue;
-    int ratingTimeValue;
-    int ratingQualityValue;
-    String description;
-    String status;
-    CoupleResponse couple;
-    Services service;
+    private String id;
+    private String dateCreated;
+    private ServiceSupplierResponse serviceSupplierResponse;
+    private int rating;
+    private String comment;
 }
