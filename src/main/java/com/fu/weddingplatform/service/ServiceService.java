@@ -1,12 +1,8 @@
 package com.fu.weddingplatform.service;
 
-import java.util.List;
-
+import com.fu.weddingplatform.entity.Services;
 import com.fu.weddingplatform.request.service.CreateServiceDTO;
 import com.fu.weddingplatform.request.service.UpdateServiceDTO;
-import com.fu.weddingplatform.response.service.ServiceByCategoryAndSupplierResponse;
-import com.fu.weddingplatform.response.service.ServiceByCategoryResponse;
-import com.fu.weddingplatform.response.service.ServiceBySupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 
 public interface ServiceService {
@@ -17,28 +13,30 @@ public interface ServiceService {
 
         public ServiceResponse getServiceById(String id);
 
-        public List<ServiceResponse> getAllServices(int pageNo, int pageSize, String sortBy, boolean isAscending);
+        public ServiceResponse convertServiceToReponse(Services service);
 
-        public List<ServiceResponse> getAllActivateServices(int pageNo, int pageSize, String sortBy,
-                        boolean isAscending);
+        // public List<ServiceResponse> getAllServices(int pageNo, int pageSize, String sortBy, boolean isAscending);
 
-        public List<ServiceBySupplierResponse> getAllServicesBySupplier(String supplierId, int pageNo, int pageSize,
-                        String sortBy,
-                        boolean isAscending);
+        // public List<ServiceResponse> getAllActivateServices(int pageNo, int pageSize, String sortBy,
+        //                 boolean isAscending);
 
-        public List<ServiceByCategoryAndSupplierResponse> getAllServicesByCategoryAndSupplier(String categoryId,
-                        String supplierId,
-                        int pageNo, int pageSize,
-                        String sortBy,
-                        boolean isAscending);
+        // public List<ServiceBySupplierResponse> getAllServicesBySupplier(String supplierId, int pageNo, int pageSize,
+        //                 String sortBy,
+        //                 boolean isAscending);
 
-        public List<ServiceByCategoryResponse> getAllServicesByCategory(String categoryId,
-                        int pageNo, int pageSize,
-                        String sortBy,
-                        boolean isAscending);
+        // public List<ServiceByCategoryAndSupplierResponse> getAllServicesByCategoryAndSupplier(String categoryId,
+        //                 String supplierId,
+        //                 int pageNo, int pageSize,
+        //                 String sortBy,
+        //                 boolean isAscending);
 
-        public ServiceResponse updateServiceStatus(String supplierId, String status);
+        // public List<ServiceByCategoryResponse> getAllServicesByCategory(String categoryId,
+        //                 int pageNo, int pageSize,
+        //                 String sortBy,
+        //                 boolean isAscending);
 
-        public List<ServiceResponse> filterService(String categoryId, String type, int minPrice, int maxPrice);
+        // public ServiceResponse updateServiceStatus(String supplierId, String status);
+
+        // public List<ServiceResponse> filterService(String categoryId, String type, int minPrice, int maxPrice);
 
 }

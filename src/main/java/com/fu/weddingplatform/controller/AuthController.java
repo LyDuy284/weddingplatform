@@ -1,13 +1,5 @@
 package com.fu.weddingplatform.controller;
 
-import com.fu.weddingplatform.constant.account.AccountSuccessMessage;
-import com.fu.weddingplatform.constant.role.RolePreAuthorize;
-
-import com.fu.weddingplatform.request.Auth.*;
-import com.fu.weddingplatform.response.Account.AccountResponse;
-import com.fu.weddingplatform.response.Auth.RegsiterServiceSupplierReponse;
-import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,11 +10,23 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fu.weddingplatform.constant.account.AccountSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
+import com.fu.weddingplatform.constant.role.RolePreAuthorize;
+import com.fu.weddingplatform.request.Auth.LoginDTO;
+import com.fu.weddingplatform.request.Auth.RegisterAdminDTO;
+import com.fu.weddingplatform.request.Auth.RegisterCoupleDTO;
+import com.fu.weddingplatform.request.Auth.RegisterStaffDTO;
+import com.fu.weddingplatform.request.Auth.RegisterSupplierDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
+import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Auth.LoginResponse;
 import com.fu.weddingplatform.response.Auth.RegsiterCoupleReponse;
+import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
+import com.fu.weddingplatform.response.Auth.RegsiterSupplierReponse;
 import com.fu.weddingplatform.service.AuthService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/auth")
@@ -85,10 +89,10 @@ public class AuthController {
     return ResponseEntity.ok().body(responseDTO);
   }
 
-  @PostMapping("/register/serviceSupplier")
-  public ResponseEntity<?> registerServiceSupplier(@Validated @RequestBody RegisterSupplierDTO registerDTO) {
-    ResponseDTO<RegsiterServiceSupplierReponse> responseDTO = new ResponseDTO<>();
-    RegsiterServiceSupplierReponse registerServiceSupplier = authService.registerServiceSupplier(registerDTO);
+  @PostMapping("/register/supplier")
+  public ResponseEntity<?> registerSupplier(@Validated @RequestBody RegisterSupplierDTO registerDTO) {
+    ResponseDTO<RegsiterSupplierReponse> responseDTO = new ResponseDTO<>();
+    RegsiterSupplierReponse registerServiceSupplier = authService.registerSupplier(registerDTO);
     responseDTO.setData(registerServiceSupplier);
     responseDTO.setMessage(AccountSuccessMessage.CREATE_SUCCESS);
     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);

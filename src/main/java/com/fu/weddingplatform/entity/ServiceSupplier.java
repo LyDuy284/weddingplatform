@@ -22,7 +22,12 @@ public class ServiceSupplier {
     @GeneratedValue(generator = "service-supplier-id")
     @GenericGenerator(name = "service-supplier-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ServiceSupplierIdGenerator")
     private String id;
-
+    private String name;
+    @Column(columnDefinition = "text")
+    private String description;
+    @Column(columnDefinition = "text")
+    private String images;
+    private String type;
     private String createAt;
     private int price;
     private String status;
@@ -33,11 +38,11 @@ public class ServiceSupplier {
     @JsonIgnore
     private Collection<ComboServices> comboServices;
 
-    // @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
-    // @EqualsAndHashCode.Include
-    // @ToString.Include
-    // @JsonIgnore
-    // private Collection<Promotion> promotions;
+    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<PromotionServiceSupplier> promotionServiceSuppliers;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

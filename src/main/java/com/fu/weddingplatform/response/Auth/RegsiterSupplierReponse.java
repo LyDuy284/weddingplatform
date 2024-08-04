@@ -8,14 +8,14 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegsiterServiceSupplierReponse {
+public class RegsiterSupplierReponse {
     private int accountId;
     private String roleName;
     private String email;
     private String name;
     private String phoneNumber;
     private String address;
-    private String serviceSupplierId;
+    private String SupplierId;
     private String supplierName;
     private String contactEmail;
     private String contactPhone;

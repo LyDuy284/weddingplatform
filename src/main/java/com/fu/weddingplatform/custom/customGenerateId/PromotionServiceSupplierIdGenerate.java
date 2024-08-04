@@ -11,7 +11,7 @@ import org.hibernate.id.IdentifierGenerator;
 
 import lombok.SneakyThrows;
 
-public class PromotionServiceIdGenerate implements IdentifierGenerator {
+public class PromotionServiceSupplierIdGenerate implements IdentifierGenerator {
 
     @SneakyThrows
     @Override
@@ -22,14 +22,14 @@ public class PromotionServiceIdGenerate implements IdentifierGenerator {
         Statement statement = connection.createStatement();
         ResultSet rs = statement
                 .executeQuery("SELECT MAX(CAST(SUBSTRING_INDEX(id, '-', -1) AS UNSIGNED)) AS number \n" +
-                        "FROM promotion_service \n" +
+                        "FROM promotion_service_supplier \n" +
                         "ORDER BY id DESC \n");
         if (rs.next()) {
             int maxId = rs.getInt("number") + 1;
-            return String.format("PROMOTION-SERVICE-%d", maxId);
+            return String.format("PROMOTION-SERVICE-SUPPLIER-%d", maxId);
 
         } else {
-            return String.format("PROMOTION-SERVICE-%d", count);
+            return String.format("PROMOTION-SERVICE-SUPPLIER-%d", count);
         }
     }
 }

@@ -40,9 +40,8 @@ public class Supplier {
     @GeneratedValue(generator = "supplier-id")
     @GenericGenerator(name = "supplier-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.SupplierIdGenerator")
     private String id;
-
+    private String image;
     private String supplierName;
-    private String supplierAddress;
     private String contactPersonName;
     private String contactPhone;
     private String contactEmail;
@@ -65,11 +64,11 @@ public class Supplier {
     @OneToOne(mappedBy = "supplier", cascade = CascadeType.ALL)
     private Wallet wallet;
 
-    // @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
-    // @EqualsAndHashCode.Include
-    // @ToString.Include
-    // @JsonIgnore
-    // private Collection<Promotion> promotions;
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Promotion> promotions;
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include

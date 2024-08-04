@@ -49,8 +49,8 @@ import com.fu.weddingplatform.request.Auth.RegisterSupplierDTO;
 import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Auth.LoginResponse;
 import com.fu.weddingplatform.response.Auth.RegsiterCoupleReponse;
-import com.fu.weddingplatform.response.Auth.RegsiterServiceSupplierReponse;
 import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
+import com.fu.weddingplatform.response.Auth.RegsiterSupplierReponse;
 import com.fu.weddingplatform.service.AuthService;
 import com.fu.weddingplatform.utils.Utils;
 
@@ -92,7 +92,7 @@ public class AuthServiceImp implements AuthService {
                 case RoleName.ROLE_COUPLE:
                     userId = account.getCouples().stream().findFirst().get().getId();
                     break;
-                case RoleName.ROLE_SERVICE_SUPPLIER:
+                case RoleName.ROLE_SUPPLIER:
                     userId = account.getSupplier().stream().findFirst().get().getId();
                     break;
                 default:
@@ -203,7 +203,10 @@ public class AuthServiceImp implements AuthService {
                 .build();
 
         Couple newCouple = coupleRepository.save(couple);
-
+        Wallet wallet = new Wallet().builder()
+                .balance(0)
+                .couple(newCouple)
+                .build();
         response = modelMapper.map(accountSaved, RegsiterCoupleReponse.class);
 
         response.setAccountId(accountSaved.getId());
@@ -266,13 +269,13 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public RegsiterServiceSupplierReponse registerServiceSupplier(RegisterSupplierDTO registerDTO) {
+    public RegsiterSupplierReponse registerSupplier(RegisterSupplierDTO registerDTO) {
         Optional<Account> optionalUser = accountRepository.findByEmail(registerDTO.getEmail());
 
-        Role role = roleRepository.findByName(RoleName.ROLE_SERVICE_SUPPLIER)
+        Role role = roleRepository.findByName(RoleName.ROLE_SUPPLIER)
                 .orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
 
-        RegsiterServiceSupplierReponse response = new RegsiterServiceSupplierReponse();
+        RegsiterSupplierReponse response = new RegsiterSupplierReponse();
         Account accountSaved = new Account();
         if (optionalUser.isPresent()) {
             if (optionalUser.get().getProvider().equalsIgnoreCase(AccountProvider.LOCAL)) {
@@ -317,7 +320,7 @@ public class AuthServiceImp implements AuthService {
                 .district(registerDTO.getDistrict())
                 .ward(registerDTO.getWard())
                 .apartmentNumber(registerDTO.getApartmentNumber())
-                // .supplier(newSupplier)
+                .supplier(newSupplier)
                 .status(Status.ACTIVATED)
                 .build();
         areaRepository.save(area);
@@ -328,11 +331,11 @@ public class AuthServiceImp implements AuthService {
 
         walletRepository.save(wallet);
 
-        response = modelMapper.map(accountSaved, RegsiterServiceSupplierReponse.class);
+        response = modelMapper.map(accountSaved, RegsiterSupplierReponse.class);
 
         response.setAccountId(accountSaved.getId());
         response.setRoleName(role.getName());
-        response.setServiceSupplierId(newSupplier.getId());
+        response.setSupplierId(newSupplier.getId());
         response.setSupplierName(newSupplier.getSupplierName());
         response.setContactEmail(newSupplier.getContactEmail());
         response.setContactPhone(newSupplier.getContactPhone());
@@ -376,7 +379,7 @@ public class AuthServiceImp implements AuthService {
             case RoleName.ROLE_COUPLE:
                 userId = account.get().getCouples().stream().findFirst().get().getId();
                 break;
-            case RoleName.ROLE_SERVICE_SUPPLIER:
+            case RoleName.ROLE_SUPPLIER:
                 userId = account.get().getSupplier().stream().findFirst().get().getId();
                 break;
             default:

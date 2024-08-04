@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.account.AccountErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleErrorMessage;
-import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
+import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
 import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.entity.Area;
 import com.fu.weddingplatform.entity.Role;
@@ -150,11 +150,10 @@ public class AccountServiceImp implements AccountService {
         Area areaSaved = areaRepository.save(area);
 
         SupplierResponse response = new SupplierResponse();
-        response.setName(account.getName());
+        response.setSupplierName(account.getName());
         response.setImage(account.getImage());
-        response.setPhoneNumber(account.getPhoneNumber());
         response.setContactEmail(supplier.getContactEmail());
-        response.setContactNumber(supplier.getContactPhone());
+        response.setContactPhone(supplier.getContactPhone());
         response.setArea(areaSaved);
         return response;
     }

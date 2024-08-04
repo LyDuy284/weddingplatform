@@ -17,10 +17,10 @@ import lombok.ToString;
 @AllArgsConstructor
 public class SupplierResponse {
   private String supplierId;
-  private String name;
   private String image;
-  private String phoneNumber;
-  private String contactNumber;
+  private String supplierName;
+  private String contactPersonName;
+  private String contactPhone;
   private String contactEmail;
   private Area area;
 }

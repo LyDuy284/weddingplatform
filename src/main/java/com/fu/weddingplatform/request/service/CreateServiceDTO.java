@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.request.service;
 
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 
 import com.fu.weddingplatform.constant.validation.ValidationMessage;
@@ -21,13 +20,8 @@ import lombok.ToString;
 public class CreateServiceDTO {
     @NotEmpty(message = "Category ID " + ValidationMessage.NOT_EMPTY)
     private String categoryId;
-    @NotEmpty(message = "Service Supplier ID " + ValidationMessage.NOT_EMPTY)
-    private String serviceSupplierId;
-    private String promotionId;
-    private String type;
     private String images;
     private String name;
     private String description;
-    @Min(value = 0, message = "Value must be greater than 0")
-    private int price;
+
 }

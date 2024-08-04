@@ -9,8 +9,8 @@ import com.fu.weddingplatform.request.Auth.RegisterSupplierDTO;
 import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Auth.LoginResponse;
 import com.fu.weddingplatform.response.Auth.RegsiterCoupleReponse;
-import com.fu.weddingplatform.response.Auth.RegsiterServiceSupplierReponse;
 import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
+import com.fu.weddingplatform.response.Auth.RegsiterSupplierReponse;
 
 public interface AuthService {
 
@@ -22,7 +22,7 @@ public interface AuthService {
 
     public RegsiterStaffReponse registerStaff(RegisterStaffDTO registerDTO);
 
-    public RegsiterServiceSupplierReponse registerServiceSupplier(RegisterSupplierDTO registerDTO);
+    public RegsiterSupplierReponse registerSupplier(RegisterSupplierDTO registerDTO);
 
     public LoginResponse loginWithGoogle(String token);
 

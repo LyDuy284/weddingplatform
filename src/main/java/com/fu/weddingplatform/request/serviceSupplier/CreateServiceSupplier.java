@@ -1,4 +1,4 @@
-package com.fu.weddingplatform.request.service;
+package com.fu.weddingplatform.request.serviceSupplier;
 
 import javax.validation.constraints.NotEmpty;
 
@@ -11,16 +11,22 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 @ToString
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UpdateServiceDTO {
+public class CreateServiceSupplier {
+    @NotEmpty(message = "Supplier ID " + ValidationMessage.NOT_EMPTY)
+    private String supplierId;
     @NotEmpty(message = "Service ID " + ValidationMessage.NOT_EMPTY)
-    private String id;
+    private String serviceId;
     private String name;
     private String description;
     private String images;
+    private String type;
+    private int price;
+    private String promotionId;
+
 }
