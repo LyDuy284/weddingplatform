@@ -23,54 +23,36 @@ public class ServiceSupplier {
     @GenericGenerator(name = "service-supplier-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.ServiceSupplierIdGenerator")
     private String id;
 
-    private String supplierName;
-    private String supplierAddress;
-    private String contactPersonName;
-    private String contactPhone;
-    private String contactEmail;
+    private String createAt;
+    private int price;
     private String status;
+
+    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<ComboServices> comboServices;
+
+    // @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    // @EqualsAndHashCode.Include
+    // @ToString.Include
+    // @JsonIgnore
+    // private Collection<Promotion> promotions;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "accountId")
+    @JoinColumn(name = "service_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Account account;
+    private Services service;
 
-    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "supplier_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    @JsonIgnore
-    private Collection<BlogPost> blogPosts;
+    private Supplier supplier;
 
-    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Feedback> feedbacks;
-
-    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Services> services;
-
-    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Promotion> promotions;
-
-    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Quotation> quotations;
-
-    @OneToMany(mappedBy = "serviceSupplier", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Area> areas;
 }

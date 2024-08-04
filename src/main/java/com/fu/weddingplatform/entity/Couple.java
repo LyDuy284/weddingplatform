@@ -40,25 +40,7 @@ public class Couple {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<Feedback> feedbacks;
-
-    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
     private Collection<Booking> bookings;
-
-    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Quotation> quotations;
-
-    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Rating> ratings;
 
     @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
@@ -66,10 +48,7 @@ public class Couple {
     @JsonIgnore
     private Collection<Payment> payments;
 
-    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Comment> comments;
+    @OneToOne(mappedBy = "couple", cascade = CascadeType.ALL)
+    private Wallet wallet;
 
 }

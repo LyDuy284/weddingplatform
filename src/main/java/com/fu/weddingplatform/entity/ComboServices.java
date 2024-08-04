@@ -27,10 +27,10 @@ public class ComboServices {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "service_id")
+    @JoinColumn(name = "service_supplier_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Services service;
+    private ServiceSupplier serviceSupplier;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)

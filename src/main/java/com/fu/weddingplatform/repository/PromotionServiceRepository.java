@@ -12,10 +12,10 @@ import com.fu.weddingplatform.entity.Services;
 @Repository
 public interface PromotionServiceRepository extends JpaRepository<PromotionServiceEntity, String> {
 
-  public List<PromotionServiceEntity> findByPromotion(Promotion protion);
+  // public List<PromotionServiceEntity> findByPromotion(Promotion protion);
 
-  public List<PromotionServiceEntity> findByService(Services service);
+  // public List<PromotionServiceEntity> findByService(Services service);
 
-  PromotionServiceEntity findByServiceAndPromotion(Services service, Promotion promotion);
+  // PromotionServiceEntity findByServiceAndPromotion(Services service, Promotion promotion);
 
 }

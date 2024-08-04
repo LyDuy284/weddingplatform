@@ -94,7 +94,7 @@ public class RatingServiceImpl implements RatingService {
                 .ratingQuantityValue(request.getRatingQuantityValue())
                 .ratingTimeValue(request.getRatingTimeValue())
                 .description(request.getDescription())
-                .service(service)
+                // .service(service)
                 .couple(couple)
                 .status(RatingStatus.ACTIVATED)
                 .dateCreated(Utils.formatVNDatetimeNow())

@@ -15,7 +15,7 @@ import javax.validation.constraints.Size;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class RegisterServiceSupplierDTO {
+public class RegisterSupplierDTO {
 
     @Email(message = ValidationMessage.EMAIL_INVALID_MESSAGE)
     private String email;

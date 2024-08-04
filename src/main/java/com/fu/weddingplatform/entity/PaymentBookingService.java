@@ -32,11 +32,11 @@ public class PaymentBookingService {
     @ToString.Include
     private Payment payment;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "booking_detail_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private BookingDetail bookingDetail;
+    // @JsonIgnore
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @Fetch(FetchMode.JOIN)
+    // @JoinColumn(name = "booking_detail_id")
+    // @EqualsAndHashCode.Include
+    // @ToString.Include
+    // private BookingDetail bookingDetail;
 }

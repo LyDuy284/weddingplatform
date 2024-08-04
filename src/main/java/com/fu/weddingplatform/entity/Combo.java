@@ -45,6 +45,7 @@ public class Combo {
   @Column(columnDefinition = "text")
   private String description;
   private String status;
+  private String createAt;
   private String image;
 
   @OneToMany(mappedBy = "combo", cascade = CascadeType.ALL)

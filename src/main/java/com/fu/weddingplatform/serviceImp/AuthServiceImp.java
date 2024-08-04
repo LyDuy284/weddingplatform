@@ -29,8 +29,8 @@ import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.entity.Area;
 import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.entity.Role;
-import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Staff;
+import com.fu.weddingplatform.entity.Supplier;
 import com.fu.weddingplatform.entity.Wallet;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.jwt.JwtConfig;
@@ -38,14 +38,14 @@ import com.fu.weddingplatform.repository.AccountRepository;
 import com.fu.weddingplatform.repository.AreaRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.repository.RoleRepository;
-import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.repository.StaffRepository;
+import com.fu.weddingplatform.repository.SupplierRepository;
 import com.fu.weddingplatform.repository.WalletRepository;
 import com.fu.weddingplatform.request.Auth.LoginDTO;
 import com.fu.weddingplatform.request.Auth.RegisterAdminDTO;
 import com.fu.weddingplatform.request.Auth.RegisterCoupleDTO;
-import com.fu.weddingplatform.request.Auth.RegisterServiceSupplierDTO;
 import com.fu.weddingplatform.request.Auth.RegisterStaffDTO;
+import com.fu.weddingplatform.request.Auth.RegisterSupplierDTO;
 import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Auth.LoginResponse;
 import com.fu.weddingplatform.response.Auth.RegsiterCoupleReponse;
@@ -69,7 +69,7 @@ public class AuthServiceImp implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final CoupleRepository coupleRepository;
     private final StaffRepository staffRepository;
-    private final ServiceSupplierRepository serviceSupplierRepository;
+    private final SupplierRepository supplierRepository;
     private final WalletRepository walletRepository;
     private final ModelMapper modelMapper;
     private final AreaRepository areaRepository;
@@ -93,7 +93,7 @@ public class AuthServiceImp implements AuthService {
                     userId = account.getCouples().stream().findFirst().get().getId();
                     break;
                 case RoleName.ROLE_SERVICE_SUPPLIER:
-                    userId = account.getServiceSuppliers().stream().findFirst().get().getId();
+                    userId = account.getSupplier().stream().findFirst().get().getId();
                     break;
                 default:
                     break;
@@ -266,7 +266,7 @@ public class AuthServiceImp implements AuthService {
     }
 
     @Override
-    public RegsiterServiceSupplierReponse registerServiceSupplier(RegisterServiceSupplierDTO registerDTO) {
+    public RegsiterServiceSupplierReponse registerServiceSupplier(RegisterSupplierDTO registerDTO) {
         Optional<Account> optionalUser = accountRepository.findByEmail(registerDTO.getEmail());
 
         Role role = roleRepository.findByName(RoleName.ROLE_SERVICE_SUPPLIER)
@@ -300,7 +300,7 @@ public class AuthServiceImp implements AuthService {
             accountSaved = accountRepository.save(account);
         }
 
-        ServiceSupplier serviceSupplier = new ServiceSupplier()
+        Supplier serviceSupplier = new Supplier()
                 .builder()
                 .supplierName(registerDTO.getSupplierName())
                 .contactPersonName(registerDTO.getContactPersonName())
@@ -310,20 +310,20 @@ public class AuthServiceImp implements AuthService {
                 .status(Status.ACTIVATED)
                 .build();
 
-        ServiceSupplier newServiceSupplier = serviceSupplierRepository.save(serviceSupplier);
+        Supplier newSupplier = supplierRepository.save(serviceSupplier);
 
         Area area = Area.builder()
                 .province(registerDTO.getProvince())
                 .district(registerDTO.getDistrict())
                 .ward(registerDTO.getWard())
                 .apartmentNumber(registerDTO.getApartmentNumber())
-                .serviceSupplier(serviceSupplier)
+                // .supplier(newSupplier)
                 .status(Status.ACTIVATED)
                 .build();
         areaRepository.save(area);
         Wallet wallet = new Wallet().builder()
                 .balance(0)
-                .serviceSupplier(newServiceSupplier)
+                .supplier(newSupplier)
                 .build();
 
         walletRepository.save(wallet);
@@ -332,11 +332,11 @@ public class AuthServiceImp implements AuthService {
 
         response.setAccountId(accountSaved.getId());
         response.setRoleName(role.getName());
-        response.setServiceSupplierId(newServiceSupplier.getId());
-        response.setSupplierName(newServiceSupplier.getSupplierName());
-        response.setContactEmail(newServiceSupplier.getContactEmail());
-        response.setContactPhone(newServiceSupplier.getContactPhone());
-        response.setContactPersonName(newServiceSupplier.getContactPersonName());
+        response.setServiceSupplierId(newSupplier.getId());
+        response.setSupplierName(newSupplier.getSupplierName());
+        response.setContactEmail(newSupplier.getContactEmail());
+        response.setContactPhone(newSupplier.getContactPhone());
+        response.setContactPersonName(newSupplier.getContactPersonName());
         return response;
     }
 
@@ -377,7 +377,7 @@ public class AuthServiceImp implements AuthService {
                 userId = account.get().getCouples().stream().findFirst().get().getId();
                 break;
             case RoleName.ROLE_SERVICE_SUPPLIER:
-                userId = account.get().getServiceSuppliers().stream().findFirst().get().getId();
+                userId = account.get().getSupplier().stream().findFirst().get().getId();
                 break;
             default:
                 break;

@@ -23,8 +23,12 @@ public class Wallet {
     private int balance;
 
     @OneToOne
-    @JoinColumn(name = "service_supplier_id", unique = true)
-    private ServiceSupplier serviceSupplier;
+    @JoinColumn(name = "supplier_id", unique = true)
+    private Supplier supplier;
+
+    @OneToOne
+    @JoinColumn(name = "couple_id", unique = true)
+    private Couple couple;
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include

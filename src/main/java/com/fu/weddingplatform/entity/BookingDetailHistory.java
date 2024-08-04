@@ -24,34 +24,27 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@Table(name = "blog_post")
-public class BlogPost {
-
+@Table(name = "bookng_detail_history")
+public class BookingDetailHistory {
     @Id
-    @GeneratedValue(generator = "blog-id")
-    @GenericGenerator(name = "blog-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BlogPostIdGenerator")
+    @GeneratedValue(generator = "booking-detail-history-id")
+    @GenericGenerator(name = "booking-detail-history-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingDetailHistoryIdGenerator")
     private String id;
     @Column(columnDefinition = "text")
-    private String title;
-    @Column(columnDefinition = "text")
-    private String content;
-    @Column(columnDefinition = "text")
-    private String images;
-    private String dateCreated;
+    private String description;
+    private String createdAt;
     private String status;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "staff_id")
+    @JoinColumn(name = "booking_detail_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Staff staff;
-
+    private BookingDetail bookingDetail;
 }

@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.entity;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -23,35 +22,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-@Entity
 @AllArgsConstructor
-@NoArgsConstructor
+@Builder
 @Getter
 @Setter
 @ToString
-@Builder
-@Table(name = "blog_post")
-public class BlogPost {
-
+@Entity
+@NoArgsConstructor
+@Table(name = "transaction_summary")
+public class TransactionSummary {
     @Id
-    @GeneratedValue(generator = "blog-id")
-    @GenericGenerator(name = "blog-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BlogPostIdGenerator")
+    @GeneratedValue(generator = "transaction-summary-id")
+    @GenericGenerator(name = "transaction-summary-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.TransactionSummaryIdEnerator")
     private String id;
-    @Column(columnDefinition = "text")
-    private String title;
-    @Column(columnDefinition = "text")
-    private String content;
-    @Column(columnDefinition = "text")
-    private String images;
     private String dateCreated;
-    private String status;
+    private int totalAmount;
+    private int platformFee;
+    private int supplierAmount;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "staff_id")
+    @JoinColumn(name = "booking_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Staff staff;
-
+    private Booking booking;
 }

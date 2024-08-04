@@ -3,6 +3,7 @@ package com.fu.weddingplatform.entity;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -39,6 +40,9 @@ public class Booking {
     @GeneratedValue(generator = "booking-id")
     @GenericGenerator(name = "booking-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingIdGenerate")
     private String id;
+    @Column(columnDefinition = "text")
+    private String note;
+    private int totalPrice;
     private String createdAt;
     private String status;
 
@@ -55,5 +59,23 @@ public class Booking {
     @ToString.Include
     @JsonIgnore
     private Collection<BookingDetail> bookingDetails;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<BookingHistory> bookingHistories;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<TransactionSummary> transactionSummaries;
+
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Invoice> invoices;
 
 }

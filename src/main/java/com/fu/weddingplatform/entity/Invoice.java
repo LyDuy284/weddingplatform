@@ -1,12 +1,16 @@
 package com.fu.weddingplatform.entity;
 
-import javax.persistence.Column;
+import java.sql.Date;
+import java.util.Collection;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -22,7 +26,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,28 +33,31 @@ import lombok.ToString;
 @Setter
 @ToString
 @Builder
-@Table(name = "blog_post")
-public class BlogPost {
-
+@Table(name = "invoice")
+public class Invoice {
     @Id
-    @GeneratedValue(generator = "blog-id")
-    @GenericGenerator(name = "blog-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BlogPostIdGenerator")
+    @GeneratedValue(generator = "invoice-id")
+    @GenericGenerator(name = "invoice-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.InvoiceIdGennerator")
     private String id;
-    @Column(columnDefinition = "text")
-    private String title;
-    @Column(columnDefinition = "text")
-    private String content;
-    @Column(columnDefinition = "text")
-    private String images;
-    private String dateCreated;
+
+    private String invoiceNumber;
     private String status;
+    private int totalPrice;
+    private String createAt;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "staff_id")
+    @JoinColumn(name = "booking_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Staff staff;
+    private Booking booking;
+
+
+    // @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    // @EqualsAndHashCode.Include
+    // @ToString.Include
+    // @JsonIgnore
+    // private Collection<Payment> payments;
 
 }

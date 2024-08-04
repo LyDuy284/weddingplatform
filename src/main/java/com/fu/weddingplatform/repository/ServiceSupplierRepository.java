@@ -11,7 +11,7 @@ import java.util.List;
 @Repository
 @Transactional
 public interface ServiceSupplierRepository extends JpaRepository<ServiceSupplier, String> {
-    @Query("select distinct ss from ServiceSupplier ss join Services s on ss.id = s.serviceSupplier.id " +
-            "join BookingDetail db on db.service.id = s.id where db.booking.id = ?1")
-    ServiceSupplier findSupplierByBookingDetailId(String bookingId);
+    // @Query("select distinct ss from ServiceSupplier ss join Services s on ss.id = s.serviceSupplier.id " +
+    //         "join BookingDetail db on db.service.id = s.id where db.booking.id = ?1")
+    // ServiceSupplier findSupplierByBookingDetailId(String bookingId);
 }

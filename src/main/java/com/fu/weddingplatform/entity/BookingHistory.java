@@ -1,5 +1,6 @@
 package com.fu.weddingplatform.entity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
@@ -34,14 +35,16 @@ public class BookingHistory {
   @GeneratedValue(generator = "booking-history-id")
   @GenericGenerator(name = "booking-history-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingHistoryIdGenerator")
   private String id;
+  @Column(columnDefinition = "text")
+  private String description;
   private String createdAt;
   private String status;
 
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @Fetch(FetchMode.JOIN)
-  @JoinColumn(name = "booking_detail_id")
+  @JoinColumn(name = "bookingId")
   @EqualsAndHashCode.Include
   @ToString.Include
-  private BookingDetail bookingDetail;
+  private Booking booking;
 }

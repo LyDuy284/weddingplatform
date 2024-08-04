@@ -17,8 +17,8 @@ import com.fu.weddingplatform.entity.ServiceSupplier;
 @Transactional
 public interface PromotionRepository extends JpaRepository<Promotion, String> {
 
-        public Page<Promotion> findByServiceSupplierAndStatus(ServiceSupplier serviceSupplier, String status,
-                        PageRequest pageRequest);
+        // public Page<Promotion> findByServiceSupplierAndStatus(ServiceSupplier serviceSupplier, String status,
+        //                 PageRequest pageRequest);
 
         @Query(nativeQuery = true, value = "SELECT p.*\n" +
                         " FROM promotion p \n" +

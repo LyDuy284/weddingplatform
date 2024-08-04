@@ -86,7 +86,7 @@ public class AuthController {
   }
 
   @PostMapping("/register/serviceSupplier")
-  public ResponseEntity<?> registerServiceSupplier(@Validated @RequestBody RegisterServiceSupplierDTO registerDTO) {
+  public ResponseEntity<?> registerServiceSupplier(@Validated @RequestBody RegisterSupplierDTO registerDTO) {
     ResponseDTO<RegsiterServiceSupplierReponse> responseDTO = new ResponseDTO<>();
     RegsiterServiceSupplierReponse registerServiceSupplier = authService.registerServiceSupplier(registerDTO);
     responseDTO.setData(registerServiceSupplier);

@@ -63,5 +63,5 @@ public class Account {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<ServiceSupplier> serviceSuppliers;
+    private Collection<Supplier> supplier;
 }

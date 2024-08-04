@@ -96,7 +96,7 @@ public class ComboServiceImpl implements ComboService {
             Services service = serviceRepository.findById(serviceID)
                     .orElseThrow(()  -> new ErrorException(ServiceErrorMessage.NOT_FOUND));
             ComboServices comboService = ComboServices.builder()
-                    .service(service)
+                    // .service(service)
                     .status(ComboServiceStatus.ACTIVATED)
                     .combo(comboCreated)
                     .build();

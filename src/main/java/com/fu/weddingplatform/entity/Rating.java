@@ -58,9 +58,9 @@ public class Rating {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "service_id")
+    @JoinColumn(name = "booking_detail_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Services service;
+    private BookingDetail bookingDetail;
 
 }

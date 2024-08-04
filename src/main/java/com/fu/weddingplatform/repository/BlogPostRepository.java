@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface BlogPostRepository extends JpaRepository<BlogPost, String> {
 
-    Page<BlogPost> findByServiceSupplier(ServiceSupplier serviceSupplier, Pageable pageable);
+    // Page<BlogPost> findByServiceSupplier(ServiceSupplier serviceSupplier, Pageable pageable);
 
     Page<BlogPost> findByStatus(String status, Pageable pageable);
 }

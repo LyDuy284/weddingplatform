@@ -43,11 +43,5 @@ public class Staff {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<Feedback> feedbacks;
-
-    @OneToMany(mappedBy = "staff", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
     private Collection<Combo> combo;
 }

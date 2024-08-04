@@ -45,8 +45,8 @@ public class Area {
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
   @Fetch(FetchMode.JOIN)
-  @JoinColumn(name = "service_supplier_id")
+  @JoinColumn(name = "supplier_id")
   @EqualsAndHashCode.Include
   @ToString.Include
-  private ServiceSupplier serviceSupplier;
+  private Supplier supplier;
 }

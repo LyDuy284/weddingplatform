@@ -41,26 +41,26 @@ public class PromotionServiceEntity {
   private String id;
   private String status;
 
-  @JsonIgnore
-  @ManyToOne(fetch = FetchType.LAZY)
-  @Fetch(FetchMode.JOIN)
-  @JoinColumn(name = "promotion_id")
-  @EqualsAndHashCode.Include
-  @ToString.Include
-  private Promotion promotion;
+  // @JsonIgnore
+  // @ManyToOne(fetch = FetchType.LAZY)
+  // @Fetch(FetchMode.JOIN)
+  // @JoinColumn(name = "promotion_id")
+  // @EqualsAndHashCode.Include
+  // @ToString.Include
+  // private Promotion promotion;
 
-  @JsonIgnore
-  @ManyToOne(fetch = FetchType.LAZY)
-  @Fetch(FetchMode.JOIN)
-  @JoinColumn(name = "service_id")
-  @EqualsAndHashCode.Include
-  @ToString.Include
-  private Services service;
+  // @JsonIgnore
+  // @ManyToOne(fetch = FetchType.LAZY)
+  // @Fetch(FetchMode.JOIN)
+  // @JoinColumn(name = "service_id")
+  // @EqualsAndHashCode.Include
+  // @ToString.Include
+  // private Services service;
 
-  @OneToMany(mappedBy = "promotionService", cascade = CascadeType.ALL)
-  @EqualsAndHashCode.Include
-  @ToString.Include
-  @JsonIgnore
-  private Collection<BookingDetail> bookingDetails;
+  // @OneToMany(mappedBy = "promotionService", cascade = CascadeType.ALL)
+  // @EqualsAndHashCode.Include
+  // @ToString.Include
+  // @JsonIgnore
+  // private Collection<BookingDetail> bookingDetails;
 
 }

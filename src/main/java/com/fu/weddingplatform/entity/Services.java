@@ -53,14 +53,6 @@ public class Services {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "service_supplier_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private ServiceSupplier serviceSupplier;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
     @JoinColumn(name = "category_id")
     @EqualsAndHashCode.Include
     @ToString.Include
@@ -70,29 +62,6 @@ public class Services {
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<ComboServices> comboServices;
+    private Collection<ServiceSupplier> serviceSuppliers;
 
-    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<BookingDetail> bookingDetails;
-
-    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Rating> ratings;
-
-    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Quotation> quotations;
-
-    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<PromotionServiceEntity> promotionServices;
 }

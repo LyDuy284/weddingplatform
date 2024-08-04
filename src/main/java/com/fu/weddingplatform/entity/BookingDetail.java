@@ -59,36 +59,21 @@ public class BookingDetail {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "serviceId")
+    @JoinColumn(name = "service_supplier_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Services service;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "quotation_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private Quotation quotation;
+    private ServiceSupplier serviceSupplier;
 
     @OneToMany(mappedBy = "bookingDetail", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<PaymentBookingService> paymentBookingServices;
+    private Collection<BookingDetailHistory> bookingDetailHistories;
 
     @OneToMany(mappedBy = "bookingDetail", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<BookingHistory> bookingHistories;
+    private Collection<Rating> ratings;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "promotion_service_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private PromotionServiceEntity promotionService;
 }

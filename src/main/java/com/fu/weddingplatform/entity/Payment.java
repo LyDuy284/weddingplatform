@@ -45,6 +45,7 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
     private String paymentStatus;
+    
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
@@ -53,17 +54,17 @@ public class Payment {
     @ToString.Include
     private Couple couple;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "booking_detail_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private BookingDetail bookingDetail;
+    // @JsonIgnore
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @Fetch(FetchMode.JOIN)
+    // @JoinColumn(name = "booking_detail_id")
+    // @EqualsAndHashCode.Include
+    // @ToString.Include
+    // private BookingDetail bookingDetail;
 
-    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<PaymentBookingService> paymentBookingServices;
+    // @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+    // @EqualsAndHashCode.Include
+    // @ToString.Include
+    // @JsonIgnore
+    // private Collection<PaymentBookingService> paymentBookingServices;
 }

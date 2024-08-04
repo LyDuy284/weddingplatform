@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.entity;
 
-import java.sql.Date;
 import java.util.Collection;
 
 import javax.persistence.CascadeType;
@@ -11,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.Fetch;
@@ -28,52 +28,52 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
-@Table(name = "quotation")
-public class Quotation {
-
+@Table(name = "supplier")
+public class Supplier {
     @Id
-    @GeneratedValue(generator = "quotation-id")
-    @GenericGenerator(name = "quotation-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.QuoteIdGenerate")
+    @GeneratedValue(generator = "supplier-id")
+    @GenericGenerator(name = "supplier-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.SupplierIdGenerator")
     private String id;
-    private int price;
-    private String message;
-    private Date eventDate;
-    private String createAt;
+
+    private String supplierName;
+    private String supplierAddress;
+    private String contactPersonName;
+    private String contactPhone;
+    private String contactEmail;
     private String status;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "service_supplier_id")
+    @JoinColumn(name = "accountId")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private ServiceSupplier serviceSupplier;
+    private Account account;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "couple_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private Couple couple;
-
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "service_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private Services service;
-
-    @OneToMany(mappedBy = "quotation", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<BookingDetail> bookingDetails;
+    private Collection<ServiceSupplier> serviceSuppliers;
+
+    @OneToOne(mappedBy = "supplier", cascade = CascadeType.ALL)
+    private Wallet wallet;
+
+    // @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
+    // @EqualsAndHashCode.Include
+    // @ToString.Include
+    // @JsonIgnore
+    // private Collection<Promotion> promotions;
+
+    @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Area> areas;
 }

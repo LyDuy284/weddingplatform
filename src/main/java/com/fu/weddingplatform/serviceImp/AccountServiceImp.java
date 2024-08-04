@@ -17,13 +17,12 @@ import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
 import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.entity.Area;
 import com.fu.weddingplatform.entity.Role;
-import com.fu.weddingplatform.entity.ServiceSupplier;
+import com.fu.weddingplatform.entity.Supplier;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.AccountRepository;
 import com.fu.weddingplatform.repository.AreaRepository;
-import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.repository.RoleRepository;
-import com.fu.weddingplatform.repository.ServiceSupplierRepository;
+import com.fu.weddingplatform.repository.SupplierRepository;
 import com.fu.weddingplatform.request.account.UpdateCoupleDTO;
 import com.fu.weddingplatform.request.account.UpdateSupplierDTO;
 import com.fu.weddingplatform.response.Account.AccountResponse;
@@ -37,8 +36,8 @@ import lombok.RequiredArgsConstructor;
 public class AccountServiceImp implements AccountService {
 
     private final AccountRepository accountRepository;
-    private final ServiceSupplierRepository serviceSupplierRepository;
-    private final CoupleRepository coupleRepository;
+    private final SupplierRepository supplierRepository;
+    // private final CoupleRepository coupleRepository;
     private final AreaRepository areaRepository;
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
@@ -115,37 +114,37 @@ public class AccountServiceImp implements AccountService {
 
     @Override
     public SupplierResponse updateSupplierProfile(UpdateSupplierDTO updateDTO) {
-        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(updateDTO.getSupplierId()).orElseThrow(
+        Supplier supplier = supplierRepository.findById(updateDTO.getSupplierId()).orElseThrow(
                 () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
-        Account account = serviceSupplier.getAccount();
+        Account account = supplier.getAccount();
         account.setName(updateDTO.getName());
         account.setImage(updateDTO.getImage());
         account.setPhoneNumber(updateDTO.getPhoneNumber());
 
         accountRepository.save(account);
 
-        serviceSupplier.setContactPhone(updateDTO.getContactNumber());
-        serviceSupplier.setContactEmail(updateDTO.getContactEmail());
+        supplier.setContactPhone(updateDTO.getContactNumber());
+        supplier.setContactEmail(updateDTO.getContactEmail());
 
-        serviceSupplierRepository.save(serviceSupplier);
+        supplierRepository.save(supplier);
         Area area = new Area();
-        if (serviceSupplier.getAreas().stream().findFirst().isEmpty()) {
+        if (supplier.getAreas().stream().findFirst().isEmpty()) {
             area = Area.builder()
                     .province(updateDTO.getProvince())
                     .district(updateDTO.getDistrict())
                     .ward(updateDTO.getWard())
                     .apartmentNumber(updateDTO.getApartmentNumber())
-                    .serviceSupplier(serviceSupplier)
+                    // .supplier(supplier)
                     .status(Status.ACTIVATED)
                     .build();
         } else {
-            serviceSupplier.getAreas().stream().findFirst().get();
+            supplier.getAreas().stream().findFirst().get();
             area.setProvince(updateDTO.getProvince());
             area.setDistrict(updateDTO.getDistrict());
             area.setWard(updateDTO.getWard());
             area.setApartmentNumber(updateDTO.getApartmentNumber());
-            area.setServiceSupplier(serviceSupplier);
+            area.setSupplier(supplier);
         }
 
         Area areaSaved = areaRepository.save(area);
@@ -154,8 +153,8 @@ public class AccountServiceImp implements AccountService {
         response.setName(account.getName());
         response.setImage(account.getImage());
         response.setPhoneNumber(account.getPhoneNumber());
-        response.setContactEmail(serviceSupplier.getContactEmail());
-        response.setContactNumber(serviceSupplier.getContactPhone());
+        response.setContactEmail(supplier.getContactEmail());
+        response.setContactNumber(supplier.getContactPhone());
         response.setArea(areaSaved);
         return response;
     }

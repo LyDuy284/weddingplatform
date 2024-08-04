@@ -49,18 +49,18 @@ public class Promotion {
     private Date endDate;
     private String status;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "service_supplier_id")
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    private ServiceSupplier serviceSupplier;
+    // @JsonIgnore
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @Fetch(FetchMode.JOIN)
+    // @JoinColumn(name = "service_supplier_id")
+    // @EqualsAndHashCode.Include
+    // @ToString.Include
+    // private ServiceSupplier serviceSupplier;
 
-    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<PromotionServiceEntity> promotionServices;
+    // @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL)
+    // @EqualsAndHashCode.Include
+    // @ToString.Include
+    // @JsonIgnore
+    // private Collection<PromotionServiceEntity> promotionServices;
 
 }

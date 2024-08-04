@@ -36,7 +36,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     bookingDetailRepository.save(bookingDetail);
 
     BookingHistory bookingHistory = BookingHistory.builder()
-        .bookingDetail(bookingDetail)
+        // .bookingDetail(bookingDetail)
         .status(status)
         .createdAt(Utils.formatVNDatetimeNow())
         .build();
