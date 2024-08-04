@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,12 +16,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
+import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierSuccessMessage;
 import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
-import com.fu.weddingplatform.response.serviceSupplier.GroupByCategory;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierFilterResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.service.ServiceSupplierService;
 
@@ -32,7 +34,8 @@ public class ServiceSupplierController {
     private ServiceSupplierService serviceSupplierService;
 
     @PostMapping("create")
-    public ResponseEntity<?> createRating(@Validated @RequestBody CreateServiceSupplier request) {
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+    public ResponseEntity<?> createServiceSupplier(@Validated @RequestBody CreateServiceSupplier request) {
         ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService.createServiceSupplier(request);
         ResponseDTO<ServiceSupplierResponse> responseDTO = new ResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
@@ -58,6 +61,21 @@ public class ServiceSupplierController {
         ListResponseDTO<ServiceSupplierBySupplierReponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(ServiceSupplierSuccessMessage.GET_BY_ID);
+        responseDTO.setData(serviceSupplierBySupplierReponse);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("filter")
+    public ResponseEntity<?> filterServiceSupplier(@RequestParam String categoryId,
+            @RequestParam(defaultValue = "") String serviceId,
+            @RequestParam(defaultValue = "") String type,
+            @RequestParam(defaultValue = "0") int minPrice,
+            @RequestParam(defaultValue = "0") int maxPrice) {
+        List<ServiceSupplierFilterResponse> serviceSupplierBySupplierReponse = serviceSupplierService
+                .filterByService(categoryId, serviceId, type, minPrice, maxPrice);
+        ListResponseDTO<ServiceSupplierFilterResponse> responseDTO = new ListResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ServiceSupplierSuccessMessage.FILTER);
         responseDTO.setData(serviceSupplierBySupplierReponse);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }

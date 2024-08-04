@@ -83,7 +83,7 @@ public class AccountController {
     }
 
     @PutMapping("updateSupplierProfile")
-    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
     public ResponseEntity<?> updateSupplierProfile(@RequestBody UpdateSupplierDTO updateSupplierDTO) {
         ResponseDTO<SupplierResponse> responseDTO = new ResponseDTO<>();
         SupplierResponse data = accountService.updateSupplierProfile(updateSupplierDTO);

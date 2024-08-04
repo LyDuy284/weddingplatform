@@ -28,7 +28,7 @@ public class BookingDetailController {
   BookingDetailService bookingDetailService;
 
   @PutMapping("confirm")
-  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
   public ResponseEntity<?> confirmBookingDetailById(@RequestParam String id) {
     BookingDetail data = bookingDetailService.confirmBookingService(id);
     ResponseDTO<BookingDetail> response = new ResponseDTO<>();
@@ -39,7 +39,7 @@ public class BookingDetailController {
   }
 
   @PutMapping("reject")
-  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
   public ResponseEntity<?> rejectBookingDetailById(@RequestParam String id) {
     BookingDetail data = bookingDetailService.rejectBookingService(id);
     ResponseDTO<BookingDetail> response = new ResponseDTO<>();
@@ -50,7 +50,7 @@ public class BookingDetailController {
   }
 
   @PutMapping("done")
-  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
   public ResponseEntity<?> doneBookingDetailById(@RequestParam String id) {
     BookingDetail data = bookingDetailService.doneBookingService(id);
     ResponseDTO<BookingDetail> response = new ResponseDTO<>();
@@ -61,7 +61,7 @@ public class BookingDetailController {
   }
 
   @PutMapping("process")
-  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
   public ResponseEntity<?> processBookingDetailById(@RequestParam String id) {
     BookingDetail data = bookingDetailService.processingBookingService(id);
     ResponseDTO<BookingDetail> response = new ResponseDTO<>();

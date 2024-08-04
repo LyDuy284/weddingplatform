@@ -22,4 +22,15 @@ public interface ServiceSupplierRepository extends JpaRepository<ServiceSupplier
             "ORDER BY c.id", nativeQuery = true)
     public List<Object[]> getBySupplier(String supplierId);
 
+    @Query(nativeQuery = true, value = "SELECT ss.* FROM the_day.service_supplier ss \n" +
+            "   join service s on ss.service_id = s.id \n" +
+            "   join category c on c.id = s.category_id \n" +
+            "where c.id = ?1  \n" +
+            "   and ( ?2 = '' or  s.id = ?2) \n" +
+            "   and ss.status = 'ACTIVATED' \n" +
+            "   and ( ?3 = '' or  ss.type = ?3) \n" +
+            "   and (?4 <= ss.price and (?5 = 0 or ss.price <= ?5))")
+    public List<ServiceSupplier> filterServiceSupplier(String category, String service, String type, int minPrice,
+            int maxPrice);
+
 }

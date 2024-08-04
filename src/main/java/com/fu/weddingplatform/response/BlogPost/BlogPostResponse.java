@@ -22,7 +22,7 @@ public class BlogPostResponse {
     private String content;
     private String createAt;
     private List<String> listImages;
-    private String staffId;
+    private String staffName;
     private String status;
 
 }

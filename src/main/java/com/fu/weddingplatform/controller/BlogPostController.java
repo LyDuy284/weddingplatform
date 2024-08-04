@@ -46,7 +46,7 @@ public class BlogPostController {
     }
 
     @PostMapping("create")
-    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_STAFF)
     public ResponseEntity<?> createBlogPost(@Validated @RequestBody CreateBlogDTO createBlogDTO) {
         ResponseDTO<BlogPostResponse> responseDTO = new ResponseDTO<>();
         BlogPostResponse data = blogPostService.createBlogPost(createBlogDTO);
@@ -57,7 +57,7 @@ public class BlogPostController {
     }
 
     @PostMapping("update/{id}")
-    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_STAFF)
     public ResponseEntity<?> updateBlogPost(@Validated @RequestBody UpdateBlogDTO updateDTO) {
         ResponseDTO<BlogPostResponse> responseDTO = new ResponseDTO<>();
         BlogPostResponse data = blogPostService.updateBlogPost(updateDTO);

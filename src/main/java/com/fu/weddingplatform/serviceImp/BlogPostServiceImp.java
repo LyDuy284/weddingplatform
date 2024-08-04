@@ -50,7 +50,7 @@ public class BlogPostServiceImp implements BlogPostService {
             BlogPostResponse blogPostResponse = modelMapper.map(blogPost,
                     BlogPostResponse.class);
             if (blogPost.getStaff() != null) {
-                blogPostResponse.setStaffId(blogPost.getStaff().getId());
+                blogPostResponse.setStaffName(blogPost.getStaff().getAccount().getName());
             }
 
             List<String> listImages = new ArrayList<String>();
@@ -84,7 +84,7 @@ public class BlogPostServiceImp implements BlogPostService {
                     BlogPostResponse.class);
 
             if (blogPost.getStaff() != null) {
-                blogPostResponse.setStaffId(blogPost.getStaff().getId());
+                blogPostResponse.setStaffName(blogPost.getStaff().getAccount().getName());
             }
 
             List<String> listImages = new ArrayList<String>();
@@ -110,7 +110,7 @@ public class BlogPostServiceImp implements BlogPostService {
         response = modelMapper.map(blogPost, BlogPostResponse.class);
 
         if (blogPost.getStaff() != null) {
-            response.setStaffId(blogPost.getStaff().getId());
+            response.setStaffName(blogPost.getStaff().getAccount().getName());
         }
 
         List<String> listImages = new ArrayList<String>();
@@ -155,7 +155,7 @@ public class BlogPostServiceImp implements BlogPostService {
         }
         response.setListImages(listImages);
         response.setCreateAt(newBlog.getDateCreated());
-        response.setStaffId(staff.getId());
+        response.setStaffName(staff.getAccount().getName());
         return response;
     }
 
@@ -173,7 +173,7 @@ public class BlogPostServiceImp implements BlogPostService {
         blogPostRepository.save(blogPost);
 
         response = modelMapper.map(blogPost, BlogPostResponse.class);
-        response.setStaffId(blogPost.getStaff().getId());
+        response.setStaffName(blogPost.getStaff().getAccount().getName());
 
         List<String> listImages = new ArrayList<String>();
         if (blogPost.getImages() != null && blogPost.getImages() != "") {

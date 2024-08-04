@@ -30,12 +30,11 @@ import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.UpdateServiceSupplier;
 import com.fu.weddingplatform.response.Account.SupplierResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
-import com.fu.weddingplatform.response.serviceSupplier.GroupByCategory;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceBaseOnCategory;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBaseOnService;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierFilterResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
-import com.fu.weddingplatform.response.supplier.ServiceSupplierByService;
 import com.fu.weddingplatform.service.ServiceService;
 import com.fu.weddingplatform.service.ServiceSupplierService;
 import com.fu.weddingplatform.service.SupplierService;
@@ -158,9 +157,28 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
     }
 
     @Override
-    public List<ServiceSupplierByService> filterByService(String id, String type) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'filterByService'");
+    public List<ServiceSupplierFilterResponse> filterByService(String categoryId, String serviceId, String type,
+            int minPrice, int maxPrice) {
+
+        List<ServiceSupplier> listServiceSuppliers = serviceSupplierRepository.filterServiceSupplier(categoryId,
+                serviceId, type, minPrice, maxPrice);
+
+        if (listServiceSuppliers.size() == 0) {
+            throw new ErrorException(SupplierErrorMessage.EMPTY);
+        }
+
+        List<ServiceSupplierFilterResponse> response = new ArrayList<>();
+
+        for (ServiceSupplier serviceSupplier : listServiceSuppliers) {
+            ServiceSupplierFilterResponse filterResponse = modelMapper.map(serviceSupplier,
+                    ServiceSupplierFilterResponse.class);
+
+            List<String> images = Utils.parseStringToListImages(serviceSupplier.getImages());
+            filterResponse.setListImages(images);
+            response.add(filterResponse);
+        }
+
+        return response;
     }
 
     @Override

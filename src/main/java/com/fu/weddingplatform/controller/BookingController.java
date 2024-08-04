@@ -1,7 +1,5 @@
 package com.fu.weddingplatform.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +17,6 @@ import com.fu.weddingplatform.constant.booking.BookingSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
-import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.booking.BookingResponse;
 import com.fu.weddingplatform.service.BookingService;

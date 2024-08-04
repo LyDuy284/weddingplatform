@@ -6,8 +6,8 @@ import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.UpdateServiceSupplier;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierFilterResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
-import com.fu.weddingplatform.response.supplier.ServiceSupplierByService;
 
 public interface ServiceSupplierService {
     public ServiceSupplierResponse createServiceSupplier(CreateServiceSupplier createDTO);
@@ -18,7 +18,7 @@ public interface ServiceSupplierService {
 
     public List<ServiceSupplierBySupplierReponse> getBySupplier(String id);
 
-    public List<ServiceSupplierByService> filterByService(String id, String type);
+    public List<ServiceSupplierFilterResponse> filterByService(String categoryId, String serviceId, String type, int minPrice, int maxPrice);
 
     public ServiceSupplierResponse convertServiceSupplierToResponse(ServiceSupplier serviceSupplier);
 }

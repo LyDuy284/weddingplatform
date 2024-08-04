@@ -31,7 +31,7 @@ public class ServiceController {
     ServiceService service;
 
     @PostMapping("create")
-    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
     public ResponseEntity<?> createService(@Validated @RequestBody CreateServiceDTO createDTO) {
         ResponseDTO<ServiceResponse> responseDTO = new ResponseDTO<>();
         ServiceResponse data = service.createService(createDTO);
@@ -42,7 +42,7 @@ public class ServiceController {
     }
 
     @PutMapping("update")
-    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
     public ResponseEntity<?> updateService(@Validated @RequestBody UpdateServiceDTO updateDTO) {
         ResponseDTO<ServiceResponse> responseDTO = new ResponseDTO<>();
         ServiceResponse data = service.updateService(updateDTO);
@@ -53,16 +53,18 @@ public class ServiceController {
     }
 
     // @GetMapping("getAllServices")
-    // public ResponseEntity<?> getAllServices(@RequestParam(defaultValue = "0") int pageNo,
-    //         @RequestParam(defaultValue = "10") int pageSize,
-    //         @RequestParam(defaultValue = "id") String sortBy,
-    //         @RequestParam(defaultValue = "true") boolean isAscending) {
-    //     List<ServiceResponse> serviceResponses = service.getAllServices(pageNo, pageSize, sortBy, isAscending);
-    //     ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
-    //     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    //     responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
-    //     responseDTO.setData(serviceResponses);
-    //     return ResponseEntity.ok().body(responseDTO);
+    // public ResponseEntity<?> getAllServices(@RequestParam(defaultValue = "0") int
+    // pageNo,
+    // @RequestParam(defaultValue = "10") int pageSize,
+    // @RequestParam(defaultValue = "id") String sortBy,
+    // @RequestParam(defaultValue = "true") boolean isAscending) {
+    // List<ServiceResponse> serviceResponses = service.getAllServices(pageNo,
+    // pageSize, sortBy, isAscending);
+    // ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
+    // responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+    // responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
+    // responseDTO.setData(serviceResponses);
+    // return ResponseEntity.ok().body(responseDTO);
     // }
 
     @GetMapping("getById/{id}")
@@ -76,80 +78,92 @@ public class ServiceController {
     }
 
     // @GetMapping("getAllActiveServices")
-    // public ResponseEntity<?> getAllActiveServices(@RequestParam(defaultValue = "0") int pageNo,
-    //         @RequestParam(defaultValue = "10") int pageSize,
-    //         @RequestParam(defaultValue = "id") String sortBy,
-    //         @RequestParam(defaultValue = "true") boolean isAscending) {
-    //     List<ServiceResponse> serviceResponses = service.getAllActivateServices(pageNo, pageSize, sortBy, isAscending);
-    //     ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
-    //     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    //     responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
-    //     responseDTO.setData(serviceResponses);
-    //     return ResponseEntity.ok().body(responseDTO);
+    // public ResponseEntity<?> getAllActiveServices(@RequestParam(defaultValue =
+    // "0") int pageNo,
+    // @RequestParam(defaultValue = "10") int pageSize,
+    // @RequestParam(defaultValue = "id") String sortBy,
+    // @RequestParam(defaultValue = "true") boolean isAscending) {
+    // List<ServiceResponse> serviceResponses =
+    // service.getAllActivateServices(pageNo, pageSize, sortBy, isAscending);
+    // ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
+    // responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+    // responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
+    // responseDTO.setData(serviceResponses);
+    // return ResponseEntity.ok().body(responseDTO);
     // }
 
     // @GetMapping("getAllServicesBySupplier/{id}")
-    // public ResponseEntity<?> getAllServicesBySupplier(@RequestParam String supplierId,
-    //         @RequestParam(defaultValue = "0") int pageNo,
-    //         @RequestParam(defaultValue = "10") int pageSize,
-    //         @RequestParam(defaultValue = "id") String sortBy,
-    //         @RequestParam(defaultValue = "true") boolean isAscending) {
-    //     List<ServiceBySupplierResponse> serviceResponses = service.getAllServicesBySupplier(supplierId, pageNo,
-    //             pageSize, sortBy, isAscending);
-    //     ListResponseDTO<ServiceBySupplierResponse> responseDTO = new ListResponseDTO<>();
-    //     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    //     responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_SUPPLIER);
-    //     responseDTO.setData(serviceResponses);
-    //     return ResponseEntity.ok().body(responseDTO);
+    // public ResponseEntity<?> getAllServicesBySupplier(@RequestParam String
+    // supplierId,
+    // @RequestParam(defaultValue = "0") int pageNo,
+    // @RequestParam(defaultValue = "10") int pageSize,
+    // @RequestParam(defaultValue = "id") String sortBy,
+    // @RequestParam(defaultValue = "true") boolean isAscending) {
+    // List<ServiceBySupplierResponse> serviceResponses =
+    // service.getAllServicesBySupplier(supplierId, pageNo,
+    // pageSize, sortBy, isAscending);
+    // ListResponseDTO<ServiceBySupplierResponse> responseDTO = new
+    // ListResponseDTO<>();
+    // responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+    // responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_SUPPLIER);
+    // responseDTO.setData(serviceResponses);
+    // return ResponseEntity.ok().body(responseDTO);
     // }
 
     // @GetMapping("getAllServicesByCategoryAndSupplier/")
-    // public ResponseEntity<?> getAllServicesByCategoryAndSupplier(@RequestParam String categoryId,
-    //         @RequestParam String supplierId,
-    //         @RequestParam(defaultValue = "0") int pageNo,
-    //         @RequestParam(defaultValue = "10") int pageSize,
-    //         @RequestParam(defaultValue = "id") String sortBy,
-    //         @RequestParam(defaultValue = "true") boolean isAscending) {
-    //     List<ServiceByCategoryAndSupplierResponse> serviceResponses = service.getAllServicesByCategoryAndSupplier(
-    //             categoryId,
-    //             supplierId,
-    //             pageNo,
-    //             pageSize, sortBy, isAscending);
-    //     ListResponseDTO<ServiceByCategoryAndSupplierResponse> responseDTO = new ListResponseDTO<>();
-    //     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    //     responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY_AND_SUPPLIER);
-    //     responseDTO.setData(serviceResponses);
-    //     return ResponseEntity.ok().body(responseDTO);
+    // public ResponseEntity<?> getAllServicesByCategoryAndSupplier(@RequestParam
+    // String categoryId,
+    // @RequestParam String supplierId,
+    // @RequestParam(defaultValue = "0") int pageNo,
+    // @RequestParam(defaultValue = "10") int pageSize,
+    // @RequestParam(defaultValue = "id") String sortBy,
+    // @RequestParam(defaultValue = "true") boolean isAscending) {
+    // List<ServiceByCategoryAndSupplierResponse> serviceResponses =
+    // service.getAllServicesByCategoryAndSupplier(
+    // categoryId,
+    // supplierId,
+    // pageNo,
+    // pageSize, sortBy, isAscending);
+    // ListResponseDTO<ServiceByCategoryAndSupplierResponse> responseDTO = new
+    // ListResponseDTO<>();
+    // responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+    // responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY_AND_SUPPLIER);
+    // responseDTO.setData(serviceResponses);
+    // return ResponseEntity.ok().body(responseDTO);
     // }
 
     // @GetMapping("getAllServicesByCategory/")
-    // public ResponseEntity<?> getAllServicesByCategory(@RequestParam String categoryId,
-    //         @RequestParam(defaultValue = "0") int pageNo,
-    //         @RequestParam(defaultValue = "10") int pageSize,
-    //         @RequestParam(defaultValue = "id") String sortBy,
-    //         @RequestParam(defaultValue = "true") boolean isAscending) {
-    //     List<ServiceByCategoryResponse> serviceResponses = service.getAllServicesByCategory(
-    //             categoryId,
-    //             pageNo,
-    //             pageSize, sortBy, isAscending);
-    //     ListResponseDTO<ServiceByCategoryResponse> responseDTO = new ListResponseDTO<>();
-    //     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    //     responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY);
-    //     responseDTO.setData(serviceResponses);
-    //     return ResponseEntity.ok().body(responseDTO);
+    // public ResponseEntity<?> getAllServicesByCategory(@RequestParam String
+    // categoryId,
+    // @RequestParam(defaultValue = "0") int pageNo,
+    // @RequestParam(defaultValue = "10") int pageSize,
+    // @RequestParam(defaultValue = "id") String sortBy,
+    // @RequestParam(defaultValue = "true") boolean isAscending) {
+    // List<ServiceByCategoryResponse> serviceResponses =
+    // service.getAllServicesByCategory(
+    // categoryId,
+    // pageNo,
+    // pageSize, sortBy, isAscending);
+    // ListResponseDTO<ServiceByCategoryResponse> responseDTO = new
+    // ListResponseDTO<>();
+    // responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+    // responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY);
+    // responseDTO.setData(serviceResponses);
+    // return ResponseEntity.ok().body(responseDTO);
     // }
 
     // @GetMapping("filterService/")
     // public ResponseEntity<?> filterService(@RequestParam String categoryId,
-    //         @RequestParam(defaultValue = "") String type,
-    //         @RequestParam(defaultValue = "0") int minPrice,
-    //         @RequestParam(defaultValue = "0") int maxPrice) {
-    //     List<ServiceResponse> serviceResponses = service.filterService(categoryId, type, minPrice, maxPrice);
-    //     ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
-    //     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    //     responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY);
-    //     responseDTO.setData(serviceResponses);
-    //     return ResponseEntity.ok().body(responseDTO);
+    // @RequestParam(defaultValue = "") String type,
+    // @RequestParam(defaultValue = "0") int minPrice,
+    // @RequestParam(defaultValue = "0") int maxPrice) {
+    // List<ServiceResponse> serviceResponses = service.filterService(categoryId,
+    // type, minPrice, maxPrice);
+    // ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
+    // responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+    // responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY);
+    // responseDTO.setData(serviceResponses);
+    // return ResponseEntity.ok().body(responseDTO);
     // }
 
 }
