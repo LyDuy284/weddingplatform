@@ -1,5 +1,8 @@
 package com.fu.weddingplatform.serviceImp;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,10 +30,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
   private BookingHistoryRepository bookingHistoryRepository;
 
   @Override
-  public BookingDetail updateBookingServiceStatus(String bookingDetailId, String status) {
-
-    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
-        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+  public BookingDetail updateBookingServiceStatus(BookingDetail bookingDetail, String status) {
 
     bookingDetail.setStatus(status);
     bookingDetailRepository.save(bookingDetail);
@@ -49,37 +49,73 @@ public class BookingDetailServiceImp implements BookingDetailService {
   @Override
   public BookingDetail confirmBookingService(String bookingDetailId) {
 
-    return updateBookingServiceStatus(bookingDetailId, BookingDetailStatus.CONFIRM);
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+
+    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.WAITING))) {
+      throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
+    }
+
+    return updateBookingServiceStatus(bookingDetail, BookingDetailStatus.CONFIRM);
 
   }
 
   @Override
   public BookingDetail rejectBookingService(String bookingDetailId) {
-    return updateBookingServiceStatus(bookingDetailId, BookingDetailStatus.REJECT);
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+
+    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.WAITING))) {
+      throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
+    }
+
+    return updateBookingServiceStatus(bookingDetail, BookingDetailStatus.REJECT);
 
   }
 
   @Override
   public BookingDetail cancleBookingService(String bookingDetailId) {
-    return updateBookingServiceStatus(bookingDetailId, BookingDetailStatus.CANCEL);
+
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+
+    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.WAITING))) {
+      throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
+    }
+
+    LocalDate completeDate = Utils.convertStringToLocalDate(bookingDetail.getCompletedDate());
+    LocalDate currentDate = Utils.getCurrentDate();
+
+    long daysBetween = ChronoUnit.DAYS.between(currentDate, completeDate);
+
+    if (daysBetween <= 7) {
+      throw new ErrorException(BookingDetailErrorMessage.CANCLE);
+    }
+
+    return updateBookingServiceStatus(bookingDetail, BookingDetailStatus.CANCEL);
 
   }
 
   @Override
   public BookingDetail doneBookingService(String bookingDetailId) {
-    return updateBookingServiceStatus(bookingDetailId, BookingDetailStatus.DONE);
+    // return updateBookingServiceStatus(bookingDetailId, BookingDetailStatus.DONE);
+    return null;
 
   }
 
   @Override
   public BookingDetail completeBookingService(String bookingDetailId) {
-    return updateBookingServiceStatus(bookingDetailId, BookingDetailStatus.COMPLETED);
+    return null;
+    // return updateBookingServiceStatus(bookingDetailId,
+    // BookingDetailStatus.COMPLETED);
 
   }
 
   @Override
   public BookingDetail processingBookingService(String bookingDetailId) {
-    return updateBookingServiceStatus(bookingDetailId, BookingDetailStatus.ON_PROCESSING);
+    // return updateBookingServiceStatus(bookingDetailId,
+    // BookingDetailStatus.ON_PROCESSING);
+    return null;
 
   }
 
