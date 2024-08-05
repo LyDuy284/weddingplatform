@@ -1,7 +1,5 @@
 package com.fu.weddingplatform.serviceImp;
 
-import java.util.List;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -89,24 +87,7 @@ public class RatingServiceImpl implements RatingService {
     @Override
     public float getRatingByServiceSupplier(ServiceSupplier serviceSupplier) {
 
-        float response = 0;
-
-        List<BookingDetail> bookingDetailList = bookingDetailRepository.findByServiceSupplierAndStatus(
-                serviceSupplier, BookingStatus.COMPLETED);
-        int totalRating = 0;
-        int times = 0;
-        for (BookingDetail bookingDetail : bookingDetailList) {
-            if (bookingDetail.getRatings().size() > 0) {
-                for (Rating rating : bookingDetail.getRatings()) {
-                    totalRating += rating.getRating();
-                    times++;
-                }
-            }
-        }
-
-        if (times != 0) {
-            response = totalRating / times;
-        }
+        float response = ratingRepository.getRatingByServiceSupplier(serviceSupplier.getId());
 
         return response;
     }

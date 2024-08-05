@@ -22,6 +22,7 @@ public class ServiceSupplierResponse {
     private String id;
     private String name;
     private String description;
+    private float rating;
     private List<String> listImages;
     private String type;
     private String createAt;

@@ -35,6 +35,7 @@ import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBaseOnServ
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierFilterResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
+import com.fu.weddingplatform.service.RatingService;
 import com.fu.weddingplatform.service.ServiceService;
 import com.fu.weddingplatform.service.ServiceSupplierService;
 import com.fu.weddingplatform.service.SupplierService;
@@ -69,6 +70,9 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private RatingService ratingService;
 
     @Override
     public ServiceSupplierResponse createServiceSupplier(CreateServiceSupplier createDTO) {
@@ -149,6 +153,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         ServiceResponse serviceResponse = serviceService.convertServiceToReponse(serviceSupplier.getService());
         SupplierResponse supplierResponse = supplierService
                 .convertSupplierToSupplierResponse(serviceSupplier.getSupplier());
+        response.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
         response.setSupplierResponse(supplierResponse);
         response.setServiceResponse(serviceResponse);
         response.setListImages(listImages);
@@ -172,6 +177,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         for (ServiceSupplier serviceSupplier : listServiceSuppliers) {
             ServiceSupplierFilterResponse filterResponse = modelMapper.map(serviceSupplier,
                     ServiceSupplierFilterResponse.class);
+            filterResponse.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
 
             List<String> images = Utils.parseStringToListImages(serviceSupplier.getImages());
             filterResponse.setListImages(images);
@@ -194,6 +200,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         ServiceResponse serviceResponse = serviceService.convertServiceToReponse(serviceSupplier.getService());
         SupplierResponse supplierResponse = supplierService
                 .convertSupplierToSupplierResponse(serviceSupplier.getSupplier());
+        response.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
         response.setSupplierResponse(supplierResponse);
         response.setServiceResponse(serviceResponse);
         response.setListImages(listImages);
@@ -259,6 +266,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
                 serviceSupplierBaseOnService = modelMapper.map(serviceSupplier, ServiceSupplierBaseOnService.class);
                 List<String> serviceSupplierImages = Utils.parseStringToListImages(serviceSupplier.getImages());
                 serviceSupplierBaseOnService.setListImages(serviceSupplierImages);
+                serviceSupplierBaseOnService.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
 
                 // add service supplier to list of service
                 listServiceSupplier.add(serviceSupplierBaseOnService);
@@ -270,6 +278,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
                     serviceSupplierBaseOnService = modelMapper.map(serviceSupplier, ServiceSupplierBaseOnService.class);
                     List<String> serviceSupplierImages = Utils.parseStringToListImages(serviceSupplier.getImages());
                     serviceSupplierBaseOnService.setListImages(serviceSupplierImages);
+                    serviceSupplierBaseOnService.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
 
                     // add service supplier to list of service
                     listServiceSupplier.add(serviceSupplierBaseOnService);
@@ -293,6 +302,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
                     serviceSupplierBaseOnService = modelMapper.map(serviceSupplier, ServiceSupplierBaseOnService.class);
                     List<String> serviceSupplierImages = Utils.parseStringToListImages(serviceSupplier.getImages());
                     serviceSupplierBaseOnService.setListImages(serviceSupplierImages);
+                    serviceSupplierBaseOnService.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
 
                     // add service supplier to list of service
                     listServiceSupplier.add(serviceSupplierBaseOnService);
