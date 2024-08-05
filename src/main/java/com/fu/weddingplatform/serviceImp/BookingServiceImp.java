@@ -66,7 +66,6 @@ public class BookingServiceImp implements BookingService {
   @Autowired
   private BookingDetailHistoryRepository bookingDetailHistoryRepository;
 
-
   @Autowired
   private CoupleService coupleService;
 
@@ -120,12 +119,38 @@ public class BookingServiceImp implements BookingService {
       if (currentDate.isEqual(completeDate) || currentDate.isAfter(completeDate)) {
         throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_GREATER_THAN_CURRENT_DATE);
       }
+
+      PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository
+          .findFirstByServiceSupplierAndStatus(serviceSupplier.get(),
+              Status.ACTIVATED);
+
+      Promotion promotion = null;
+      int price = 0;
+      if (promotionServiceSupplier != null) {
+        promotion = promotionServiceSupplier.getPromotion();
+
+        switch (promotion.getType()) {
+          case PromotionType.PERCENT:
+            price = (int) (serviceSupplier.get().getPrice() * (100 - promotion.getValue()) *
+                0.01);
+            break;
+          case PromotionType.MONEY:
+            price = serviceSupplier.get().getPrice() - promotion.getValue();
+            break;
+          default:
+            break;
+        }
+      } else {
+        price = serviceSupplier.get().getPrice();
+      }
+
       BookingDetail bookingDetail = BookingDetail.builder()
           .booking(bookingSaved)
           .serviceSupplier(serviceSupplier.get())
           .completedDate(completeDate.toString())
           .note(serviceSupplierBookingDTO.getNote())
-          .price(serviceSupplier.get().getPrice())
+          .price(price)
+          .promotionServiceSupplier(promotionServiceSupplier)
           .status(BookingDetailStatus.PENDING)
           .build();
 
@@ -140,31 +165,6 @@ public class BookingServiceImp implements BookingService {
     for (BookingDetail bookingDetail : listBookingDetails) {
       BookingDetail bookingDetailSaved = bookingDetailRepository.save(bookingDetail);
 
-      // PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository
-      //     .findFirstByServiceSupplierAndStatus(bookingDetail.getServiceSupplier(),
-      //         Status.ACTIVATED);
-
-      // Promotion promotion = null;
-      // int price = 0;
-      // if (promotionServiceSupplier != null) {
-      //   promotion = promotionServiceSupplier.getPromotion();
-
-      //   switch (promotion.getType()) {
-      //     case PromotionType.PERCENT:
-      //       price = (int) (bookingDetail.getPrice() * (100 - promotion.getValue()) * 0.01);
-      //       break;
-      //     case PromotionType.MONEY:
-      //       price = bookingDetail.getPrice() - promotion.getValue();
-      //       break;
-      //     default:
-      //       break;
-      //   }
-      // } else {
-      //   price = bookingDetail.getPrice();
-      // }
-
-      // invoicePrice += price;
-
       BookingDetailHistory bookingDetailHistory = BookingDetailHistory
           .builder()
           .createdAt(Utils.formatVNDatetimeNow())
@@ -174,31 +174,18 @@ public class BookingServiceImp implements BookingService {
 
       bookingDetailHistoryRepository.save(bookingDetailHistory);
 
-      // InvoiceDetail invoiceDetail = InvoiceDetail.builder()
-      // .bookingDetail(bookingDetailSaved)
-      // .createAt(Utils.formatVNDatetimeNow())
-      // .price(invoicePrice)
-      // .status(Status.PENDING)
-      // .invoice(invoiceSaved)
-      // .promotionServiceSupplier(promotionServiceSupplier)
-      // .build();
-
-      // invoiceDetailRepository.save(invoiceDetail);
-
       ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
           .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
-      // PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
+      PromotionResponse promotionResponse = promotionService
+          .convertPromotionToResponse(bookingDetail.getPromotionServiceSupplier().getPromotion());
 
       BookingDetailResponse bookingDetailResponse = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-      // bookingDetailResponse.setPromotionResponse(promotionResponse);
+      bookingDetailResponse.setPromotionResponse(promotionResponse);
       bookingDetailResponse.setServiceSupplierResponse(serviceSupplierResponse);
       listBookingDetailResponse.add(bookingDetailResponse);
 
     }
-
-    // invoiceSaved.setTotalPrice(invoicePrice);
-    // invoiceRepository.save(invoiceSaved);
 
     BookingHistory bookingHistory = BookingHistory.builder()
         .booking(bookingSaved)
@@ -231,35 +218,29 @@ public class BookingServiceImp implements BookingService {
     BookingResponse response = modelMapper.map(booking, BookingResponse.class);
     CoupleResponse coupleResponse = coupleService.getCoupleById(booking.getCouple().getId());
 
-    int totalPrice = 0;
-
     List<BookingDetailResponse> listBookingDetailResponses = new ArrayList<>();
 
     for (BookingDetail bookingDetail : booking.getBookingDetails()) {
 
-      totalPrice += bookingDetail.getPrice();
-
       ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
           .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
-      // PromotionServiceSupplier promotionServiceSupplier = bookingDetail.getInvoiceDetails().stream().findFirst().get()
-      //     .getPromotionServiceSupplier();
-      // Promotion promotion = null;
-      // if (promotionServiceSupplier != null) {
-      //   promotion = promotionServiceSupplier.getPromotion();
-      // }
+      PromotionServiceSupplier promotionServiceSupplier = bookingDetail.getPromotionServiceSupplier();
+      Promotion promotion = null;
+      if (promotionServiceSupplier != null) {
+        promotion = promotionServiceSupplier.getPromotion();
+      }
 
-      // PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
+      PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
 
       BookingDetailResponse bookingDetailResponse = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-      // bookingDetailResponse.setPromotionResponse(promotionResponse);
+      bookingDetailResponse.setPromotionResponse(promotionResponse);
       bookingDetailResponse.setServiceSupplierResponse(serviceSupplierResponse);
       listBookingDetailResponses.add(bookingDetailResponse);
 
     }
     response.setCouple(coupleResponse);
     response.setListBookingDetail(listBookingDetailResponses);
-    response.setTotalPrice(totalPrice);
     return response;
   }
 

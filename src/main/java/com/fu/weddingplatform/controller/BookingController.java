@@ -57,8 +57,8 @@ public class BookingController {
 
   @GetMapping("getById")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE_SUPPLIER)
-  public ResponseEntity<?> getBookingById(@RequestParam String supplierId) {
-    BookingResponse data = bookingService.getBookingById(supplierId);
+  public ResponseEntity<?> getBookingById(@RequestParam String id) {
+    BookingResponse data = bookingService.getBookingById(id);
     ResponseDTO<BookingResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
