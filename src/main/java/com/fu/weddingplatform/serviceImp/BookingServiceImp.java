@@ -16,6 +16,7 @@ import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
 import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.constant.promotion.PromotionType;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
+import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
 import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.BookingDetailHistory;
@@ -24,6 +25,7 @@ import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.entity.Promotion;
 import com.fu.weddingplatform.entity.PromotionServiceSupplier;
 import com.fu.weddingplatform.entity.ServiceSupplier;
+import com.fu.weddingplatform.entity.Supplier;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
@@ -32,12 +34,16 @@ import com.fu.weddingplatform.repository.BookingRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.repository.PromotionServiceSupplierRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
+import com.fu.weddingplatform.repository.SupplierRepository;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.request.booking.ServiceSupplierBookingDTO;
+import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
+import com.fu.weddingplatform.response.booking.BookingResponseBySupplier;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
 import com.fu.weddingplatform.response.promotion.PromotionResponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierBooking;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.service.BookingService;
 import com.fu.weddingplatform.service.CoupleService;
@@ -80,6 +86,9 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private PromotionServiceSupplierRepository promotionServiceSupplierRepository;
+
+  @Autowired
+  private SupplierRepository supplierRepository;
 
   @Override
   public BookingResponse createBooking(CreateBookingDTO createDTO) {
@@ -150,6 +159,7 @@ public class BookingServiceImp implements BookingService {
           .completedDate(completeDate.toString())
           .note(serviceSupplierBookingDTO.getNote())
           .price(price)
+          .createAt(Utils.formatVNDatetimeNow())
           .promotionServiceSupplier(promotionServiceSupplier)
           .status(BookingDetailStatus.PENDING)
           .build();
@@ -245,9 +255,46 @@ public class BookingServiceImp implements BookingService {
   }
 
   @Override
-  public List<BookingResponse> getAllBookingBySupplier(String supplierId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAllBookingBySupplier'");
+  public List<BookingDetailBySupplierResponse> getAllBookingBySupplier(String supplierId) {
+
+    supplierRepository.findById(supplierId).orElseThrow(
+        () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+
+    List<BookingDetail> listBookingDetails = bookingDetailRepository.findBySupplier(supplierId);
+
+    List<BookingDetailBySupplierResponse> response = new ArrayList<>();
+
+    if (listBookingDetails.size() == 0) {
+      throw new ErrorException(SupplierErrorMessage.EMPTY);
+    }
+
+    for (BookingDetail bookingDetail : listBookingDetails) {
+      BookingDetailBySupplierResponse bookingDetailBySupplierResponse = modelMapper.map(bookingDetail,
+          BookingDetailBySupplierResponse.class);
+
+      bookingDetailBySupplierResponse.setBookingDetailId(bookingDetail.getId());
+      CoupleResponse coupleResponse = coupleService.getCoupleById(bookingDetail.getBooking().getCouple().getId());
+
+      PromotionServiceSupplier promotionServiceSupplier = bookingDetail.getPromotionServiceSupplier();
+      Promotion promotion = null;
+      if (promotionServiceSupplier != null) {
+        promotion = promotionServiceSupplier.getPromotion();
+      }
+
+      PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
+      ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+          .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+      ServiceSupplierBySupplierBooking serviceSupplierBySupplierBooking = modelMapper.map(serviceSupplierResponse,
+          ServiceSupplierBySupplierBooking.class);
+
+      bookingDetailBySupplierResponse.setCouple(coupleResponse);
+      bookingDetailBySupplierResponse.setPromotionResponse(promotionResponse);
+      bookingDetailBySupplierResponse.setServiceSupplierResponse(serviceSupplierBySupplierBooking);
+
+      response.add(bookingDetailBySupplierResponse);
+    }
+    return response;
   }
 
   @Override

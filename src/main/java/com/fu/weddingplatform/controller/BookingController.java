@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,9 @@ import com.fu.weddingplatform.constant.booking.BookingSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
+import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
+import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
 import com.fu.weddingplatform.service.BookingService;
 
@@ -39,21 +43,16 @@ public class BookingController {
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
   }
 
-  // @GetMapping("getByCouple")
-  // @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
-  // public ResponseEntity<?> getBookingByCouple(@RequestParam String coupleId,
-  // @RequestParam(defaultValue = "0") int pageNo,
-  // @RequestParam(defaultValue = "10") int pageSize,
-  // @RequestParam(defaultValue = "id") String sortBy,
-  // @RequestParam(defaultValue = "true") boolean isAscending) {
-  // List<BookingResponse> data = bookingService.getAllBookingByCouple(coupleId,
-  // pageNo, pageSize, sortBy, isAscending);
-  // ListResponseDTO<BookingResponse> response = new ListResponseDTO<>();
-  // response.setData(data);
-  // response.setStatus(ResponseStatusDTO.SUCCESS);
-  // response.setMessage(BookingSuccessMessage.GET_ALL_BY_COUPLE);
-  // return new ResponseEntity<>(response, HttpStatus.OK);
-  // }
+  @GetMapping("getBySupplier")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+  public ResponseEntity<?> getBySupplier(@RequestParam String supplierId) {
+    List<BookingDetailBySupplierResponse> data = bookingService.getAllBookingBySupplier(supplierId);
+    ListResponseDTO<BookingDetailBySupplierResponse> response = new ListResponseDTO<>();
+    response.setData(data);
+    response.setStatus(ResponseStatusDTO.SUCCESS);
+    response.setMessage(BookingSuccessMessage.GET_ALL_BY_SUPPLIER);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
 
   @GetMapping("getById")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE_SUPPLIER)

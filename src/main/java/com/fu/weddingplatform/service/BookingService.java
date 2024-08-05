@@ -4,12 +4,13 @@ import java.util.List;
 
 import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
+import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
 
 public interface BookingService {
   public BookingResponse createBooking(CreateBookingDTO createDTO);
 
-  public List<BookingResponse> getAllBookingBySupplier(String supplierId);
+  public List<BookingDetailBySupplierResponse> getAllBookingBySupplier(String supplierId);
 
   public List<BookingResponse> getAllBookingByCouple(String coupleId);
 

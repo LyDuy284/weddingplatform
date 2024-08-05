@@ -45,6 +45,7 @@ public class BookingDetail {
     @Column(columnDefinition = "text")
     private String note;
     private String status;
+    private String createAt;
     private String completedDate;
 
     @JsonIgnore
