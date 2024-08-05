@@ -66,13 +66,14 @@ public class ServiceSupplierController {
     }
 
     @GetMapping("filter")
-    public ResponseEntity<?> filterServiceSupplier(@RequestParam String categoryId,
+    public ResponseEntity<?> filterServiceSupplier(@RequestParam(defaultValue = "") String categoryId,
             @RequestParam(defaultValue = "") String serviceId,
             @RequestParam(defaultValue = "") String type,
             @RequestParam(defaultValue = "0") int minPrice,
-            @RequestParam(defaultValue = "0") int maxPrice) {
+            @RequestParam(defaultValue = "0") int maxPrice,
+            @RequestParam(defaultValue = "") String supplierId) {
         List<ServiceSupplierFilterResponse> serviceSupplierBySupplierReponse = serviceSupplierService
-                .filterByService(categoryId, serviceId, type, minPrice, maxPrice);
+                .filterByService(categoryId, serviceId, type, minPrice, maxPrice, supplierId);
         ListResponseDTO<ServiceSupplierFilterResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(ServiceSupplierSuccessMessage.FILTER);

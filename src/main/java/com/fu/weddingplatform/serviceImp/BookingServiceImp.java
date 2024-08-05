@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,6 @@ import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.entity.Promotion;
 import com.fu.weddingplatform.entity.PromotionServiceSupplier;
 import com.fu.weddingplatform.entity.ServiceSupplier;
-import com.fu.weddingplatform.entity.Supplier;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
@@ -40,11 +40,11 @@ import com.fu.weddingplatform.request.booking.ServiceSupplierBookingDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
-import com.fu.weddingplatform.response.booking.BookingResponseBySupplier;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
 import com.fu.weddingplatform.response.promotion.PromotionResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierBooking;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
+import com.fu.weddingplatform.service.BookingDetailService;
 import com.fu.weddingplatform.service.BookingService;
 import com.fu.weddingplatform.service.CoupleService;
 import com.fu.weddingplatform.service.PromotionService;
@@ -89,6 +89,9 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private SupplierRepository supplierRepository;
+
+  @Autowired
+  private BookingDetailService bookingDetailService;
 
   @Override
   public BookingResponse createBooking(CreateBookingDTO createDTO) {
@@ -299,8 +302,24 @@ public class BookingServiceImp implements BookingService {
 
   @Override
   public BookingResponse cancelBooking(String bookingId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'cancelBooking'");
+
+    Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+        () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
+
+    List<BookingDetail> listBookingDetails = booking.getBookingDetails().stream().collect(Collectors.toList());
+    List<BookingDetailResponse> listBookingDetailResponses = new ArrayList<BookingDetailResponse>();
+    for (BookingDetail detail : listBookingDetails) {
+      BookingDetailResponse bookingDetailResponse = bookingDetailService.cancleBookingDetail(detail.getId());
+      listBookingDetailResponses.add(bookingDetailResponse);
+    }
+    CoupleResponse coupleResponse = coupleService.getCoupleById(booking.getCouple().getId());
+
+    BookingResponse response = modelMapper.map(booking, BookingResponse.class);
+
+    response.setCouple(coupleResponse);
+    response.setListBookingDetail(listBookingDetailResponses);
+    response.setStatus(BookingStatus.CANCLE);
+    return response;
   }
 
   @Override

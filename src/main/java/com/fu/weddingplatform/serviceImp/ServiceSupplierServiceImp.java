@@ -163,10 +163,10 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
 
     @Override
     public List<ServiceSupplierFilterResponse> filterByService(String categoryId, String serviceId, String type,
-            int minPrice, int maxPrice) {
+            int minPrice, int maxPrice, String supplierId) {
 
         List<ServiceSupplier> listServiceSuppliers = serviceSupplierRepository.filterServiceSupplier(categoryId,
-                serviceId, type, minPrice, maxPrice);
+                serviceId, type, minPrice, maxPrice, supplierId);
 
         if (listServiceSuppliers.size() == 0) {
             throw new ErrorException(SupplierErrorMessage.EMPTY);
