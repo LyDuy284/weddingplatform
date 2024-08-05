@@ -14,6 +14,6 @@ public interface RatingRepository extends JpaRepository<Rating, String>, JpaSpec
     @Query(value = "SELECT IFNULL(AVG(r.rating), 0) as rating FROM rating r \n" +
             "   JOIN booking_detail bd on r.booking_detail_id = bd.id \n" +
             "   JOIN service_supplier ss on ss.id= bd.service_supplier_id \n" +
-            "WHERE ss.id=?1 and bd.status='COMPLETED'")
+            "WHERE ss.id=?1 and bd.status='COMPLETED'", nativeQuery = true)
     float getRatingByServiceSupplier(String serviceSupplierId);
 }
