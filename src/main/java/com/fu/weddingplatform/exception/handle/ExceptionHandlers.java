@@ -38,7 +38,7 @@ public class ExceptionHandlers extends RuntimeException {
 
   @ExceptionHandler(value = { UsernameOrPasswordNotFoundException.class, AuthenticationException.class })
   public ResponseEntity<Object> usernameOrPasswordNotFound(AuthenticationException exception) {
-    ResponseDTO dto = new ResponseDTO();
+    ResponseDTO<Object> dto = new ResponseDTO<>();
     dto.setMessage(AccountErrorMessage.INVALID_USERNAME_PASSWORD);
     dto.setStatus(ResponseStatusDTO.FAILURE);
     return ResponseEntity.badRequest().body(dto);
@@ -46,7 +46,7 @@ public class ExceptionHandlers extends RuntimeException {
 
   @ExceptionHandler(value = { ErrorException.class })
   public ResponseEntity<Object> ErrorException(ErrorException exception) {
-    ResponseDTO dto = new ResponseDTO();
+    ResponseDTO<Object> dto = new ResponseDTO<>();
     dto.setMessage(exception.getMessage());
     dto.setStatus(ResponseStatusDTO.FAILURE);
     return ResponseEntity.badRequest().body(dto);
@@ -54,7 +54,7 @@ public class ExceptionHandlers extends RuntimeException {
 
   @ExceptionHandler(value = EmptyException.class)
   public ResponseEntity<Object> listEmptyException(EmptyException exception) {
-    ListResponseDTO dto = new ListResponseDTO();
+    ListResponseDTO<Object> dto = new ListResponseDTO<>();
     dto.setMessage(exception.getMessage());
     dto.setStatus(ResponseStatusDTO.FAILURE);
     return ResponseEntity.ok().body(dto);
@@ -62,7 +62,7 @@ public class ExceptionHandlers extends RuntimeException {
 
   @ExceptionHandler(value = AuthorizedException.class)
   public ResponseEntity<Object> authorizedException() {
-    ListResponseDTO dto = new ListResponseDTO();
+    ListResponseDTO<Object> dto = new ListResponseDTO<>();
     dto.setMessage("Access Denied");
     dto.setStatus(ResponseStatusDTO.FAILURE);
     return ResponseEntity.status(HttpStatus.FORBIDDEN).body(dto);

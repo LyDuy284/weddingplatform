@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fu.weddingplatform.entity.Category;
-import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Services;
 
 @Repository

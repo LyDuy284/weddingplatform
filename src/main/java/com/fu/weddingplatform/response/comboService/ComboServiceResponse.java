@@ -1,8 +1,7 @@
 package com.fu.weddingplatform.response.comboService;
 
-import com.fu.weddingplatform.entity.Combo;
-import com.fu.weddingplatform.entity.Services;
 import com.fu.weddingplatform.response.service.ServiceResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

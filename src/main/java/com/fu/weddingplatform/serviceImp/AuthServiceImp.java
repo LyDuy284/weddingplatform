@@ -146,7 +146,7 @@ public class AuthServiceImp implements AuthService {
             }
         }
 
-        Account account = new Account().builder()
+        Account account = Account.builder()
                 .name(registerDTO.getName())
                 .address(registerDTO.getAddress())
                 .email(registerDTO.getEmail())
@@ -184,7 +184,7 @@ public class AuthServiceImp implements AuthService {
                 accountSaved = accountRepository.save(optionalUser.get());
             }
         } else {
-            Account account = new Account().builder()
+            Account account = Account.builder()
                     .name(registerDTO.getName())
                     .address(registerDTO.getAddress())
                     .email(registerDTO.getEmail())
@@ -214,7 +214,7 @@ public class AuthServiceImp implements AuthService {
                 .build();
 
         Couple newCouple = coupleRepository.save(couple);
-        Wallet wallet = new Wallet().builder()
+        Wallet wallet = Wallet.builder()
                 .balance(0)
                 .couple(newCouple)
                 .build();
@@ -252,7 +252,7 @@ public class AuthServiceImp implements AuthService {
                 accountSaved = accountRepository.save(optionalUser.get());
             }
         } else {
-            Account account = new Account().builder()
+            Account account = Account.builder()
                     .name(registerDTO.getName())
                     .address(registerDTO.getAddress())
                     .email(registerDTO.getEmail())
@@ -265,7 +265,7 @@ public class AuthServiceImp implements AuthService {
             accountSaved = accountRepository.save(account);
         }
 
-        Staff staff = new Staff().builder()
+        Staff staff = Staff.builder()
                 .account(accountSaved)
                 .status(Status.ACTIVATED)
                 .build();
@@ -301,7 +301,7 @@ public class AuthServiceImp implements AuthService {
                 accountSaved = accountRepository.save(optionalUser.get());
             }
         } else {
-            Account account = new Account().builder()
+            Account account = Account.builder()
                     .name(registerDTO.getName())
                     .address(registerDTO.getAddress())
                     .email(registerDTO.getEmail())
@@ -315,7 +315,7 @@ public class AuthServiceImp implements AuthService {
             accountSaved = accountRepository.save(account);
         }
 
-        Supplier serviceSupplier = new Supplier()
+        Supplier serviceSupplier = Supplier
                 .builder()
                 .supplierName(registerDTO.getSupplierName())
                 .contactPersonName(registerDTO.getContactPersonName())
@@ -336,7 +336,7 @@ public class AuthServiceImp implements AuthService {
                 .status(Status.ACTIVATED)
                 .build();
         areaRepository.save(area);
-        Wallet wallet = new Wallet().builder()
+        Wallet wallet = Wallet.builder()
                 .balance(0)
                 .supplier(newSupplier)
                 .build();
@@ -412,7 +412,7 @@ public class AuthServiceImp implements AuthService {
         Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new ErrorException(RoleErrorMessage.ROLE_NOT_EXIST));
 
-        Account account = new Account().builder()
+        Account account = Account.builder()
                 .name(name)
                 .email(email)
                 .role(role)

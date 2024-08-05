@@ -1,12 +1,16 @@
 package com.fu.weddingplatform.request.rating;
 
-import com.fu.weddingplatform.constant.validation.ValidationMessage;
-import lombok.*;
-
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
-import java.sql.Date;
+
+import com.fu.weddingplatform.constant.validation.ValidationMessage;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter

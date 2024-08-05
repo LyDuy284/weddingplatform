@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.category.CategoryErrorMessage;
-import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.entity.Category;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.CategoryRepository;
