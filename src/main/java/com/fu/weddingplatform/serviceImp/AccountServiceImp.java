@@ -18,6 +18,7 @@ import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.entity.Area;
 import com.fu.weddingplatform.entity.Role;
 import com.fu.weddingplatform.entity.Supplier;
+import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.AccountRepository;
 import com.fu.weddingplatform.repository.AreaRepository;
@@ -55,7 +56,7 @@ public class AccountServiceImp implements AccountService {
                 response.add(accountResponse);
             }
         } else {
-            throw new ErrorException(AccountErrorMessage.EMPTY_ACCOUNT);
+            throw new EmptyException(AccountErrorMessage.EMPTY_ACCOUNT);
         }
         return response;
     }
@@ -73,7 +74,7 @@ public class AccountServiceImp implements AccountService {
                 response.add(accountResponse);
             }
         } else {
-            throw new ErrorException(AccountErrorMessage.EMPTY_ACCOUNT);
+            throw new EmptyException(AccountErrorMessage.EMPTY_ACCOUNT);
         }
         return response;
     }
@@ -94,7 +95,7 @@ public class AccountServiceImp implements AccountService {
                 response.add(accountResponse);
             }
         } else {
-            throw new ErrorException(AccountErrorMessage.EMPTY_ACCOUNT);
+            throw new EmptyException(AccountErrorMessage.EMPTY_ACCOUNT);
         }
         return response;
     }

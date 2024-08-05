@@ -19,6 +19,7 @@ import com.fu.weddingplatform.entity.PromotionServiceSupplier;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Services;
 import com.fu.weddingplatform.entity.Supplier;
+import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.CategoryRepository;
 import com.fu.weddingplatform.repository.PromotionRepository;
@@ -169,7 +170,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
                 serviceId, type, minPrice, maxPrice, supplierId);
 
         if (listServiceSuppliers.size() == 0) {
-            throw new ErrorException(SupplierErrorMessage.EMPTY);
+            throw new EmptyException(SupplierErrorMessage.EMPTY);
         }
 
         List<ServiceSupplierFilterResponse> response = new ArrayList<>();
@@ -223,7 +224,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         Services service = new Services();
         ServiceSupplier serviceSupplier = new ServiceSupplier();
         if (results.size() == 0) {
-            throw new ErrorException(SupplierErrorMessage.EMPTY);
+            throw new EmptyException(SupplierErrorMessage.EMPTY);
         }
         for (Object[] result : results) {
             String categoryId = result[0].toString().trim();

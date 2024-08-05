@@ -21,6 +21,7 @@ import com.fu.weddingplatform.entity.Combo;
 import com.fu.weddingplatform.entity.ComboServices;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Staff;
+import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.ComboRepository;
 import com.fu.weddingplatform.repository.ComboServiceRepository;
@@ -71,7 +72,7 @@ public class ComboServiceImpl implements ComboService {
                 comboResponses.add(modelMapper.map(rating, ComboResponse.class));
             }
         } else {
-            throw new ErrorException(RatingErrorMessage.EMPTY_RATING_LIST);
+            throw new EmptyException(RatingErrorMessage.EMPTY_RATING_LIST);
         }
         return comboResponses;
     }

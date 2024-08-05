@@ -21,6 +21,7 @@ import com.fu.weddingplatform.entity.Promotion;
 import com.fu.weddingplatform.entity.PromotionServiceSupplier;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Supplier;
+import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.PromotionRepository;
 import com.fu.weddingplatform.repository.PromotionServiceSupplierRepository;
@@ -138,7 +139,7 @@ public class PromotionServiceImp implements PromotionService {
     List<Promotion> listPromotions = promotionRepository.findBySupplierAndStatus(supplier, Status.ACTIVATED);
 
     if (listPromotions.isEmpty()) {
-      throw new ErrorException(PromotionErrorMessage.EMPTY);
+      throw new EmptyException(PromotionErrorMessage.EMPTY);
     }
 
     for (Promotion promotion : listPromotions) {

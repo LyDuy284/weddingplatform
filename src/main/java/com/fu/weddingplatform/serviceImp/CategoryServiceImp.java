@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.category.CategoryErrorMessage;
 import com.fu.weddingplatform.entity.Category;
+import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.CategoryRepository;
 import com.fu.weddingplatform.request.category.CreateCategoryDTO;
@@ -62,7 +63,7 @@ public class CategoryServiceImp implements CategoryService {
                 response.add(modelMapper.map(category, CategoryResponse.class));
             }
         } else {
-            throw new ErrorException(CategoryErrorMessage.EMPTY);
+            throw new EmptyException(CategoryErrorMessage.EMPTY);
         }
         return response;
     }

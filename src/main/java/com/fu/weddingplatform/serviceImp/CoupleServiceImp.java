@@ -3,6 +3,7 @@ package com.fu.weddingplatform.serviceImp;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.entity.Couple;
+import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
@@ -43,7 +44,7 @@ public class CoupleServiceImp implements CoupleService {
                 coupleResponseList.add(modelMapper.map(couple, CoupleResponse.class));
             }
         } else {
-            throw new ErrorException(CoupleErrorMessage.EMPTY_COUPLE_LIST);
+            throw new EmptyException(CoupleErrorMessage.EMPTY_COUPLE_LIST);
         }
         return coupleResponseList;
     }

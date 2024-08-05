@@ -26,6 +26,7 @@ import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.entity.Promotion;
 import com.fu.weddingplatform.entity.PromotionServiceSupplier;
 import com.fu.weddingplatform.entity.ServiceSupplier;
+import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
@@ -100,7 +101,7 @@ public class BookingServiceImp implements BookingService {
         () -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
 
     if (createDTO.getListServiceSupplier().size() <= 0) {
-      throw new ErrorException(BookingErrorMessage.EMPTY_LIST_SERVICE);
+      throw new EmptyException(BookingErrorMessage.EMPTY_LIST_SERVICE);
     }
 
     LocalDate currentDate = Utils.getCurrentDate();
@@ -268,7 +269,7 @@ public class BookingServiceImp implements BookingService {
     List<BookingDetailBySupplierResponse> response = new ArrayList<>();
 
     if (listBookingDetails.size() == 0) {
-      throw new ErrorException(SupplierErrorMessage.EMPTY);
+      throw new EmptyException(SupplierErrorMessage.EMPTY);
     }
 
     for (BookingDetail bookingDetail : listBookingDetails) {
@@ -331,7 +332,7 @@ public class BookingServiceImp implements BookingService {
     List<Booking> listBookings = bookingRepository.findByCouple(couple);
 
     if (listBookings.size() == 0) {
-      throw new ErrorException(BookingErrorMessage.EMPTY_LIST);
+      throw new EmptyException(BookingErrorMessage.EMPTY_LIST);
     }
     List<BookingResponse> response = new ArrayList<BookingResponse>();
     for (Booking booking : listBookings) {
