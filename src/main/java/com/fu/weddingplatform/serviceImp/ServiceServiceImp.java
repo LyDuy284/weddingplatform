@@ -101,6 +101,7 @@ public class ServiceServiceImp implements ServiceService {
         ServiceResponse response = convertServiceToReponse(service);
         return response;
     }
+
     @Override
     public ServiceResponse convertServiceToReponse(Services service) {
         List<String> listImages = new ArrayList<String>();
@@ -121,327 +122,38 @@ public class ServiceServiceImp implements ServiceService {
         return response;
     }
 
-    // @Override
-    // public List<ServiceResponse> getAllServices(int pageNo, int pageSize, String
-    // sortBy, boolean isAscending) {
-    // List<ServiceResponse> response = new ArrayList<ServiceResponse>();
-    // Page<Services> servicePages;
+    @Override
+    public List<ServiceResponse> getAllServices() {
 
-    // if (isAscending) {
-    // servicePages = serviceRepository
-    // .findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()));
-    // } else {
-    // servicePages = serviceRepository
-    // .findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()));
-    // }
+        List<Services> listServices = serviceRepository.findByStatus(Status.ACTIVATED);
 
-    // if (servicePages.hasContent()) {
-    // for (Services service : servicePages) {
-    // ServiceResponse serviceResponse = modelMapper.map(service,
-    // ServiceResponse.class);
-    // CategoryResponse categoryResponse = modelMapper.map(service.getCategory(),
-    // CategoryResponse.class);
-    // ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
-    // service.getServiceSupplier(),
-    // ServiceSupplierResponse.class);
-    // List<String> listImages = new ArrayList<String>();
-    // if (service.getImages() != null
-    // && !(service.getImages().trim().equalsIgnoreCase(""))) {
-    // String[] imageArray = service.getImages().split("\n,");
-    // for (String image : imageArray) {
-    // if (image.trim() != "") {
-    // listImages.add(image.trim());
-    // }
-    // }
-    // }
-    // serviceResponse.setListImages(listImages);
-    // serviceResponse.setCategoryResponse(categoryResponse);
-    // serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
-    // PromotionByServiceResponse promotions = promotionService
-    // .getPromotionByService(service.getId());
-    // serviceResponse.setPromotionService(promotions);
-    // response.add(serviceResponse);
-    // }
-    // } else {
-    // throw new ErrorException(ServiceErrorMessage.EMPTY);
-    // }
+        List<ServiceResponse> response = new ArrayList<>();
 
-    // return response;
-    // }
+        for (Services service : listServices) {
+            ServiceResponse serviceResponse = convertServiceToReponse(service);
+            response.add(serviceResponse);
+        }
 
-    // @Override
-    // public List<ServiceResponse> getAllActivateServices(int pageNo, int pageSize,
-    // String sortBy,
-    // boolean isAscending) {
-    // List<ServiceResponse> response = new ArrayList<ServiceResponse>();
-    // Page<Services> servicePages;
+        return response;
 
-    // if (isAscending) {
-    // servicePages = serviceRepository
-    // .findByStatus(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()),
-    // Status.ACTIVATED);
-    // } else {
-    // servicePages = serviceRepository.findByStatus(
-    // PageRequest.of(
-    // pageNo, pageSize, Sort.by(sortBy).descending()),
-    // Status.ACTIVATED);
-    // }
+    }
 
-    // if (servicePages.hasContent()) {
-    // for (Services service : servicePages) {
-    // ServiceResponse serviceResponse = modelMapper.map(service,
-    // ServiceResponse.class);
-    // CategoryResponse categoryResponse = modelMapper.map(service.getCategory(),
-    // CategoryResponse.class);
-    // ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
-    // service.getServiceSupplier(),
-    // ServiceSupplierResponse.class);
-    // List<String> listImages = new ArrayList<String>();
-    // if (service.getImages() != null
-    // && !(service.getImages().trim().equalsIgnoreCase(""))) {
-    // String[] imageArray = service.getImages().split("\n,");
-    // for (String image : imageArray) {
-    // if (image.trim() != "") {
-    // listImages.add(image.trim());
-    // }
-    // }
-    // }
-    // serviceResponse.setListImages(listImages);
-    // serviceResponse.setCategoryResponse(categoryResponse);
-    // serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
-    // PromotionByServiceResponse promotions = promotionService
-    // .getPromotionByService(service.getId());
-    // serviceResponse.setPromotionService(promotions);
-    // response.add(serviceResponse);
-    // }
-    // } else {
-    // throw new ErrorException(ServiceErrorMessage.EMPTY);
-    // }
+    @Override
+    public List<ServiceResponse> getByCategory(String categoryId) {
 
-    // return response;
-    // }
+        Category category = categoryRepository.findById(categoryId).orElseThrow(
+                () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
 
-    // @Override
-    // public ServiceResponse updateServiceStatus(String supplierId, String status)
-    // {
-    // return null;
-    // }
+        List<Services> listServices = serviceRepository.findByCategory(category);
 
-    // @Override
-    // public List<ServiceBySupplierResponse> getAllServicesBySupplier(String
-    // supplierId, int pageNo, int pageSize,
-    // String sortBy, boolean isAscending) {
+        List<ServiceResponse> response = new ArrayList<>();
 
-    // ServiceSupplier serviceSupplier =
-    // serviceSupplierRepository.findById(supplierId).orElseThrow(
-    // () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+        for (Services service : listServices) {
+            ServiceResponse serviceResponse = convertServiceToReponse(service);
+            response.add(serviceResponse);
+        }
 
-    // List<ServiceBySupplierResponse> response = new
-    // ArrayList<ServiceBySupplierResponse>();
-    // Page<Services> servicePages;
-
-    // if (isAscending) {
-    // servicePages = serviceRepository
-    // .findByServiceSupplier(
-    // PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()),
-    // serviceSupplier);
-    // } else {
-    // servicePages = serviceRepository
-    // .findByServiceSupplier(
-    // PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()),
-    // serviceSupplier);
-    // }
-
-    // if (servicePages.hasContent()) {
-    // for (Services service : servicePages.getContent()) {
-    // ServiceBySupplierResponse serviceResponse = modelMapper.map(service,
-    // ServiceBySupplierResponse.class);
-    // CategoryResponse categoryResponse = modelMapper.map(service.getCategory(),
-    // CategoryResponse.class);
-    // serviceResponse.setCategoryResponse(categoryResponse);
-    // PromotionByServiceResponse promotions = promotionService
-    // .getPromotionByService(service.getId());
-    // List<String> listImages = new ArrayList<String>();
-    // if (service.getImages() != null
-    // && !(service.getImages().trim().equalsIgnoreCase(""))) {
-    // String[] imageArray = service.getImages().split("\n,");
-    // for (String image : imageArray) {
-    // if (image.trim() != "") {
-    // listImages.add(image.trim());
-    // }
-    // }
-    // }
-    // serviceResponse.setListImages(listImages);
-    // serviceResponse.setPromotionService(promotions);
-    // response.add(serviceResponse);
-    // }
-    // } else {
-    // throw new ErrorException(ServiceErrorMessage.EMPTY);
-    // }
-
-    // return response;
-    // }
-
-    // @Override
-    // public List<ServiceByCategoryAndSupplierResponse>
-    // getAllServicesByCategoryAndSupplier(String categoryId,
-    // String supplierId, int pageNo,
-    // int pageSize, String sortBy, boolean isAscending) {
-    // ServiceSupplier serviceSupplier =
-    // serviceSupplierRepository.findById(supplierId).orElseThrow(
-    // () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
-
-    // Category category = categoryRepository.findById(categoryId).orElseThrow(
-    // () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
-
-    // List<ServiceByCategoryAndSupplierResponse> response = new
-    // ArrayList<ServiceByCategoryAndSupplierResponse>();
-    // Page<Services> servicePages;
-
-    // if (isAscending) {
-    // servicePages = serviceRepository
-    // .findByCategoryAndServiceSupplier(
-    // PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()),
-    // category,
-    // serviceSupplier);
-    // } else {
-    // servicePages = serviceRepository
-    // .findByCategoryAndServiceSupplier(
-    // PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()),
-    // category,
-    // serviceSupplier);
-    // }
-
-    // if (servicePages.hasContent()) {
-    // for (Services service : servicePages.getContent()) {
-    // ServiceByCategoryAndSupplierResponse serviceResponse =
-    // modelMapper.map(service,
-    // ServiceByCategoryAndSupplierResponse.class);
-    // PromotionByServiceResponse promotions = promotionService
-    // .getPromotionByService(service.getId());
-    // List<String> listImages = new ArrayList<String>();
-    // if (service.getImages() != null
-    // && !(service.getImages().trim().equalsIgnoreCase(""))) {
-    // String[] imageArray = service.getImages().split("\n,");
-    // for (String image : imageArray) {
-    // if (image.trim() != "") {
-    // listImages.add(image.trim());
-    // }
-    // }
-    // }
-
-    // serviceResponse.setListImages(listImages);
-
-    // serviceResponse.setPromotions(promotions);
-    // response.add(serviceResponse);
-    // }
-    // } else {
-    // throw new ErrorException(ServiceErrorMessage.EMPTY);
-    // }
-
-    // return response;
-    // }
-
-    // @Override
-    // public List<ServiceByCategoryResponse> getAllServicesByCategory(String
-    // categoryId, int pageNo, int pageSize,
-    // String sortBy, boolean isAscending) {
-
-    // Category category = categoryRepository.findById(categoryId).orElseThrow(
-    // () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
-
-    // List<ServiceByCategoryResponse> response = new
-    // ArrayList<ServiceByCategoryResponse>();
-    // Page<Services> servicePages;
-
-    // if (isAscending) {
-    // servicePages = serviceRepository
-    // .findByCategory(PageRequest.of(pageNo, pageSize,
-    // Sort.by(sortBy).ascending()),
-    // category);
-    // } else {
-    // servicePages = serviceRepository
-    // .findByCategory(PageRequest.of(pageNo, pageSize,
-    // Sort.by(sortBy).descending()),
-    // category);
-    // }
-
-    // if (servicePages.hasContent()) {
-    // for (Services service : servicePages.getContent()) {
-    // ServiceByCategoryResponse serviceResponse = modelMapper.map(service,
-    // ServiceByCategoryResponse.class);
-    // PromotionByServiceResponse promotions = promotionService
-    // .getPromotionByService(service.getId());
-    // serviceResponse.setPromotions(promotions);
-    // ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
-    // service.getServiceSupplier(),
-    // ServiceSupplierResponse.class);
-
-    // List<String> listImages = new ArrayList<String>();
-    // if (service.getImages() != null
-    // && !(service.getImages().trim().equalsIgnoreCase(""))) {
-    // String[] imageArray = service.getImages().split("\n,");
-    // for (String image : imageArray) {
-    // if (image.trim() != "") {
-    // listImages.add(image.trim());
-    // }
-    // }
-    // }
-
-    // serviceResponse.setListImages(listImages);
-
-    // serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
-    // response.add(serviceResponse);
-    // }
-    // } else {
-    // throw new ErrorException(ServiceErrorMessage.EMPTY);
-    // }
-
-    // return response;
-    // }
-
-    // @Override
-    // public List<ServiceResponse> filterService(String categoryId, String type,
-    // int minPrice, int maxPrice) {
-
-    // categoryRepository.findById(categoryId).orElseThrow(
-    // () -> new ErrorException(CategoryErrorMessage.NOT_FOUND));
-
-    // List<Services> listServices = serviceRepository.filterService(categoryId,
-    // type, minPrice, maxPrice);
-
-    // if (listServices.size() == 0) {
-    // throw new ErrorException(ServiceErrorMessage.EMPTY);
-    // }
-
-    // List<ServiceResponse> response = new ArrayList<ServiceResponse>();
-    // for (Services service : listServices) {
-    // ServiceResponse serviceResponse = modelMapper.map(service,
-    // ServiceResponse.class);
-    // CategoryResponse categoryResponse = modelMapper.map(service.getCategory(),
-    // CategoryResponse.class);
-    // ServiceSupplierResponse serviceSupplierResponse = modelMapper.map(
-    // service.getServiceSupplier(),
-    // ServiceSupplierResponse.class);
-    // List<String> listImages = new ArrayList<String>();
-    // if (service.getImages() != null &&
-    // !(service.getImages().trim().equalsIgnoreCase(""))) {
-    // String[] imageArray = service.getImages().split("\n,");
-    // for (String image : imageArray) {
-    // if (image.trim() != "") {
-    // listImages.add(image.trim());
-    // }
-    // }
-    // }
-    // serviceResponse.setListImages(listImages);
-    // serviceResponse.setCategoryResponse(categoryResponse);
-    // serviceResponse.setServiceSupplierResponse(serviceSupplierResponse);
-    // PromotionByServiceResponse promotions =
-    // promotionService.getPromotionByService(service.getId());
-    // serviceResponse.setPromotionService(promotions);
-    // response.add(serviceResponse);
-    // }
-    // return response;
-    // }
+        return response;
+    }
 
 }

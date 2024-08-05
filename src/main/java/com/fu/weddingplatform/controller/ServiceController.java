@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.constant.service.ServiceSuccessMessage;
 import com.fu.weddingplatform.request.service.CreateServiceDTO;
 import com.fu.weddingplatform.request.service.UpdateServiceDTO;
+import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.service.ServiceService;
@@ -52,20 +55,15 @@ public class ServiceController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
-    // @GetMapping("getAllServices")
-    // public ResponseEntity<?> getAllServices(@RequestParam(defaultValue = "0") int
-    // pageNo,
-    // @RequestParam(defaultValue = "10") int pageSize,
-    // @RequestParam(defaultValue = "id") String sortBy,
-    // @RequestParam(defaultValue = "true") boolean isAscending) {
-    // List<ServiceResponse> serviceResponses = service.getAllServices(pageNo,
-    // pageSize, sortBy, isAscending);
-    // ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
-    // responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-    // responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
-    // responseDTO.setData(serviceResponses);
-    // return ResponseEntity.ok().body(responseDTO);
-    // }
+    @GetMapping("getAllServices")
+    public ResponseEntity<?> getAllServices() {
+        List<ServiceResponse> serviceResponses = service.getAllServices();
+        ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ServiceSuccessMessage.GET_ALL);
+        responseDTO.setData(serviceResponses);
+        return ResponseEntity.ok().body(responseDTO);
+    }
 
     @GetMapping("getById/{id}")
     public ResponseEntity<?> getById(@RequestParam String id) {
@@ -73,6 +71,16 @@ public class ServiceController {
         ResponseDTO<ServiceResponse> responseDTO = new ResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(ServiceSuccessMessage.GET_BY_ID);
+        responseDTO.setData(serviceResponses);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("getByCategory")
+    public ResponseEntity<?> getByCategory(@RequestParam String categoryId) {
+        List<ServiceResponse> serviceResponses = service.getByCategory(categoryId);
+        ListResponseDTO<ServiceResponse> responseDTO = new ListResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ServiceSuccessMessage.GET_ALL_BY_CATEGORY);
         responseDTO.setData(serviceResponses);
         return ResponseEntity.ok().body(responseDTO);
     }

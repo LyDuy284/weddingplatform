@@ -18,12 +18,13 @@ public interface ServiceRepository extends JpaRepository<Services, String> {
 
     public Page<Services> findByStatus(PageRequest pageRequest, String status);
 
-//     public Page<Services> findByServiceSupplier(PageRequest pageRequest, ServiceSupplier serviceSupplier);
+    public List<Services> findByStatus(String status);
 
-    public Page<Services> findByCategory(PageRequest pageRequest, Category category);
+    public List<Services> findByCategory(Category category);
 
-//     public Page<Services> findByCategoryAndServiceSupplier(PageRequest pageRequest, Category category,
-//             ServiceSupplier serviceSupplier);
+    // public Page<Services> findByCategoryAndServiceSupplier(PageRequest
+    // pageRequest, Category category,
+    // ServiceSupplier serviceSupplier);
 
     @Query(nativeQuery = true, value = "SELECT s.* \n" +
             " FROM service s \n" +
