@@ -81,4 +81,12 @@ public class BookingDetail {
     @JsonIgnore
     private Collection<InvoiceDetail> invoiceDetails;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "promotion_serivce_supplier_id")
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private PromotionServiceSupplier promotionServiceSupplier;
+
 }

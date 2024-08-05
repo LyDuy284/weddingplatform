@@ -61,6 +61,6 @@ public class PromotionServiceSupplier {
   @EqualsAndHashCode.Include
   @ToString.Include
   @JsonIgnore
-  private Collection<InvoiceDetail> invoiceDetails;
+  private Collection<BookingDetail> bookingDetails;
 
 }

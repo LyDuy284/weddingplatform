@@ -242,17 +242,17 @@ public class BookingServiceImp implements BookingService {
       ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
           .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
-      PromotionServiceSupplier promotionServiceSupplier = bookingDetail.getInvoiceDetails().stream().findFirst().get()
-          .getPromotionServiceSupplier();
-      Promotion promotion = null;
-      if (promotionServiceSupplier != null) {
-        promotion = promotionServiceSupplier.getPromotion();
-      }
+      // PromotionServiceSupplier promotionServiceSupplier = bookingDetail.getInvoiceDetails().stream().findFirst().get()
+      //     .getPromotionServiceSupplier();
+      // Promotion promotion = null;
+      // if (promotionServiceSupplier != null) {
+      //   promotion = promotionServiceSupplier.getPromotion();
+      // }
 
-      PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
+      // PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
 
       BookingDetailResponse bookingDetailResponse = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-      bookingDetailResponse.setPromotionResponse(promotionResponse);
+      // bookingDetailResponse.setPromotionResponse(promotionResponse);
       bookingDetailResponse.setServiceSupplierResponse(serviceSupplierResponse);
       listBookingDetailResponses.add(bookingDetailResponse);
 
