@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -54,6 +55,17 @@ public class BookingController {
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
+  @GetMapping("getByCouple")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
+  public ResponseEntity<?> getByCouple(@RequestParam String coupleId) {
+    List<BookingResponse> data = bookingService.getAllBookingByCouple(coupleId);
+    ListResponseDTO<BookingResponse> response = new ListResponseDTO<>();
+    response.setData(data);
+    response.setStatus(ResponseStatusDTO.SUCCESS);
+    response.setMessage(BookingSuccessMessage.GET_ALL_BY_COUPLE);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
   @GetMapping("getById")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE_SUPPLIER)
   public ResponseEntity<?> getBookingById(@RequestParam String id) {
@@ -65,53 +77,14 @@ public class BookingController {
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
-  // @PutMapping("confirm")
-  // @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
-  // public ResponseEntity<?> confirmBookingById(@RequestParam String id) {
-  // BookingResponse data = bookingService.updateBookingStatus(id,
-  // BookingStatus.CONFIRM);
-  // ResponseDTO<BookingResponse> response = new ResponseDTO<>();
-  // response.setData(data);
-  // response.setStatus(ResponseStatusDTO.SUCCESS);
-  // response.setMessage(BookingSuccessMessage.CONFIRM);
-  // return new ResponseEntity<>(response, HttpStatus.OK);
-  // }
-
-  // @PutMapping("reject")
-  // @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SERVICE_SUPPLIER)
-  // public ResponseEntity<?> rejectBookingById(@RequestParam String id) {
-  // BookingResponse data = bookingService.updateBookingStatus(id,
-  // BookingStatus.REJECT);
-  // ResponseDTO<BookingResponse> response = new ResponseDTO<>();
-  // response.setData(data);
-  // response.setStatus(ResponseStatusDTO.SUCCESS);
-  // response.setMessage(BookingSuccessMessage.REJECT);
-  // return new ResponseEntity<>(response, HttpStatus.OK);
-  // }
-
-  // @PutMapping("cancle")
-  // @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
-  // public ResponseEntity<?> cancleBookingById(@RequestParam String id) {
-  // BookingResponse data = bookingService.updateBookingStatus(id,
-  // BookingStatus.CANCLE);
-  // ResponseDTO<BookingResponse> response = new ResponseDTO<>();
-  // response.setData(data);
-  // response.setStatus(ResponseStatusDTO.SUCCESS);
-  // response.setMessage(BookingSuccessMessage.CANCLE);
-  // return new ResponseEntity<>(response, HttpStatus.OK);
-  // }
-
-  // @GetMapping("getBookingStatus")
-  // @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE_SUPPLIER)
-  // public ResponseEntity<?> getBookingStatusById(@RequestParam String bookingId)
-  // {
-  // List<BookingStatusResponse> data =
-  // bookingService.getBookingStatusById(bookingId);
-  // ListResponseDTO<BookingStatusResponse> response = new ListResponseDTO<>();
-  // response.setData(data);
-  // response.setStatus(ResponseStatusDTO.SUCCESS);
-  // response.setMessage(BookingSuccessMessage.GET_STATUS);
-  // return new ResponseEntity<>(response, HttpStatus.OK);
-  // }
-
+  @PutMapping("cancle")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
+  public ResponseEntity<?> cancleBookingById(@RequestParam String id) {
+    BookingResponse data = bookingService.cancelBooking(id);
+    ResponseDTO<BookingResponse> response = new ResponseDTO<>();
+    response.setData(data);
+    response.setStatus(ResponseStatusDTO.SUCCESS);
+    response.setMessage(BookingSuccessMessage.CANCLE);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
 }

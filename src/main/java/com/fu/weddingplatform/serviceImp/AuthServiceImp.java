@@ -209,7 +209,7 @@ public class AuthServiceImp implements AuthService {
                 .partnerName1(registerDTO.getPartnerName1())
                 .partnerName2(registerDTO.getPartnerName2())
                 .weddingDate(java.sql.Date.valueOf(weddingDate))
-                .status(Status.STARTED)
+                .status(Status.ACTIVATED)
                 .account(accountSaved)
                 .build();
 

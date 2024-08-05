@@ -324,8 +324,23 @@ public class BookingServiceImp implements BookingService {
 
   @Override
   public List<BookingResponse> getAllBookingByCouple(String coupleId) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException("Unimplemented method 'getAllBookingByCouple'");
+
+    Couple couple = coupleRepository.findById(coupleId).orElseThrow(
+        () -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
+
+    List<Booking> listBookings = bookingRepository.findByCouple(couple);
+
+    if (listBookings.size() == 0) {
+      throw new ErrorException(BookingErrorMessage.EMPTY_LIST);
+    }
+    List<BookingResponse> response = new ArrayList<BookingResponse>();
+    for (Booking booking : listBookings) {
+      BookingResponse bookingResponse = convertBookingToBookingResponse(booking);
+      response.add(bookingResponse);
+    }
+
+    return response;
+
   }
 
 }

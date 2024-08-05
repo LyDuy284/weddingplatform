@@ -2,8 +2,6 @@ package com.fu.weddingplatform.repository;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,7 +10,7 @@ import com.fu.weddingplatform.entity.Couple;
 
 public interface BookingRepository extends JpaRepository<Booking, String> {
 
-  Page<Booking> findByCouple(Couple couple, PageRequest request);
+  List<Booking> findByCouple(Couple couple);
 
   @Query(nativeQuery = true, value = "SELECT distinct bd.booking_id \n" + //
       " FROM service s \n" + //
