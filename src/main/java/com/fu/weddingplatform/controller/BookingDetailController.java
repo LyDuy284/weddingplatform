@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fu.weddingplatform.constant.booking.BookingSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
-import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.response.ResponseDTO;
+import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.service.BookingDetailService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,8 +30,8 @@ public class BookingDetailController {
   @PutMapping("confirm")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
   public ResponseEntity<?> confirmBookingDetailById(@RequestParam String id) {
-    BookingDetail data = bookingDetailService.confirmBookingService(id);
-    ResponseDTO<BookingDetail> response = new ResponseDTO<>();
+    BookingDetailResponse data = bookingDetailService.confirmBookingDetail(id);
+    ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
     response.setMessage(BookingSuccessMessage.CONFIRM);
@@ -41,41 +41,30 @@ public class BookingDetailController {
   @PutMapping("reject")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
   public ResponseEntity<?> rejectBookingDetailById(@RequestParam String id) {
-    BookingDetail data = bookingDetailService.rejectBookingService(id);
-    ResponseDTO<BookingDetail> response = new ResponseDTO<>();
+    BookingDetailResponse data = bookingDetailService.rejectBookingDetail(id);
+    ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
     response.setMessage(BookingSuccessMessage.REJECT);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
-  @PutMapping("done")
+  @PutMapping("complete")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
-  public ResponseEntity<?> doneBookingDetailById(@RequestParam String id) {
-    BookingDetail data = bookingDetailService.doneBookingService(id);
-    ResponseDTO<BookingDetail> response = new ResponseDTO<>();
+  public ResponseEntity<?> completeBookingDetailById(@RequestParam String id) {
+    BookingDetailResponse data = bookingDetailService.completeBookingDetail(id);
+    ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
-    response.setMessage(BookingSuccessMessage.DONE);
-    return new ResponseEntity<>(response, HttpStatus.OK);
-  }
-
-  @PutMapping("process")
-  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
-  public ResponseEntity<?> processBookingDetailById(@RequestParam String id) {
-    BookingDetail data = bookingDetailService.processingBookingService(id);
-    ResponseDTO<BookingDetail> response = new ResponseDTO<>();
-    response.setData(data);
-    response.setStatus(ResponseStatusDTO.SUCCESS);
-    response.setMessage(BookingSuccessMessage.CONFIRM);
+    response.setMessage(BookingSuccessMessage.COMPLETED);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
   @PutMapping("cancle")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
   public ResponseEntity<?> cancleBookingDetailById(@RequestParam String id) {
-    BookingDetail data = bookingDetailService.cancleBookingService(id);
-    ResponseDTO<BookingDetail> response = new ResponseDTO<>();
+    BookingDetailResponse data = bookingDetailService.cancleBookingDetail(id);
+    ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
     response.setMessage(BookingSuccessMessage.CANCLE);

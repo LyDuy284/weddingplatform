@@ -1,19 +1,15 @@
 package com.fu.weddingplatform.service;
 
-import com.fu.weddingplatform.entity.BookingDetail;
+import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 
 public interface BookingDetailService {
-  public BookingDetail updateBookingServiceStatus(BookingDetail bookingDetail, String status);
 
-  public BookingDetail confirmBookingService(String bookingDetailId);
+  public BookingDetailResponse confirmBookingDetail(String bookingDetailId);
 
-  public BookingDetail rejectBookingService(String bookingDetailId);
+  public BookingDetailResponse rejectBookingDetail(String bookingDetailId);
 
-  public BookingDetail cancleBookingService(String bookingDetailId);
+  public BookingDetailResponse cancleBookingDetail(String bookingDetailId);
 
-  public BookingDetail doneBookingService(String bookingDetailId);
+  public BookingDetailResponse completeBookingDetail(String bookingDetailId);
 
-  public BookingDetail completeBookingService(String bookingDetailId);
-
-  public BookingDetail processingBookingService(String bookingDetailId);
 }

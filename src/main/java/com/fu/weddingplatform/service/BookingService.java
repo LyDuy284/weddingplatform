@@ -11,15 +11,13 @@ public interface BookingService {
 
   public List<BookingResponse> getAllBookingBySupplier(String supplierId);
 
-  // public List<BookingResponse> getAllBookingByCouple(String coupleId,
-  // int pageNo,
-  // int pageSize,
-  // String sortBy,
-  // boolean isAscending);
+  public List<BookingResponse> getAllBookingByCouple(String coupleId);
 
   public BookingResponse getBookingById(String bookingId);
 
   public BookingResponse convertBookingToBookingResponse(Booking booking);
+
+  public BookingResponse cancelBooking(String bookingId);
 
   // public List<BookingStatusResponse> getBookingStatusById(String bookingId);
 

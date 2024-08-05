@@ -2,19 +2,26 @@ package com.fu.weddingplatform.serviceImp;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fu.weddingplatform.constant.booking.BookingStatus;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailErrorMessage;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
 import com.fu.weddingplatform.entity.BookingDetail;
+import com.fu.weddingplatform.entity.BookingDetailHistory;
 import com.fu.weddingplatform.entity.BookingHistory;
 import com.fu.weddingplatform.exception.ErrorException;
+import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.BookingHistoryRepository;
-import com.fu.weddingplatform.repository.BookingRepository;
+import com.fu.weddingplatform.response.booking.BookingDetailResponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.service.BookingDetailService;
+import com.fu.weddingplatform.service.ServiceSupplierService;
 import com.fu.weddingplatform.utils.Utils;
 
 @Service
@@ -24,99 +31,258 @@ public class BookingDetailServiceImp implements BookingDetailService {
   private BookingDetailRepository bookingDetailRepository;
 
   @Autowired
-  private BookingRepository bookingRepository;
-
-  @Autowired
   private BookingHistoryRepository bookingHistoryRepository;
 
-  @Override
-  public BookingDetail updateBookingServiceStatus(BookingDetail bookingDetail, String status) {
+  @Autowired
+  private BookingDetailHistoryRepository bookingDetailHistoryRepository;
 
-    bookingDetail.setStatus(status);
+  @Autowired
+  private ServiceSupplierService serviceSupplierService;
+
+
+  @Autowired
+  private ModelMapper modelMapper;
+
+  @Override
+  public BookingDetailResponse confirmBookingDetail(String bookingDetailId) {
+
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.PENDING))) {
+      throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
+    }
+
+    bookingDetail.setStatus(BookingDetailStatus.CONFIRM);
+
     bookingDetailRepository.save(bookingDetail);
 
-    BookingHistory bookingHistory = BookingHistory.builder()
-        // .bookingDetail(bookingDetail)
-        .status(status)
+    BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
+        .bookingDetail(bookingDetail)
         .createdAt(Utils.formatVNDatetimeNow())
+        .status(BookingDetailStatus.CONFIRM)
         .build();
 
-    bookingHistoryRepository.save(bookingHistory);
+    bookingDetailHistoryRepository.save(bookingDetailHistory);
 
-    return bookingDetail;
+    List<BookingDetail> listBookingDetails = bookingDetailRepository.findByBookingAndStatus(bookingDetail.getBooking(),
+        BookingDetailStatus.PENDING);
+
+    if (listBookingDetails.size() == 0) {
+      BookingHistory bookingHistory = BookingHistory.builder()
+          .createdAt(Utils.formatVNDatetimeNow())
+          .booking(bookingDetail.getBooking())
+          .status(BookingStatus.CONFIRM)
+          .build();
+
+      bookingHistoryRepository.save(bookingHistory);
+    }
+
+    ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+        .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+    BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
+    response.setServiceSupplierResponse(serviceSupplierResponse);
+    return response;
   }
 
   @Override
-  public BookingDetail confirmBookingService(String bookingDetailId) {
-
+  public BookingDetailResponse rejectBookingDetail(String bookingDetailId) {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.PENDING))) {
-      throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
+    if ((bookingDetail.getStatus().equals(BookingDetailStatus.PENDING))) {
+      throw new ErrorException(BookingDetailErrorMessage.REJECT);
     }
 
-    return updateBookingServiceStatus(bookingDetail, BookingDetailStatus.CONFIRM);
+    bookingDetail.setStatus(BookingDetailStatus.REJECT);
 
+    bookingDetailRepository.save(bookingDetail);
+
+    BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
+        .bookingDetail(bookingDetail)
+        .createdAt(Utils.formatVNDatetimeNow())
+        .status(BookingDetailStatus.REJECT)
+        .build();
+
+    bookingDetailHistoryRepository.save(bookingDetailHistory);
+
+    List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatusNot(
+        bookingDetail.getBooking(),
+        BookingDetailStatus.PENDING);
+
+    if (listBookingDetailPending.size() == 0) {
+
+      List<BookingDetail> listBookingDetailComplete = bookingDetailRepository.findByBookingAndStatusNot(
+          bookingDetail.getBooking(),
+          BookingDetailStatus.COMPLETED);
+
+      List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatusNot(
+          bookingDetail.getBooking(),
+          BookingDetailStatus.COMPLETED);
+
+      if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0) {
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.REJECT)
+            .build();
+        bookingHistoryRepository.save(bookingHistory);
+      } else if (listBookingDetailComplete.size() == 0) {
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.CONFIRM)
+            .build();
+        bookingHistoryRepository.save(bookingHistory);
+      } else {
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.COMPLETED)
+            .build();
+        bookingHistoryRepository.save(bookingHistory);
+      }
+
+    }
+
+    ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+        .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+    BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
+    response.setServiceSupplierResponse(serviceSupplierResponse);
+    return response;
   }
 
   @Override
-  public BookingDetail rejectBookingService(String bookingDetailId) {
+  public BookingDetailResponse cancleBookingDetail(String bookingDetailId) {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.PENDING))) {
-      throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
-    }
-
-    return updateBookingServiceStatus(bookingDetail, BookingDetailStatus.REJECT);
-
-  }
-
-  @Override
-  public BookingDetail cancleBookingService(String bookingDetailId) {
-
-    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
-        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
-
-    if (!(bookingDetail.getStatus().equalsIgnoreCase(BookingDetailStatus.PENDING))) {
-      throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
-    }
-
-    LocalDate completeDate = Utils.convertStringToLocalDate(bookingDetail.getCompletedDate());
-    LocalDate currentDate = Utils.getCurrentDate();
-
-    long daysBetween = ChronoUnit.DAYS.between(currentDate, completeDate);
-
-    if (daysBetween <= 7) {
+    if ((bookingDetail.getStatus().equals(BookingDetailStatus.COMPLETED))) {
       throw new ErrorException(BookingDetailErrorMessage.CANCLE);
     }
 
-    return updateBookingServiceStatus(bookingDetail, BookingDetailStatus.CANCEL);
+    bookingDetail.setStatus(BookingDetailStatus.CANCEL);
 
+    bookingDetailRepository.save(bookingDetail);
+
+    BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
+        .bookingDetail(bookingDetail)
+        .createdAt(Utils.formatVNDatetimeNow())
+        .status(BookingDetailStatus.CANCEL)
+        .build();
+
+    bookingDetailHistoryRepository.save(bookingDetailHistory);
+
+    LocalDate currentDate = Utils.getCurrentDate();
+
+    LocalDate completedDate = Utils.convertStringToLocalDate(bookingDetail.getCompletedDate());
+
+    int daysBetween = (int) ChronoUnit.DAYS.between(completedDate, currentDate);
+
+    if (daysBetween > 10) {
+      // refund 80%
+    }
+
+    List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatusNot(
+        bookingDetail.getBooking(),
+        BookingDetailStatus.PENDING);
+
+    if (listBookingDetailPending.size() == 0) {
+
+      List<BookingDetail> listBookingDetailComplete = bookingDetailRepository.findByBookingAndStatusNot(
+          bookingDetail.getBooking(),
+          BookingDetailStatus.COMPLETED);
+
+      List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatusNot(
+          bookingDetail.getBooking(),
+          BookingDetailStatus.COMPLETED);
+
+      List<BookingDetail> listBookingDetailReject = bookingDetailRepository.findByBookingAndStatusNot(
+          bookingDetail.getBooking(),
+          BookingDetailStatus.REJECT);
+
+      if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0
+          && listBookingDetailReject.size() == 0) {
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.CANCLE)
+            .build();
+        bookingHistoryRepository.save(bookingHistory);
+      } else if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0) {
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.REJECT)
+            .build();
+        bookingHistoryRepository.save(bookingHistory);
+      } else if (listBookingDetailComplete.size() == 0) {
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.CONFIRM)
+            .build();
+        bookingHistoryRepository.save(bookingHistory);
+      } else {
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.COMPLETED)
+            .build();
+        bookingHistoryRepository.save(bookingHistory);
+      }
+
+    }
+    ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+        .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+    BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
+    response.setServiceSupplierResponse(serviceSupplierResponse);
+    return response;
   }
 
   @Override
-  public BookingDetail doneBookingService(String bookingDetailId) {
-    // return updateBookingServiceStatus(bookingDetailId, BookingDetailStatus.DONE);
-    return null;
+  public BookingDetailResponse completeBookingDetail(String bookingDetailId) {
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-  }
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.CONFIRM))) {
+      throw new ErrorException(BookingDetailErrorMessage.COMPLETE);
+    }
 
-  @Override
-  public BookingDetail completeBookingService(String bookingDetailId) {
-    return null;
-    // return updateBookingServiceStatus(bookingDetailId,
-    // BookingDetailStatus.COMPLETED);
+    bookingDetail.setStatus(BookingDetailStatus.COMPLETED);
 
-  }
+    bookingDetailRepository.save(bookingDetail);
 
-  @Override
-  public BookingDetail processingBookingService(String bookingDetailId) {
-    // return updateBookingServiceStatus(bookingDetailId,
-    // BookingDetailStatus.ON_PROCESSING);
-    return null;
+    BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
+        .bookingDetail(bookingDetail)
+        .createdAt(Utils.formatVNDatetimeNow())
+        .status(BookingDetailStatus.COMPLETED)
+        .build();
 
+    bookingDetailHistoryRepository.save(bookingDetailHistory);
+    List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatusNot(
+        bookingDetail.getBooking(),
+        BookingDetailStatus.PENDING);
+
+    if (listBookingDetailPending.size() == 0) {
+      BookingHistory bookingHistory = BookingHistory.builder()
+          .createdAt(Utils.formatVNDatetimeNow())
+          .booking(bookingDetail.getBooking())
+          .status(BookingStatus.COMPLETED)
+          .build();
+
+      bookingHistoryRepository.save(bookingHistory);
+    }
+
+    ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+        .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+    BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
+    response.setServiceSupplierResponse(serviceSupplierResponse);
+    return response;
   }
 
 }

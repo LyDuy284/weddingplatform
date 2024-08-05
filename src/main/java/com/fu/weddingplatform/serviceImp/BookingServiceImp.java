@@ -21,8 +21,6 @@ import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.BookingDetailHistory;
 import com.fu.weddingplatform.entity.BookingHistory;
 import com.fu.weddingplatform.entity.Couple;
-import com.fu.weddingplatform.entity.Invoice;
-import com.fu.weddingplatform.entity.InvoiceDetail;
 import com.fu.weddingplatform.entity.Promotion;
 import com.fu.weddingplatform.entity.PromotionServiceSupplier;
 import com.fu.weddingplatform.entity.ServiceSupplier;
@@ -32,8 +30,6 @@ import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.BookingHistoryRepository;
 import com.fu.weddingplatform.repository.BookingRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
-import com.fu.weddingplatform.repository.InvoiceDetailRepository;
-import com.fu.weddingplatform.repository.InvoiceRepository;
 import com.fu.weddingplatform.repository.PromotionServiceSupplierRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
@@ -70,6 +66,7 @@ public class BookingServiceImp implements BookingService {
   @Autowired
   private BookingDetailHistoryRepository bookingDetailHistoryRepository;
 
+
   @Autowired
   private CoupleService coupleService;
 
@@ -78,12 +75,6 @@ public class BookingServiceImp implements BookingService {
 
   @Autowired
   private ModelMapper modelMapper;
-
-  @Autowired
-  private InvoiceRepository invoiceRepository;
-
-  @Autowired
-  private InvoiceDetailRepository invoiceDetailRepository;
 
   @Autowired
   private PromotionService promotionService;
@@ -145,43 +136,34 @@ public class BookingServiceImp implements BookingService {
 
     bookingSaved.setTotalPrice(totalPrice);
     bookingRepository.save(bookingSaved);
-    Invoice invoice = Invoice.builder()
-        .createAt(Utils.formatVNDatetimeNow())
-        .booking(bookingSaved)
-        .status(Status.PENDING)
-        .build();
-
-    Invoice invoiceSaved = invoiceRepository.save(invoice);
-
-    int invoicePrice = 0;
 
     for (BookingDetail bookingDetail : listBookingDetails) {
       BookingDetail bookingDetailSaved = bookingDetailRepository.save(bookingDetail);
 
-      PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository
-          .findFirstByServiceSupplierAndStatus(bookingDetail.getServiceSupplier(),
-              Status.ACTIVATED);
+      // PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository
+      //     .findFirstByServiceSupplierAndStatus(bookingDetail.getServiceSupplier(),
+      //         Status.ACTIVATED);
 
-      Promotion promotion = null;
-      int price = 0;
-      if (promotionServiceSupplier != null) {
-        promotion = promotionServiceSupplier.getPromotion();
+      // Promotion promotion = null;
+      // int price = 0;
+      // if (promotionServiceSupplier != null) {
+      //   promotion = promotionServiceSupplier.getPromotion();
 
-        switch (promotion.getType()) {
-          case PromotionType.PERCENT:
-            price = (int) (bookingDetail.getPrice() * (100 - promotion.getValue()) * 0.01);
-            break;
-          case PromotionType.MONEY:
-            price = bookingDetail.getPrice() - promotion.getValue();
-            break;
-          default:
-            break;
-        }
-      } else {
-        price = bookingDetail.getPrice();
-      }
+      //   switch (promotion.getType()) {
+      //     case PromotionType.PERCENT:
+      //       price = (int) (bookingDetail.getPrice() * (100 - promotion.getValue()) * 0.01);
+      //       break;
+      //     case PromotionType.MONEY:
+      //       price = bookingDetail.getPrice() - promotion.getValue();
+      //       break;
+      //     default:
+      //       break;
+      //   }
+      // } else {
+      //   price = bookingDetail.getPrice();
+      // }
 
-      invoicePrice += price;
+      // invoicePrice += price;
 
       BookingDetailHistory bookingDetailHistory = BookingDetailHistory
           .builder()
@@ -192,31 +174,31 @@ public class BookingServiceImp implements BookingService {
 
       bookingDetailHistoryRepository.save(bookingDetailHistory);
 
-      InvoiceDetail invoiceDetail = InvoiceDetail.builder()
-          .bookingDetail(bookingDetailSaved)
-          .createAt(Utils.formatVNDatetimeNow())
-          .price(invoicePrice)
-          .status(Status.PENDING)
-          .invoice(invoiceSaved)
-          .promotionServiceSupplier(promotionServiceSupplier)
-          .build();
+      // InvoiceDetail invoiceDetail = InvoiceDetail.builder()
+      // .bookingDetail(bookingDetailSaved)
+      // .createAt(Utils.formatVNDatetimeNow())
+      // .price(invoicePrice)
+      // .status(Status.PENDING)
+      // .invoice(invoiceSaved)
+      // .promotionServiceSupplier(promotionServiceSupplier)
+      // .build();
 
-      invoiceDetailRepository.save(invoiceDetail);
+      // invoiceDetailRepository.save(invoiceDetail);
 
       ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
           .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
-      PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
+      // PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
 
       BookingDetailResponse bookingDetailResponse = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-      bookingDetailResponse.setPromotionResponse(promotionResponse);
+      // bookingDetailResponse.setPromotionResponse(promotionResponse);
       bookingDetailResponse.setServiceSupplierResponse(serviceSupplierResponse);
       listBookingDetailResponse.add(bookingDetailResponse);
 
     }
 
-    invoiceSaved.setTotalPrice(invoicePrice);
-    invoiceRepository.save(invoiceSaved);
+    // invoiceSaved.setTotalPrice(invoicePrice);
+    // invoiceRepository.save(invoiceSaved);
 
     BookingHistory bookingHistory = BookingHistory.builder()
         .booking(bookingSaved)
@@ -287,79 +269,16 @@ public class BookingServiceImp implements BookingService {
     throw new UnsupportedOperationException("Unimplemented method 'getAllBookingBySupplier'");
   }
 
-  // @Override
-  // public List<BookingResponse> getAllBookingByCouple(String coupleId, int
-  // pageNo, int pageSize, String sortBy,
-  // boolean isAscending) {
+  @Override
+  public BookingResponse cancelBooking(String bookingId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'cancelBooking'");
+  }
 
-  // Couple couple = coupleRepository.findById(coupleId).orElseThrow(
-  // () -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
-
-  // Page<Booking> pageResult;
-
-  // if (isAscending) {
-  // pageResult = bookingRepository.findByCouple(couple,
-  // PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()));
-  // } else {
-  // pageResult = bookingRepository.findByCouple(couple,
-  // PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()));
-  // }
-
-  // List<BookingResponse> response = new ArrayList<>();
-
-  // if (pageResult.hasContent()) {
-  // for (Booking booking : pageResult.getContent()) {
-  // BookingResponse bookingResponse = convertBookingToBookingResponse(booking);
-  // response.add(bookingResponse);
-  // }
-  // } else {
-  // throw new ErrorException(BookingErrorMessage.EMPTY_LIST);
-  // }
-  // return response;
-  // }
-
-  // @Override
-  // public List<BookingResponse> getAllBookingBySupplier(String supplierId) {
-
-  // serviceSupplierRepository.findById(supplierId).orElseThrow(
-  // () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
-
-  // List<String> listBookingIds =
-  // bookingRepository.findBookingIdBySupplierId(supplierId);
-
-  // if (listBookingIds.size() == 0) {
-  // throw new ErrorException(BookingErrorMessage.EMPTY_LIST);
-  // }
-
-  // List<BookingResponse> response = new ArrayList<>();
-
-  // for (String bookingId : listBookingIds) {
-  // BookingResponse bookingResponse = getBookingById(bookingId);
-  // response.add(bookingResponse);
-  // }
-
-  // return response;
-  // }
-
-  // @Override
-  // public List<BookingStatusResponse> getBookingStatusById(String bookingId) {
-  // Booking booking = bookingRepository.findById(bookingId).orElseThrow(
-  // () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
-
-  // List<BookingStatusResponse> response = new
-  // ArrayList<BookingStatusResponse>();
-
-  // // for (BookingHistory bookingHistory : booking.getBookingHistories()) {
-  // // BookingStatusResponse bookingStatus = new
-  // BookingStatusResponse().builder()
-  // // .status(bookingHistory.getStatus())
-  // // .createAt(bookingHistory.getCreatedAt())
-  // // .build();
-
-  // // response.add(bookingStatus);
-  // // }
-
-  // return response;
-  // }
+  @Override
+  public List<BookingResponse> getAllBookingByCouple(String coupleId) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getAllBookingByCouple'");
+  }
 
 }
