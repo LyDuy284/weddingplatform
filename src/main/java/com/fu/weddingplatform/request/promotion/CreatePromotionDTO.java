@@ -1,6 +1,7 @@
 package com.fu.weddingplatform.request.promotion;
 
 import java.sql.Date;
+import java.util.List;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -28,8 +29,7 @@ public class CreatePromotionDTO {
   @NotEmpty(message = "Type " + ValidationMessage.NOT_EMPTY)
   private String type;
   private String name;
-  @NotEmpty(message = "Start Date " + ValidationMessage.NOT_EMPTY)
   private Date startDate;
-  @NotEmpty(message = "End Date " + ValidationMessage.NOT_EMPTY)
   private Date endDate;
+  private List<String> listServiceSupplierId;
 }

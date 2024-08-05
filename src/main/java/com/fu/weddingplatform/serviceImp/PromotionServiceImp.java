@@ -87,8 +87,30 @@ public class PromotionServiceImp implements PromotionService {
         .name(createDTO.getName())
         .supplier(supplier)
         .build();
-
     Promotion promotionSaved = promotionRepository.save(promotion);
+
+    for (String serviceSupplierId : createDTO.getListServiceSupplierId()) {
+      ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
+          () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+
+      PromotionServiceSupplier existPromotionServiceSupplier = promotionServiceSupplierRepository
+          .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
+
+      if (existPromotionServiceSupplier != null) {
+        existPromotionServiceSupplier.setStatus(Status.DISABLED);
+        promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
+      }
+
+      PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier.builder()
+          .promotion(promotionSaved)
+          .serviceSupplier(serviceSupplier)
+          .status(Status.ACTIVATED)
+          .build();
+
+      promotionServiceSupplierRepository.save(promotionServiceSupplier);
+
+    }
+
     PromotionResponse promotionResponse = modelMapper.map(promotionSaved, PromotionResponse.class);
     promotionResponse.setSupplierId(supplier.getId());
     return promotionResponse;
