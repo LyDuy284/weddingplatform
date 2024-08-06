@@ -71,13 +71,16 @@ public class BookingDetailServiceImp implements BookingDetailService {
         BookingDetailStatus.PENDING);
 
     if (listBookingDetails.size() == 0) {
+      bookingDetail.getBooking().setStatus(BookingStatus.CONFIRM);
+
       BookingHistory bookingHistory = BookingHistory.builder()
           .createdAt(Utils.formatVNDatetimeNow())
           .booking(bookingDetail.getBooking())
           .status(BookingStatus.CONFIRM)
           .build();
 
-      bookingHistoryRepository.save(bookingHistory);
+      bookingHistoryRepository.saveAndFlush(bookingHistory);
+
     }
 
     ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
@@ -115,35 +118,44 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     if (listBookingDetailPending.size() == 0) {
 
-      List<BookingDetail> listBookingDetailComplete = bookingDetailRepository.findByBookingAndStatusNot(
+      List<BookingDetail> listBookingDetailComplete = bookingDetailRepository.findByBookingAndStatus(
           bookingDetail.getBooking(),
           BookingDetailStatus.COMPLETED);
 
-      List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatusNot(
+      List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatus(
           bookingDetail.getBooking(),
-          BookingDetailStatus.COMPLETED);
+          BookingDetailStatus.CONFIRM);
 
       if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0) {
+        bookingDetail.getBooking().setStatus(BookingStatus.REJECT);
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
             .status(BookingStatus.REJECT)
             .build();
-        bookingHistoryRepository.save(bookingHistory);
+
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
       } else if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() != 0) {
+
+        bookingDetail.getBooking().setStatus(BookingStatus.CONFIRM);
+
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
             .status(BookingStatus.CONFIRM)
             .build();
-        bookingHistoryRepository.save(bookingHistory);
+
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
       } else {
+
+        bookingDetail.getBooking().setStatus(BookingStatus.COMPLETED);
+
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
             .status(BookingStatus.COMPLETED)
             .build();
-        bookingHistoryRepository.save(bookingHistory);
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
       }
 
     }
@@ -193,47 +205,58 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     if (listBookingDetailPending.size() == 0) {
 
-      List<BookingDetail> listBookingDetailComplete = bookingDetailRepository.findByBookingAndStatusNot(
+      List<BookingDetail> listBookingDetailComplete = bookingDetailRepository.findByBookingAndStatus(
           bookingDetail.getBooking(),
           BookingDetailStatus.COMPLETED);
 
-      List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatusNot(
+      List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatus(
           bookingDetail.getBooking(),
-          BookingDetailStatus.COMPLETED);
+          BookingDetailStatus.CONFIRM);
 
-      List<BookingDetail> listBookingDetailReject = bookingDetailRepository.findByBookingAndStatusNot(
+      List<BookingDetail> listBookingDetailReject = bookingDetailRepository.findByBookingAndStatus(
           bookingDetail.getBooking(),
           BookingDetailStatus.REJECT);
 
       if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0
           && listBookingDetailReject.size() == 0) {
+
+        bookingDetail.getBooking().setStatus(BookingStatus.CANCLE);
+
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
             .status(BookingStatus.CANCLE)
             .build();
-        bookingHistoryRepository.save(bookingHistory);
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
       } else if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0) {
+
+        bookingDetail.getBooking().setStatus(BookingStatus.REJECT);
+
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
             .status(BookingStatus.REJECT)
             .build();
-        bookingHistoryRepository.save(bookingHistory);
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
       } else if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() != 0) {
+
+        bookingDetail.getBooking().setStatus(BookingStatus.CONFIRM);
+
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
             .status(BookingStatus.CONFIRM)
             .build();
-        bookingHistoryRepository.save(bookingHistory);
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
       } else {
+        bookingDetail.getBooking().setStatus(BookingStatus.COMPLETED);
+
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
             .status(BookingStatus.COMPLETED)
             .build();
-        bookingHistoryRepository.save(bookingHistory);
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
       }
 
     }
@@ -270,13 +293,16 @@ public class BookingDetailServiceImp implements BookingDetailService {
         BookingDetailStatus.PENDING);
 
     if (listBookingDetailPending.size() == 0) {
+
+      bookingDetail.getBooking().setStatus(BookingStatus.COMPLETED);
+
       BookingHistory bookingHistory = BookingHistory.builder()
           .createdAt(Utils.formatVNDatetimeNow())
           .booking(bookingDetail.getBooking())
           .status(BookingStatus.COMPLETED)
           .build();
 
-      bookingHistoryRepository.save(bookingHistory);
+      bookingHistoryRepository.saveAndFlush(bookingHistory);
     }
 
     ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
@@ -293,7 +319,8 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    List<BookingDetailHistory> listBookingDetails = bookingDetailHistoryRepository.findByBookingDetailOrderByCreatedAt(bookingDetail);
+    List<BookingDetailHistory> listBookingDetails = bookingDetailHistoryRepository
+        .findByBookingDetailOrderByCreatedAt(bookingDetail);
 
     if (listBookingDetails.size() == 0) {
       throw new EmptyException(BookingDetailErrorMessage.EMPTY);
