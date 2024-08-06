@@ -93,14 +93,14 @@ public class AuthServiceImp implements AuthService {
                     break;
                 case RoleName.ROLE_COUPLE:
                     userId = account.getCouples().stream().findFirst().get().getId();
-                    wallet = account.getCouples().stream().findFirst().get().getWallet();
+                    wallet = account.getWallet();
                     if (wallet != null) {
                         balance = wallet.getBalance();
                     }
                     break;
                 case RoleName.ROLE_SUPPLIER:
                     userId = account.getSupplier().stream().findFirst().get().getId();
-                    wallet = account.getSupplier().stream().findFirst().get().getWallet();
+                    wallet = account.getWallet();
                     if (wallet != null) {
                         balance = wallet.getBalance();
                     }
@@ -214,11 +214,11 @@ public class AuthServiceImp implements AuthService {
                 .build();
 
         Couple newCouple = coupleRepository.save(couple);
-        Wallet wallet = Wallet.builder()
-                .balance(0)
-                .couple(newCouple)
-                .build();
-        walletRepository.save(wallet);
+//        Wallet wallet = Wallet.builder()
+//                .balance(0)
+//                .couple(newCouple)
+//                .build();
+//        walletRepository.save(wallet);
         response = modelMapper.map(accountSaved, RegsiterCoupleReponse.class);
 
         response.setAccountId(accountSaved.getId());
@@ -336,12 +336,12 @@ public class AuthServiceImp implements AuthService {
                 .status(Status.ACTIVATED)
                 .build();
         areaRepository.save(area);
-        Wallet wallet = Wallet.builder()
-                .balance(0)
-                .supplier(newSupplier)
-                .build();
-
-        walletRepository.save(wallet);
+//        Wallet wallet = Wallet.builder()
+//                .balance(0)
+//                .supplier(newSupplier)
+//                .build();
+//
+//        walletRepository.save(wallet);
 
         response = modelMapper.map(accountSaved, RegsiterSupplierReponse.class);
 

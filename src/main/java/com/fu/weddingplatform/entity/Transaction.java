@@ -1,22 +1,12 @@
 package com.fu.weddingplatform.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.GenericGenerator;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fu.weddingplatform.enums.TransactionType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,15 +31,18 @@ public class Transaction {
     private String id;
     private String dateCreated;
     private int amount;
-    @Column(columnDefinition = "text")
-    private String description;
-    @Enumerated(EnumType.STRING)
-    private TransactionType transactionType;
+    private String transactionType;
+    private String status;
+
+    @OneToOne
+    @JoinColumn(name = "invoice_detail_id", unique = true)
+    private InvoiceDetail invoiceDetail;
+
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
-    @JoinColumn(name = "wallet_id")
+    @JoinColumn(name = "payment_id")
     @EqualsAndHashCode.Include
     @ToString.Include
-    private Wallet wallet;
+    private Payment payment;
 }

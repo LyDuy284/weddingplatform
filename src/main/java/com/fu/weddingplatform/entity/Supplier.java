@@ -61,8 +61,8 @@ public class Supplier {
     @JsonIgnore
     private Collection<ServiceSupplier> serviceSuppliers;
 
-    @OneToOne(mappedBy = "supplier", cascade = CascadeType.ALL)
-    private Wallet wallet;
+//    @OneToOne(mappedBy = "supplier", cascade = CascadeType.ALL)
+//    private Wallet wallet;
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include

@@ -42,13 +42,7 @@ public class Couple {
     @JsonIgnore
     private Collection<Booking> bookings;
 
-    @OneToMany(mappedBy = "couple", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Include
-    @ToString.Include
-    @JsonIgnore
-    private Collection<Payment> payments;
-
-    @OneToOne(mappedBy = "couple", cascade = CascadeType.ALL)
-    private Wallet wallet;
+//    @OneToOne(mappedBy = "couple", cascade = CascadeType.ALL)
+//    private Wallet wallet;
 
 }

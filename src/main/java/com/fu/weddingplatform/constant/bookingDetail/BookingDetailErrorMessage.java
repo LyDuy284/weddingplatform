@@ -8,6 +8,8 @@ public class BookingDetailErrorMessage {
   public static final String COMPLETE = "Can't COMPLETE this booking service";
   public static final String NOT_COMPLETED = "Booking service is not completed";
   public static final String EMPTY = "List booking details is empty";
-
+  public static final String CANT_PAYMENT = "Can't Payment this booking id: %s";
+  public static final String NOT_FOUND_BOOKING = "Not found booking with id: %s";
+  public static final String NOT_FOUND_BY_ID = "Booking service is not found by id: %s";
 
 }

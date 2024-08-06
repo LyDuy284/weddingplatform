@@ -55,14 +55,14 @@ public class BookingDetailServiceImp implements BookingDetailService {
       throw new ErrorException(BookingDetailErrorMessage.CONFIRM);
     }
 
-    bookingDetail.setStatus(BookingDetailStatus.CONFIRM);
+    bookingDetail.setStatus(BookingDetailStatus.APPROVED);
 
     bookingDetailRepository.save(bookingDetail);
 
     BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
         .bookingDetail(bookingDetail)
         .createdAt(Utils.formatVNDatetimeNow())
-        .status(BookingDetailStatus.CONFIRM)
+        .status(BookingDetailStatus.APPROVED)
         .build();
 
     bookingDetailHistoryRepository.save(bookingDetailHistory);
@@ -100,14 +100,14 @@ public class BookingDetailServiceImp implements BookingDetailService {
       throw new ErrorException(BookingDetailErrorMessage.REJECT);
     }
 
-    bookingDetail.setStatus(BookingDetailStatus.REJECT);
+    bookingDetail.setStatus(BookingDetailStatus.REJECTED);
 
     bookingDetailRepository.save(bookingDetail);
 
     BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
         .bookingDetail(bookingDetail)
         .createdAt(Utils.formatVNDatetimeNow())
-        .status(BookingDetailStatus.REJECT)
+        .status(BookingDetailStatus.REJECTED)
         .build();
 
     bookingDetailHistoryRepository.save(bookingDetailHistory);
@@ -124,7 +124,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
       List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatus(
           bookingDetail.getBooking(),
-          BookingDetailStatus.CONFIRM);
+          BookingDetailStatus.APPROVED);
 
       if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0) {
         bookingDetail.getBooking().setStatus(BookingStatus.REJECT);
@@ -177,14 +177,14 @@ public class BookingDetailServiceImp implements BookingDetailService {
       throw new ErrorException(BookingDetailErrorMessage.CANCLE);
     }
 
-    bookingDetail.setStatus(BookingDetailStatus.CANCEL);
+    bookingDetail.setStatus(BookingDetailStatus.CANCELLED);
 
     bookingDetailRepository.save(bookingDetail);
 
     BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
         .bookingDetail(bookingDetail)
         .createdAt(Utils.formatVNDatetimeNow())
-        .status(BookingDetailStatus.CANCEL)
+        .status(BookingDetailStatus.CANCELLED)
         .build();
 
     bookingDetailHistoryRepository.save(bookingDetailHistory);
@@ -211,11 +211,11 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
       List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatus(
           bookingDetail.getBooking(),
-          BookingDetailStatus.CONFIRM);
+          BookingDetailStatus.APPROVED);
 
       List<BookingDetail> listBookingDetailReject = bookingDetailRepository.findByBookingAndStatus(
           bookingDetail.getBooking(),
-          BookingDetailStatus.REJECT);
+          BookingDetailStatus.REJECTED);
 
       if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0
           && listBookingDetailReject.size() == 0) {
@@ -273,7 +273,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.CONFIRM))) {
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.APPROVED))) {
       throw new ErrorException(BookingDetailErrorMessage.COMPLETE);
     }
 

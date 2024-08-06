@@ -51,11 +51,15 @@ public class Invoice {
     @ToString.Include
     private Booking booking;
 
-
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
     private Collection<InvoiceDetail> invoiceDetails;
 
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @JsonIgnore
+    private Collection<Payment> payments;
 }
