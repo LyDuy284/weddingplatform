@@ -176,6 +176,14 @@ public class BookingServiceImp implements BookingService {
 
     bookingSaved.setTotalPrice(totalPrice);
     bookingRepository.save(bookingSaved);
+    
+    BookingHistory bookingHistory = BookingHistory.builder()
+        .booking(bookingSaved)
+        .createdAt(Utils.formatVNDatetimeNow())
+        .status(Status.PENDING)
+        .build();
+
+    bookingHistoryRepository.save(bookingHistory);
 
     for (BookingDetail bookingDetail : listBookingDetails) {
       BookingDetail bookingDetailSaved = bookingDetailRepository.save(bookingDetail);
@@ -192,23 +200,18 @@ public class BookingServiceImp implements BookingService {
       ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
           .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
-      PromotionResponse promotionResponse = promotionService
-          .convertPromotionToResponse(bookingDetail.getPromotionServiceSupplier().getPromotion());
-
       BookingDetailResponse bookingDetailResponse = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-      bookingDetailResponse.setPromotionResponse(promotionResponse);
+
+      if (bookingDetail.getPromotionServiceSupplier() != null) {
+        PromotionResponse promotionResponse = promotionService
+            .convertPromotionToResponse(bookingDetail.getPromotionServiceSupplier().getPromotion());
+        bookingDetailResponse.setPromotionResponse(promotionResponse);
+      }
+
       bookingDetailResponse.setServiceSupplierResponse(serviceSupplierResponse);
       listBookingDetailResponse.add(bookingDetailResponse);
 
     }
-
-    BookingHistory bookingHistory = BookingHistory.builder()
-        .booking(bookingSaved)
-        .createdAt(Utils.formatVNDatetimeNow())
-        .status(Status.PENDING)
-        .build();
-
-    bookingHistoryRepository.save(bookingHistory);
 
     BookingResponse response = modelMapper.map(bookingSaved,
         BookingResponse.class);
@@ -230,6 +233,9 @@ public class BookingServiceImp implements BookingService {
 
   @Override
   public BookingResponse convertBookingToBookingResponse(Booking booking) {
+    if (booking == null) {
+      return null;
+    }
     BookingResponse response = modelMapper.map(booking, BookingResponse.class);
     CoupleResponse coupleResponse = coupleService.getCoupleById(booking.getCouple().getId());
 

@@ -104,6 +104,9 @@ public class ServiceServiceImp implements ServiceService {
 
     @Override
     public ServiceResponse convertServiceToReponse(Services service) {
+        if (service == null) {
+            return null;
+        }
         List<String> listImages = new ArrayList<String>();
         if (service.getImages() != null &&
                 !(service.getImages().trim().equalsIgnoreCase(""))) {

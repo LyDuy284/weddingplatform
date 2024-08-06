@@ -32,8 +32,15 @@ public class SupplierServiceImp implements SupplierService {
 
     @Override
     public SupplierResponse convertSupplierToSupplierResponse(Supplier supplier) {
+
+        if (supplier == null){
+            return null;
+        }
+
         SupplierResponse response = modelMapper.map(supplier, SupplierResponse.class);
-        response.setArea(supplier.getAreas().stream().findFirst().get());
+        if (supplier.getAreas().stream().findFirst().isPresent()){
+            response.setArea(supplier.getAreas().stream().findFirst().get());
+        }
         return response;
     }
 

@@ -190,6 +190,11 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
 
     @Override
     public ServiceSupplierResponse convertServiceSupplierToResponse(ServiceSupplier serviceSupplier) {
+
+        if (serviceSupplier == null){
+            return null;
+        }
+
         ServiceSupplierResponse response = modelMapper.map(serviceSupplier, ServiceSupplierResponse.class);
         List<String> listImages = new ArrayList<String>();
         if (serviceSupplier.getImages() != null && serviceSupplier.getImages() != "") {
