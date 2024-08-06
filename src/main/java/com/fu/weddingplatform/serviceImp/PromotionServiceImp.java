@@ -200,4 +200,28 @@ public class PromotionServiceImp implements PromotionService {
     return promotionResponse;
   }
 
+  @Override
+  public boolean validPromotion(Promotion promotion) {
+    if (!(promotion.getStatus().equalsIgnoreCase(Status.ACTIVATED))) {
+      return false;
+    }
+
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    LocalDate startDate = null;
+    LocalDate endDate = null;
+
+    startDate = LocalDate.parse(promotion.getStartDate().toString(), dateFormatter);
+    endDate = LocalDate.parse(promotion.getEndDate().toString(), dateFormatter);
+
+    if (startDate.isAfter(Utils.getCurrentDate())) {
+      return false;
+    }
+
+    if (endDate.isBefore(Utils.getCurrentDate())) {
+      return false;
+    }
+
+    return true;
+  }
+
 }

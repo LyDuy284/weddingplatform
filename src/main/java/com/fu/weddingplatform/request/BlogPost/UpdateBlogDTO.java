@@ -18,7 +18,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @Builder
 public class UpdateBlogDTO {
-  @NotEmpty(message = "Service Supplier ID " + ValidationMessage.NOT_EMPTY)
+  @NotEmpty(message = "Blog ID " + ValidationMessage.NOT_EMPTY)
   private String id;
   private String title;
   private String content;

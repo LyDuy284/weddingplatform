@@ -12,7 +12,7 @@ import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 public interface ServiceSupplierService {
     public ServiceSupplierResponse createServiceSupplier(CreateServiceSupplier createDTO);
 
-    public ServiceSupplierResponse updateServiceSupplier(UpdateServiceSupplier updateDTO);
+    public ServiceSupplierFilterResponse updateServiceSupplier(UpdateServiceSupplier updateDTO);
 
     public ServiceSupplierResponse getServiceSupplierByID(String id);
 

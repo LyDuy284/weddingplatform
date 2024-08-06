@@ -22,4 +22,6 @@ public interface PromotionService {
 
         public void expriedPromotion();
 
+        public boolean validPromotion(Promotion promotion);
+
 }

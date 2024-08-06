@@ -36,6 +36,7 @@ import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBaseOnServ
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierFilterResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
+import com.fu.weddingplatform.service.PromotionService;
 import com.fu.weddingplatform.service.RatingService;
 import com.fu.weddingplatform.service.ServiceService;
 import com.fu.weddingplatform.service.ServiceSupplierService;
@@ -74,6 +75,9 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
 
     @Autowired
     private RatingService ratingService;
+
+    @Autowired
+    private PromotionService promotionService;
 
     @Override
     public ServiceSupplierResponse createServiceSupplier(CreateServiceSupplier createDTO) {
@@ -133,12 +137,6 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
     }
 
     @Override
-    public ServiceSupplierResponse updateServiceSupplier(UpdateServiceSupplier updateDTO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateServiceSupplier'");
-    }
-
-    @Override
     public ServiceSupplierResponse getServiceSupplierByID(String id) {
         ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(id).orElseThrow(
                 () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
@@ -191,7 +189,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
     @Override
     public ServiceSupplierResponse convertServiceSupplierToResponse(ServiceSupplier serviceSupplier) {
 
-        if (serviceSupplier == null){
+        if (serviceSupplier == null) {
             return null;
         }
 
@@ -327,6 +325,53 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         }
 
         return reponse;
+    }
+
+    @Override
+    public ServiceSupplierFilterResponse updateServiceSupplier(UpdateServiceSupplier updateDTO) {
+
+        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(updateDTO.getId()).orElseThrow(
+                () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+
+        Promotion promotion = promotionRepository.findById(updateDTO.getPromotionId()).orElseThrow(
+                () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
+
+        if (!(serviceSupplier.getSupplier().getId().equalsIgnoreCase(promotion.getSupplier().getId()))) {
+            throw new ErrorException(PromotionErrorMessage.NOT_THIS_SUPPLIER);
+        }
+
+        if (promotionService.validPromotion(promotion)) {
+            PromotionServiceSupplier existPromotionServiceSupplier = promotionServiceSupplierRepository
+                    .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
+
+            if (existPromotionServiceSupplier != null) {
+                existPromotionServiceSupplier.setStatus(Status.DISABLED);
+                promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
+            }
+
+            PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier.builder()
+                    .promotion(promotion)
+                    .serviceSupplier(serviceSupplier)
+                    .status(Status.ACTIVATED)
+                    .build();
+
+            promotionServiceSupplierRepository.save(promotionServiceSupplier);
+        }
+
+        serviceSupplier.setName(updateDTO.getName());
+        serviceSupplier.setDescription(updateDTO.getDescription());
+        serviceSupplier.setImages(updateDTO.getImages());
+        serviceSupplier.setType(updateDTO.getType());
+        serviceSupplier.setPrice(updateDTO.getPrice());
+        serviceSupplierRepository.saveAndFlush(serviceSupplier);
+        ServiceSupplierFilterResponse response = modelMapper.map(serviceSupplier,
+                ServiceSupplierFilterResponse.class);
+        response.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
+
+        List<String> images = Utils.parseStringToListImages(serviceSupplier.getImages());
+        response.setListImages(images);
+        return response;
+
     }
 
 }
