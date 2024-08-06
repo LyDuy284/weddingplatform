@@ -2,6 +2,7 @@ package com.fu.weddingplatform.serviceImp;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
@@ -14,11 +15,13 @@ import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
 import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.BookingDetailHistory;
 import com.fu.weddingplatform.entity.BookingHistory;
+import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.BookingHistoryRepository;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
+import com.fu.weddingplatform.response.bookingHIstory.BookingDetailHistoryResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.service.BookingDetailService;
 import com.fu.weddingplatform.service.ServiceSupplierService;
@@ -38,7 +41,6 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
   @Autowired
   private ServiceSupplierService serviceSupplierService;
-
 
   @Autowired
   private ModelMapper modelMapper;
@@ -282,6 +284,28 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
     response.setServiceSupplierResponse(serviceSupplierResponse);
+    return response;
+  }
+
+  @Override
+  public List<BookingDetailHistoryResponse> getBookingDetailHistoryById(String bookingDetailId) {
+
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+
+    List<BookingDetailHistory> listBookingDetails = bookingDetailHistoryRepository.findByBookingDetail(bookingDetail);
+
+    if (listBookingDetails.size() == 0) {
+      throw new EmptyException(BookingDetailErrorMessage.EMPTY);
+    }
+
+    List<BookingDetailHistoryResponse> response = new ArrayList<>();
+
+    for (BookingDetailHistory bookingDetailHistory : listBookingDetails) {
+      BookingDetailHistoryResponse bookingDetailHistoryResponse = modelMapper.map(bookingDetailHistory,
+          BookingDetailHistoryResponse.class);
+      response.add(bookingDetailHistoryResponse);
+    }
     return response;
   }
 

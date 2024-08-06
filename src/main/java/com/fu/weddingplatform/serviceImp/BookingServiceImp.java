@@ -41,6 +41,7 @@ import com.fu.weddingplatform.request.booking.ServiceSupplierBookingDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
+import com.fu.weddingplatform.response.bookingHIstory.BookingHistoryResponse;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
 import com.fu.weddingplatform.response.promotion.PromotionResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierBooking;
@@ -168,7 +169,7 @@ public class BookingServiceImp implements BookingService {
           .status(BookingDetailStatus.PENDING)
           .build();
 
-      totalPrice += serviceSupplier.get().getPrice();
+      totalPrice += bookingDetail.getPrice();
 
       listBookingDetails.add(bookingDetail);
     }
@@ -204,7 +205,7 @@ public class BookingServiceImp implements BookingService {
     BookingHistory bookingHistory = BookingHistory.builder()
         .booking(bookingSaved)
         .createdAt(Utils.formatVNDatetimeNow())
-        .status(Status.ACTIVATED)
+        .status(Status.PENDING)
         .build();
 
     bookingHistoryRepository.save(bookingHistory);
@@ -342,6 +343,27 @@ public class BookingServiceImp implements BookingService {
 
     return response;
 
+  }
+
+  @Override
+  public List<BookingHistoryResponse> getBookingHistoryById(String bookingId) {
+    Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+        () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
+
+    List<BookingHistory> listBookings = bookingHistoryRepository.findByBooking(booking);
+
+    if (listBookings.size() == 0) {
+      throw new EmptyException(BookingErrorMessage.EMPTY_LIST);
+    }
+
+    List<BookingHistoryResponse> response = new ArrayList<>();
+
+    for (BookingHistory bookingHistory : listBookings) {
+      BookingHistoryResponse bookingHistoryResponse = modelMapper.map(bookingHistory,
+          BookingHistoryResponse.class);
+      response.add(bookingHistoryResponse);
+    }
+    return response;
   }
 
 }

@@ -24,6 +24,7 @@ import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
+import com.fu.weddingplatform.response.bookingHIstory.BookingHistoryResponse;
 import com.fu.weddingplatform.service.BookingService;
 
 @RestController
@@ -71,6 +72,17 @@ public class BookingController {
   public ResponseEntity<?> getBookingById(@RequestParam String id) {
     BookingResponse data = bookingService.getBookingById(id);
     ResponseDTO<BookingResponse> response = new ResponseDTO<>();
+    response.setData(data);
+    response.setStatus(ResponseStatusDTO.SUCCESS);
+    response.setMessage(BookingSuccessMessage.GET_BY_ID);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
+  @GetMapping("getBookingHistoryById")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE_SUPPLIER)
+  public ResponseEntity<?> getBookingHistoryById(@RequestParam String id) {
+    List<BookingHistoryResponse> data = bookingService.getBookingHistoryById(id);
+    ListResponseDTO<BookingHistoryResponse> response = new ListResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
     response.setMessage(BookingSuccessMessage.GET_BY_ID);

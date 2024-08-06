@@ -6,6 +6,7 @@ import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
+import com.fu.weddingplatform.response.bookingHIstory.BookingHistoryResponse;
 
 public interface BookingService {
   public BookingResponse createBooking(CreateBookingDTO createDTO);
@@ -20,6 +21,6 @@ public interface BookingService {
 
   public BookingResponse cancelBooking(String bookingId);
 
-  // public List<BookingStatusResponse> getBookingStatusById(String bookingId);
+  public List<BookingHistoryResponse> getBookingHistoryById(String bookingId);
 
 }
