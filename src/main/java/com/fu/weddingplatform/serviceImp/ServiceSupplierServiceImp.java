@@ -104,9 +104,9 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
                 .status(Status.ACTIVATED)
                 .createAt(Utils.formatVNDatetimeNow())
                 .build();
-
+        Promotion promotion = null;
         if (createDTO.getPromotionId() != null && createDTO.getPromotionId().trim() != "") {
-            Promotion promotion = promotionRepository.findById(createDTO.getPromotionId()).orElseThrow(
+            promotion = promotionRepository.findById(createDTO.getPromotionId()).orElseThrow(
                     () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
 
             PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier
@@ -119,20 +119,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         }
 
         ServiceSupplier serviceSupplierSaved = serviceSupplierRepository.save(serviceSupplier);
-        List<String> listImages = new ArrayList<String>();
-        if (createDTO.getImages() != null && createDTO.getImages() != "") {
-            String[] imageArray = createDTO.getImages().split("\n,");
-            for (String image : imageArray) {
-                listImages.add(image.trim());
-            }
-        }
-        ServiceSupplierResponse response = modelMapper.map(serviceSupplierSaved, ServiceSupplierResponse.class);
-
-        ServiceResponse serviceResponse = serviceService.convertServiceToReponse(service);
-        SupplierResponse supplierResponse = supplierService.convertSupplierToSupplierResponse(supplier);
-        response.setSupplierResponse(supplierResponse);
-        response.setServiceResponse(serviceResponse);
-        response.setListImages(listImages);
+        ServiceSupplierResponse response = convertServiceSupplierToResponse(serviceSupplierSaved);
 
         return response;
     }
@@ -141,22 +128,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
     public ServiceSupplierResponse getServiceSupplierByID(String id) {
         ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(id).orElseThrow(
                 () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
-        List<String> listImages = new ArrayList<String>();
-        if (serviceSupplier.getImages() != null && serviceSupplier.getImages() != "") {
-            String[] imageArray = serviceSupplier.getImages().split("\n,");
-            for (String image : imageArray) {
-                listImages.add(image.trim());
-            }
-        }
-        ServiceSupplierResponse response = modelMapper.map(serviceSupplier, ServiceSupplierResponse.class);
-
-        ServiceResponse serviceResponse = serviceService.convertServiceToReponse(serviceSupplier.getService());
-        SupplierResponse supplierResponse = supplierService
-                .convertSupplierToSupplierResponse(serviceSupplier.getSupplier());
-        response.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
-        response.setSupplierResponse(supplierResponse);
-        response.setServiceResponse(serviceResponse);
-        response.setListImages(listImages);
+        ServiceSupplierResponse response = convertServiceSupplierToResponse(serviceSupplier);
 
         return response;
     }
@@ -211,6 +183,16 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
             for (String image : imageArray) {
                 listImages.add(image.trim());
             }
+        }
+
+        PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository
+                .findFirstByServiceSupplierAndStatus(serviceSupplier,
+                        Status.ACTIVATED);
+
+        if (promotionServiceSupplier != null) {
+            PromotionResponse promotionResponse = promotionService
+                    .convertPromotionToResponse(promotionServiceSupplier.getPromotion());
+            response.setPromotion(promotionResponse);
         }
 
         ServiceResponse serviceResponse = serviceService.convertServiceToReponse(serviceSupplier.getService());

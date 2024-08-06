@@ -3,6 +3,7 @@ package com.fu.weddingplatform.response.serviceSupplier;
 import java.util.List;
 
 import com.fu.weddingplatform.response.Account.SupplierResponse;
+import com.fu.weddingplatform.response.promotion.PromotionResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 
 import lombok.AllArgsConstructor;
@@ -30,4 +31,5 @@ public class ServiceSupplierResponse {
     private String status;
     private SupplierResponse supplierResponse;
     private ServiceResponse serviceResponse;
+    private PromotionResponse promotion;
 }
