@@ -93,7 +93,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if ((bookingDetail.getStatus().equals(BookingDetailStatus.PENDING))) {
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.PENDING))) {
       throw new ErrorException(BookingDetailErrorMessage.REJECT);
     }
 
@@ -109,7 +109,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     bookingDetailHistoryRepository.save(bookingDetailHistory);
 
-    List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatusNot(
+    List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatus(
         bookingDetail.getBooking(),
         BookingDetailStatus.PENDING);
 
@@ -130,7 +130,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
             .status(BookingStatus.REJECT)
             .build();
         bookingHistoryRepository.save(bookingHistory);
-      } else if (listBookingDetailComplete.size() == 0) {
+      } else if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() != 0) {
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
@@ -187,7 +187,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
       // refund 80%
     }
 
-    List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatusNot(
+    List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatus(
         bookingDetail.getBooking(),
         BookingDetailStatus.PENDING);
 
@@ -220,7 +220,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
             .status(BookingStatus.REJECT)
             .build();
         bookingHistoryRepository.save(bookingHistory);
-      } else if (listBookingDetailComplete.size() == 0) {
+      } else if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() != 0) {
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
@@ -293,7 +293,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    List<BookingDetailHistory> listBookingDetails = bookingDetailHistoryRepository.findByBookingDetail(bookingDetail);
+    List<BookingDetailHistory> listBookingDetails = bookingDetailHistoryRepository.findByBookingDetailOrderByCreatedAt(bookingDetail);
 
     if (listBookingDetails.size() == 0) {
       throw new EmptyException(BookingDetailErrorMessage.EMPTY);

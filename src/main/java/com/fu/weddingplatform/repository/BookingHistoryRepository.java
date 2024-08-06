@@ -13,5 +13,5 @@ import com.fu.weddingplatform.entity.BookingHistory;
 @Repository
 @Transactional
 public interface BookingHistoryRepository extends JpaRepository<BookingHistory, String> {
-    List<BookingHistory> findByBooking(Booking booking);
+    List<BookingHistory> findByBookingOrderByCreatedAt(Booking booking);
 }

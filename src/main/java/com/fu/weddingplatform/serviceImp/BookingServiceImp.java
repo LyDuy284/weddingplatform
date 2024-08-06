@@ -356,7 +356,7 @@ public class BookingServiceImp implements BookingService {
     Booking booking = bookingRepository.findById(bookingId).orElseThrow(
         () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
 
-    List<BookingHistory> listBookings = bookingHistoryRepository.findByBooking(booking);
+    List<BookingHistory> listBookings = bookingHistoryRepository.findByBookingOrderByCreatedAt(booking);
 
     if (listBookings.size() == 0) {
       throw new EmptyException(BookingErrorMessage.EMPTY_LIST);
