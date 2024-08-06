@@ -2,6 +2,8 @@ package com.fu.weddingplatform.response.serviceSupplier;
 
 import java.util.List;
 
+import com.fu.weddingplatform.response.promotion.PromotionResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,4 +27,5 @@ public class ServiceSupplierFilterResponse {
   private String createAt;
   private int price;
   private String status;
+  private PromotionResponse promotion;
 }

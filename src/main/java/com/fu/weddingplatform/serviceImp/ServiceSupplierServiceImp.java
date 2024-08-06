@@ -30,6 +30,7 @@ import com.fu.weddingplatform.repository.SupplierRepository;
 import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.UpdateServiceSupplier;
 import com.fu.weddingplatform.response.Account.SupplierResponse;
+import com.fu.weddingplatform.response.promotion.PromotionResponse;
 import com.fu.weddingplatform.response.service.ServiceResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceBaseOnCategory;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBaseOnService;
@@ -178,6 +179,16 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
                     ServiceSupplierFilterResponse.class);
             filterResponse.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
 
+            PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository
+                    .findFirstByServiceSupplierAndStatus(serviceSupplier,
+                            Status.ACTIVATED);
+
+            if (promotionServiceSupplier != null) {
+                PromotionResponse promotionResponse = promotionService
+                        .convertPromotionToResponse(promotionServiceSupplier.getPromotion());
+                filterResponse.setPromotion(promotionResponse);
+            }
+
             List<String> images = Utils.parseStringToListImages(serviceSupplier.getImages());
             filterResponse.setListImages(images);
             response.add(filterResponse);
@@ -201,6 +212,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
                 listImages.add(image.trim());
             }
         }
+
         ServiceResponse serviceResponse = serviceService.convertServiceToReponse(serviceSupplier.getService());
         SupplierResponse supplierResponse = supplierService
                 .convertSupplierToSupplierResponse(serviceSupplier.getSupplier());

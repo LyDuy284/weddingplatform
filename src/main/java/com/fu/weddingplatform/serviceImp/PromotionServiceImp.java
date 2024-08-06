@@ -113,7 +113,6 @@ public class PromotionServiceImp implements PromotionService {
     }
 
     PromotionResponse promotionResponse = modelMapper.map(promotionSaved, PromotionResponse.class);
-    promotionResponse.setSupplierId(supplier.getId());
     return promotionResponse;
   }
 
@@ -123,7 +122,6 @@ public class PromotionServiceImp implements PromotionService {
     Promotion promotion = promotionRepository.findById(id).orElseThrow(
         () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
     PromotionResponse response = modelMapper.map(promotion, PromotionResponse.class);
-    response.setSupplierId(promotion.getSupplier().getId());
 
     return response;
   }
@@ -196,7 +194,6 @@ public class PromotionServiceImp implements PromotionService {
     if (promotion == null)
       return null;
     PromotionResponse promotionResponse = modelMapper.map(promotion, PromotionResponse.class);
-    promotionResponse.setSupplierId(promotion.getSupplier().getId());
     return promotionResponse;
   }
 

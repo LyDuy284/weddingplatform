@@ -23,5 +23,4 @@ public class PromotionResponse {
   private Date startDate;
   private Date endDate;
   private String status;
-  private String supplierId;
 }
