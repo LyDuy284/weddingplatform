@@ -1,12 +1,6 @@
 package com.fu.weddingplatform.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
@@ -38,6 +32,7 @@ public class InvoiceDetail {
   private String status;
   private int price;
   private String createAt;
+  private boolean isDeposit;
 
   @JsonIgnore
   @ManyToOne(fetch = FetchType.LAZY)
@@ -54,5 +49,16 @@ public class InvoiceDetail {
   @EqualsAndHashCode.Include
   @ToString.Include
   private Invoice invoice;
+
+  @JsonIgnore
+  @ManyToOne(fetch = FetchType.LAZY)
+  @Fetch(FetchMode.JOIN)
+  @JoinColumn(name = "promotion_serivce_supplier_id")
+  @EqualsAndHashCode.Include
+  @ToString.Include
+  private PromotionServiceSupplier promotionServiceSupplier;
+
+  @OneToOne(mappedBy = "invoiceDetail", cascade = CascadeType.ALL)
+  private Transaction transaction;
 
 }

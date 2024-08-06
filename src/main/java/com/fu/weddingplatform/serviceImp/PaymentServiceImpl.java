@@ -1,227 +1,336 @@
-// package com.fu.weddingplatform.serviceImp;
+package com.fu.weddingplatform.serviceImp;
 
-// import com.fasterxml.jackson.core.JsonProcessingException;
-// import com.fasterxml.jackson.databind.ObjectMapper;
-// import com.fu.weddingplatform.constant.booking.BookingConstant;
-// import com.fu.weddingplatform.constant.booking.BookingErrorMessage;
-// import com.fu.weddingplatform.constant.booking.BookingStatus;
-// import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
-// import com.fu.weddingplatform.constant.payment.PaymentErrorMessage;
-// import com.fu.weddingplatform.constant.payment.PaymentStatus;
-// import com.fu.weddingplatform.constant.payment.PaymentSuccessMessage;
-// import com.fu.weddingplatform.constant.payment.PaymentTypeValue;
-// import com.fu.weddingplatform.constant.payment.vnpay.VNPayConstant;
-// import com.fu.weddingplatform.constant.serviceSupplier.SupplierErrorMessage;
-// import com.fu.weddingplatform.constant.transaction.TransactionSuccessMessage;
-// import com.fu.weddingplatform.constant.wallet.WalletErrorMessage;
-// import com.fu.weddingplatform.entity.*;
-// import com.fu.weddingplatform.enums.PaymentMethod;
-// import com.fu.weddingplatform.enums.PaymentType;
-// import com.fu.weddingplatform.enums.TransactionType;
-// import com.fu.weddingplatform.exception.ErrorException;
-// import com.fu.weddingplatform.repository.*;
-// import com.fu.weddingplatform.request.payment.CreatePaymentDTO;
-// import com.fu.weddingplatform.service.PaymentService;
-// import com.fu.weddingplatform.utils.Utils;
-// import com.fu.weddingplatform.utils.VNPayUtil;
-// import org.springframework.beans.factory.annotation.Autowired;
-// import org.springframework.stereotype.Service;
-// import org.springframework.transaction.annotation.Transactional;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fu.weddingplatform.constant.booking.BookingStatus;
+import com.fu.weddingplatform.constant.bookingDetail.BookingDetailErrorMessage;
+import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
+import com.fu.weddingplatform.constant.invoice.InvoiceStatus;
+import com.fu.weddingplatform.constant.invoiceDetail.InvoiceDetailErrorMessage;
+import com.fu.weddingplatform.constant.invoiceDetail.InvoiceDetailStatus;
+import com.fu.weddingplatform.constant.payment.PaymentTypeValue;
+import com.fu.weddingplatform.constant.payment.vnpay.VNPayConstant;
+import com.fu.weddingplatform.constant.payment.vnpay.VNResponseCode;
+import com.fu.weddingplatform.constant.transaction.TransactionStatus;
+import com.fu.weddingplatform.constant.transaction.TransactionType;
+import com.fu.weddingplatform.constant.walletHistory.WalletHistoryConstant;
+import com.fu.weddingplatform.constant.walletHistory.WalletHistoryType;
+import com.fu.weddingplatform.entity.*;
+import com.fu.weddingplatform.enums.PaymentMethod;
+import com.fu.weddingplatform.exception.ErrorException;
+import com.fu.weddingplatform.repository.*;
+import com.fu.weddingplatform.request.payment.CreatePaymentDTO;
+import com.fu.weddingplatform.request.payment.UpdatePaymentStatusDTO;
+import com.fu.weddingplatform.service.PaymentService;
+import com.fu.weddingplatform.utils.Utils;
+import com.fu.weddingplatform.utils.VNPayUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-// import javax.servlet.http.HttpServletRequest;
-// import javax.servlet.http.HttpServletResponse;
-// import java.io.IOException;
-// import java.net.URLEncoder;
-// import java.nio.charset.StandardCharsets;
-// import java.sql.Date;
-// import java.text.SimpleDateFormat;
-// import java.time.LocalDateTime;
-// import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-// @Service
-// public class PaymentServiceImpl implements PaymentService {
+@Service
+public class PaymentServiceImpl implements PaymentService {
 
-//     @Autowired
-//     CoupleRepository coupleRepository;
+    @Autowired
+    CoupleRepository coupleRepository;
 
-//     @Autowired
-//     QuotationRepository quotationRepository;
+    @Autowired
+    PaymentRepository paymentRepository;
 
-//     @Autowired
-//     PaymentRepository paymentRepository;
+    @Autowired
+    BookingRepository bookingRepository;
 
-//     @Autowired
-//     BookingRepository bookingRepository;
+    @Autowired
+    ObjectMapper objectMapper;
 
-//     @Autowired
-//     ObjectMapper objectMapper;
+    @Autowired
+    WalletRepository walletRepository;
 
-//     @Autowired
-//     WalletRepository walletRepository;
+    @Autowired
+    TransactionRepository transactionRepository;
 
-//     @Autowired
-//     TransactionRepository transactionRepository;
+    @Autowired
+    BookingDetailRepository bookingDetailRepository;
 
-//     @Autowired
-//     BookingDetailRepository bookingDetailRepository;
+    @Autowired
+    InvoiceDetailRepository invoiceDetailRepository;
 
-//     @Autowired
-//     PaymentBookingServiceRepository paymentBookingServiceRepository;
+    @Autowired
+    InvoiceRepository invoiceRepository;
 
-//     @Override
-//     public String requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp, CreatePaymentDTO paymentRequest)
-//             throws JsonProcessingException {
-//         Map<String, String> vnp_Params = setVNPParams(req, paymentRequest);
+    @Autowired
+    WalletHistoryRepository walletHistoryRepository;
 
-//         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
-//         Collections.sort(fieldNames);
-//         StringBuilder hashData = new StringBuilder();
-//         StringBuilder query = new StringBuilder();
-//         Iterator<String> itr = fieldNames.iterator();
-//         while (itr.hasNext()) {
-//             String fieldName = (String) itr.next();
-//             String fieldValue = (String) vnp_Params.get(fieldName);
-//             if ((fieldValue != null) && (fieldValue.length() > 0)) {
-//                 // Build hash data
-//                 hashData.append(fieldName);
-//                 hashData.append('=');
-//                 hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
-//                 // Build query
-//                 query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII));
-//                 query.append('=');
-//                 query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
-//                 if (itr.hasNext()) {
-//                     query.append('&');
-//                     hashData.append('&');
-//                 }
-//             }
-//         }
-//         String queryUrl = query.toString();
-//         String vnp_SecureHash = VNPayUtil.hmacSHA512(VNPayConstant.VNP_HASH_SECRET, hashData.toString());
-//         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-//         return VNPayConstant.VNP_PAY_URL + queryUrl;
-//     }
+    @Autowired
+    TransactionSummaryRepository transactionSummaryRepository;
 
-//     private Map<String, String> setVNPParams(HttpServletRequest req, CreatePaymentDTO paymentRequest)
-//             throws JsonProcessingException {
-//         String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
-//         String vnp_IpAddr = req.getRemoteAddr();
-//         Map<String, String> vnp_Params = new HashMap<>();
-//         vnp_Params.put("vnp_Version", VNPayConstant.VNP_VERSION);
-//         vnp_Params.put("vnp_Command", VNPayConstant.VNP_COMMAND_PAY);
-//         vnp_Params.put("vnp_TmnCode", VNPayConstant.VNP_TMN_CODE);
-//         vnp_Params.put("vnp_Locale", "vn");
-//         vnp_Params.put("vnp_CurrCode", "VND");
-//         vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
-//         vnp_Params.put("vnp_OrderType", VNPayConstant.VNP_ORDER_TYPE);
-//         // set order infor
-//         CreatePaymentDTO paymentDTO = CreatePaymentDTO.builder()
-//                 .listBookingDetailId(paymentRequest.getListBookingDetailId())
-//                 .paymentType(paymentRequest.getPaymentType())
-//                 .build();
-//         vnp_Params.put("vnp_OrderInfo", objectMapper.writeValueAsString(paymentDTO));
+    @Override
+    @Transactional
+    public String requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp, CreatePaymentDTO paymentRequest)
+            throws JsonProcessingException {
+        Map<String, String> vnp_Params = setVNPParams(req, paymentRequest);
 
-//         int amount = 0;
-//         switch (paymentRequest.getPaymentType()) {
-//             case DEPOSIT -> {
-//                 for (String bookingDetailId: paymentRequest.getListBookingDetailId()) {
-//                     BookingDetail bookingDetail = bookingDetailRepository.findBookingDetailByIdAndStatus(bookingDetailId, BookingDetailStatus.CONFIRM)
-//                             .orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
-//                     amount += bookingDetail.getPrice();
-//                 }
-//                 vnp_Params.put("vnp_Amount",
-//                         String.valueOf((int) (amount * PaymentTypeValue.DEPOSIT_VALUE) * 100L));
-//             }
-//             case FINAL_PAYMENT -> {
-//                 for (String bookingDetailId: paymentRequest.getListBookingDetailId()) {
-//                     BookingDetail bookingDetail = bookingDetailRepository.findBookingDetailByIdAndStatus(bookingDetailId, BookingDetailStatus.DONE)
-//                             .orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
-//                     amount += bookingDetail.getPrice();
-//                 }
-//                 vnp_Params.put("vnp_Amount",
-//                         String.valueOf((int) (amount * PaymentTypeValue.FINAL_PAYMENT_VALUE) * 100L));
-//             }
-//             default -> throw new ErrorException("Sth error");
-//         }
+        List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
+        Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+        Iterator<String> itr = fieldNames.iterator();
+        while (itr.hasNext()) {
+            String fieldName = (String) itr.next();
+            String fieldValue = (String) vnp_Params.get(fieldName);
+            if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                // Build hash data
+                hashData.append(fieldName);
+                hashData.append('=');
+                hashData.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
+                // Build query
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII));
+                query.append('=');
+                query.append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
+                if (itr.hasNext()) {
+                    query.append('&');
+                    hashData.append('&');
+                }
+            }
+        }
+        String queryUrl = query.toString();
+        String vnp_SecureHash = VNPayUtil.hmacSHA512(VNPayConstant.VNP_HASH_SECRET, hashData.toString());
+        queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
+        return VNPayConstant.VNP_PAY_URL + queryUrl;
+    }
 
-//         vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL_SERVER);
-//         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+    private Map<String, String> setVNPParams(HttpServletRequest req, CreatePaymentDTO paymentRequest)
+            throws JsonProcessingException {
+        String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
+        String vnp_IpAddr = req.getRemoteAddr();
+        Map<String, String> vnp_Params = new HashMap<>();
+        vnp_Params.put("vnp_Version", VNPayConstant.VNP_VERSION);
+        vnp_Params.put("vnp_Command", VNPayConstant.VNP_COMMAND_PAY);
+        vnp_Params.put("vnp_TmnCode", VNPayConstant.VNP_TMN_CODE);
+        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+        vnp_Params.put("vnp_OrderType", VNPayConstant.VNP_ORDER_TYPE);
+        // set order infor
+        CreatePaymentDTO paymentDTO = CreatePaymentDTO.builder()
+                .listBookingDetailId(paymentRequest.getListBookingDetailId())
+                .isDeposit(paymentRequest.isDeposit())
+                .build();
+        vnp_Params.put("vnp_OrderInfo", objectMapper.writeValueAsString(paymentDTO));
+        int amount = createInvoiceForEachSupplier(paymentRequest.getListBookingDetailId(), paymentRequest.isDeposit());
+        vnp_Params.put("vnp_Amount", String.valueOf(amount * 100L));
+        vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL_SERVER);
+        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
-//         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
-//         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-//         String vnp_CreateDate = formatter.format(cld.getTime());
-//         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-//         cld.add(Calendar.MINUTE, 15);
-//         cld.add(Calendar.HOUR_OF_DAY, 7);
-//         String vnp_ExpireDate = formatter.format(cld.getTime());
-//         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
+        cld.add(Calendar.MINUTE, 15);
+        cld.add(Calendar.HOUR_OF_DAY, 7);
+        String vnp_ExpireDate = formatter.format(cld.getTime());
+        vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
-//         return vnp_Params;
-//     }
+        return vnp_Params;
+    }
 
-//     @Override
-//     @Transactional
-//     public void responsePaymentVNP(HttpServletRequest request, HttpServletResponse response) throws IOException {
-//         if (!"00".equals(request.getParameter("vnp_ResponseCode"))) {
-//             response.sendRedirect(
-//                     String.format(VNPayConstant.VNP_RETURN_CLIENT_URL, false, request.getParameter("vnp_Amount")));
-//         } else {
-//             String paymentInfor = request.getParameter("vnp_OrderInfo");
-//             String vnpTransactionNo = request.getParameter("vnp_TransactionNo");
-//             int amount = (int)(Long.parseLong(request.getParameter("vnp_Amount")) / 100);
-//             CreatePaymentDTO paymentDTO = objectMapper.readValue(paymentInfor, CreatePaymentDTO.class);
+    private int createInvoiceForEachSupplier(List<String> listBookingDetailId, boolean isDeposit) {
+        Set<Supplier> setSupplier = getSuppliersInListBookingId(listBookingDetailId);
+        List<BookingDetail> bookingDetailList = bookingDetailRepository.findListBookingDetailInList(listBookingDetailId);
+        Map<Supplier, List<BookingDetail>> mapBooking = mapBookingDetailBySupplier(setSupplier, bookingDetailList);
+        BookingDetail firstBookingDetail = bookingDetailRepository.findById(listBookingDetailId.get(0))
+                .orElseThrow(() -> new ErrorException(String.format(BookingDetailErrorMessage.NOT_FOUND_BOOKING, listBookingDetailId.get(0))));
+        int amount = 0;
+        for (Supplier supplier : setSupplier) {
+            List<BookingDetail> listBookingBySupplier = mapBooking.get(supplier);
+            amount += createInvoice(firstBookingDetail.getBooking(), listBookingBySupplier, isDeposit);
+        }
+        return amount;
+    }
 
-//             BookingDetail firstBookingDetail = bookingDetailRepository.findById(paymentDTO.getListBookingDetailId().get(0))
-//                     .orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
-//             Payment payment = Payment.builder()
-//                     .tradingCode(Integer.parseInt(vnpTransactionNo))
-//                     .description(String.format(PaymentSuccessMessage.PAYMENT_DESCRIPTION, firstBookingDetail.getBooking().getCouple().getId(),
-//                             amount, paymentDTO.getListBookingDetailId().toString()))
-//                     .paymentMethod(PaymentMethod.VNPAY)
-//                     .amount(amount)
-//                     .paymentType(paymentDTO.getPaymentType())
-//                     .dateCreated(Utils.formatVNDatetimeNow())
-//                     .paymentStatus(PaymentStatus.COMPLETED)
-//                     .couple(firstBookingDetail.getBooking().getCouple())
-//                     .build();
-//             Payment paymentSave = paymentRepository.saveAndFlush(payment);
+    private int createInvoice(Booking booking, List<BookingDetail> listBookingDetail, boolean isDeposit) {
+        Invoice invoice = Invoice.builder()
+                .booking(booking)
+                .createAt(Utils.formatVNDatetimeNow())
+                .status(InvoiceStatus.PENDING)
+                .build();
+        Invoice invoiceSaved = invoiceRepository.saveAndFlush(invoice);
+        Payment payment = Payment.builder()
+                .invoice(invoiceSaved)
+                .paymentMethod(PaymentMethod.VNPAY)
+                .dateCreated(Utils.formatVNDatetimeNow())
+                .build();
+        Payment paymentSaved = paymentRepository.saveAndFlush(payment);
+        int totalPrice = 0;
+        for (BookingDetail bookingDetail : listBookingDetail) {
+            int price;
+            if (isDeposit) {
+                if (!bookingDetail.getStatus().equals(BookingDetailStatus.APPROVED)) {
+                    throw new ErrorException(String.format(BookingDetailErrorMessage.CANT_PAYMENT, bookingDetail.getId()));
+                }
+                price = (int) (bookingDetail.getPrice() * PaymentTypeValue.DEPOSIT_VALUE);
+            } else {
+                invoiceDetailRepository.findDepositedInvoiceDetailByBookingDetailId(bookingDetail.getId())
+                        .orElseThrow(() -> new ErrorException(String.format(InvoiceDetailErrorMessage.NOT_FOUND_DEPOSITED_INVOICE, bookingDetail.getId())));
+                price = (int) (bookingDetail.getPrice() * PaymentTypeValue.FINAL_PAYMENT_VALUE);
+            }
+            InvoiceDetail invoiceDetail = InvoiceDetail.builder()
+                    .bookingDetail(bookingDetail)
+                    .price(price)
+                    .isDeposit(isDeposit)
+                    .invoice(invoice)
+                    .createAt(Utils.formatVNDatetimeNow())
+                    .status(InvoiceDetailStatus.PENDING)
+                    .build();
+            totalPrice += price;
+            InvoiceDetail invoiceDetailSaved = invoiceDetailRepository.saveAndFlush(invoiceDetail);
+            Transaction transaction = Transaction.builder()
+                    .payment(paymentSaved)
+                    .transactionType(TransactionType.PAYMENT)
+                    .amount(invoiceDetailSaved.getPrice())
+                    .dateCreated(Utils.formatVNDatetimeNow())
+                    .status(TransactionStatus.PROCESSING)
+                    .invoiceDetail(invoiceDetailSaved)
+                    .build();
+            transactionRepository.save(transaction);
+        }
+        paymentSaved.setAmount(totalPrice);
+        invoiceSaved.setTotalPrice(totalPrice);
+        invoiceRepository.save(invoiceSaved);
+        return totalPrice;
+    }
 
-//             for (String bookingDetailId: paymentDTO.getListBookingDetailId()) {
-//                 BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId)
-//                         .orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
-//                 switch (paymentDTO.getPaymentType()) {
-//                     case DEPOSIT -> bookingDetail.setStatus(BookingDetailStatus.DEPOSITED);
-//                     case FINAL_PAYMENT -> bookingDetail.setStatus(BookingDetailStatus.COMPLETED);
-//                 }
-//                 PaymentBookingService paymentBookingService = PaymentBookingService.builder()
-//                         .createAt(Utils.formatVNDatetimeNow())
-//                         .bookingDetail(bookingDetail)
-//                         .payment(paymentSave)
-//                         .status("ACTIVE")
-//                         .build();
-//                 paymentBookingServiceRepository.saveAndFlush(paymentBookingService);
-//             }
+//    private Map<Supplier, List<BookingDetail>> mapBookingDetailBySupplier(Set<Supplier> setSupplier, List<String> listBookingDetailId) {
+//        Map<Supplier, List<BookingDetail>> mapGroup = new HashMap<>();
+//        for (Supplier supplier : setSupplier) {
+//            List<BookingDetail> listBookingDetailBySupplier = bookingDetailRepository.findListBookingDetailBySupplierId(supplier.getId(), listBookingDetailId);
+//            mapGroup.put(supplier, listBookingDetailBySupplier);
+//        }
+//        return mapGroup;
+//    }
 
-//             if (paymentDTO.getPaymentType().equals(PaymentType.FINAL_PAYMENT)) {
-//                 completeMoneyForServiceSupplier(amount, firstBookingDetail.getService().getServiceSupplier().getId(), paymentDTO.getListBookingDetailId());
-//             }
-//             response.sendRedirect("localhost:3000");
-//         }
-//     }
+    private Map<Supplier, List<BookingDetail>> mapBookingDetailBySupplier(Set<Supplier> setSupplier, List<BookingDetail> listBookingDetail) {
+        Map<Supplier, List<BookingDetail>> mapGroup = new HashMap<>();
+        for (Supplier supplier : setSupplier) {
+            List<BookingDetail> listBookingDetailBySupplier = bookingDetailRepository.findListBookingDetailBySupplierId(supplier.getId(), listBookingDetail);
+            mapGroup.put(supplier, listBookingDetailBySupplier);
+        }
+        return mapGroup;
+    }
 
-//     private void completeMoneyForServiceSupplier(int amount, String serviceSupplierId, List<String> bookingDetailId) {
-//         Wallet wallet = walletRepository.findByServiceSupplierId(serviceSupplierId)
-//                 .orElseThrow(() -> new ErrorException(WalletErrorMessage.NOT_FOUND));
-//         wallet.setBalance(wallet.getBalance() + amount);
-//         Transaction transaction = Transaction.builder()
-//                 .dateCreated(Utils.formatVNDatetimeNow())
-//                 .amount(amount)
-//                 .description(String.format(TransactionSuccessMessage.TRANSACTION_COMPLETED_DESCRIPTION, bookingDetailId,
-//                         amount))
-//                 .transactionType(TransactionType.PLUS)
-//                 .wallet(wallet)
-//                 .build();
-//         transactionRepository.save(transaction);
-//     }
-// }
+    private Set<Supplier> getSuppliersInListBookingId(List<String> listBookingDetailId) {
+        Set<Supplier> setSupplier = new HashSet<>();
+        for (String bookingDetailId : listBookingDetailId) {
+            BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId)
+                    .orElseThrow(() -> new ErrorException(String.format(BookingDetailErrorMessage.NOT_FOUND_BY_ID, bookingDetailId)));
+            setSupplier.add(bookingDetail.getServiceSupplier().getSupplier());
+        }
+        return setSupplier;
+    }
+
+    @Override
+    @Transactional
+    public void responsePaymentVNP(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        //String vnpTransactionNo = request.getParameter("vnp_TransactionNo");
+        //int amount = (int) (Long.parseLong(request.getParameter("vnp_Amount")) / 100);
+        UpdatePaymentStatusDTO updatePaymentStatusDTO = new UpdatePaymentStatusDTO();
+        if (VNResponseCode.PAYMENT_SUCCESSFULLY_VALE.equals(request.getParameter("vnp_ResponseCode"))) {
+            updatePaymentStatusDTO.setInvoiceStatus(InvoiceStatus.PAID);
+            updatePaymentStatusDTO.setInvoiceDetailStatus(InvoiceDetailStatus.COMPLETED);
+            updatePaymentStatusDTO.setTransactionStatus(TransactionStatus.COMPLETED);
+        } else {
+            updatePaymentStatusDTO.setInvoiceStatus(InvoiceStatus.CANCELLED);
+            updatePaymentStatusDTO.setInvoiceDetailStatus(InvoiceDetailStatus.CANCELLED);
+            updatePaymentStatusDTO.setTransactionStatus(TransactionStatus.CANCELLED);
+        }
+        //invoice infor
+        String paymentInfor = request.getParameter("vnp_OrderInfo");
+        CreatePaymentDTO paymentDTO = objectMapper.readValue(paymentInfor, CreatePaymentDTO.class);
+        BookingDetail firstBookingDetail = bookingDetailRepository.findById(paymentDTO.getListBookingDetailId().get(0))
+                .orElseThrow(() -> new ErrorException(String.format(BookingDetailErrorMessage.NOT_FOUND_BOOKING, paymentDTO.getListBookingDetailId().get(0))));
+        Booking booking = firstBookingDetail.getBooking();
+        //update invoice
+        updateInvoicePending(booking, updatePaymentStatusDTO);
+        List<BookingDetail>  bookingDetailList = bookingDetailRepository.findListBookingDetailInList(paymentDTO.getListBookingDetailId());
+        //update booking
+        if(paymentDTO.isDeposit()){
+            bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.PROCESSING));
+        }else{
+            bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.COMPLETED));
+        }
+        bookingDetailRepository.saveAll(bookingDetailList);
+        boolean check = checkBookingComplete(booking);
+        if(check){
+            booking.setStatus(BookingStatus.COMPLETED);
+            bookingRepository.save(booking);
+            //transfer amount to wallet supplier
+            transferAmountToSupplier(booking);
+        }
+        response.sendRedirect("https://www.youtube.com");
+    }
+
+    private boolean checkBookingComplete(Booking booking){
+        List<Invoice> allInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PAID);
+        int amount = allInvoice.stream().mapToInt(Invoice::getTotalPrice).sum();
+        return amount == booking.getTotalPrice();
+    }
+
+    private void updateInvoicePending(Booking booking, UpdatePaymentStatusDTO updatePaymentStatusDTO){
+        List<Invoice> listInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PENDING);
+        for (Invoice invoice : listInvoice) {
+            //change invoice status
+            invoice.setStatus(updatePaymentStatusDTO.getInvoiceStatus());
+            //add deposited in invoice detail
+            List<InvoiceDetail> listInvoiceDetail = (List<InvoiceDetail>) invoice.getInvoiceDetails();
+            listInvoiceDetail.forEach(id -> id.setStatus(updatePaymentStatusDTO.getInvoiceDetailStatus()));
+            //change transactions status
+            Payment payment = paymentRepository.findByInvoiceIdAndPaymentMethod(invoice.getId(), PaymentMethod.VNPAY);
+            List<Transaction> listTransaction = transactionRepository.findByPaymentId(payment.getId());
+            listTransaction.forEach(t -> t.setStatus(updatePaymentStatusDTO.getTransactionStatus()));
+        }
+        invoiceRepository.saveAll(listInvoice);
+    }
+
+    private void transferAmountToSupplier(Booking booking){
+        List<BookingDetail> allBookingDetail = bookingDetailRepository.findByBookingAndStatus(booking, BookingDetailStatus.COMPLETED);
+        Set<Supplier> setSupplier = new HashSet<>();
+        allBookingDetail.forEach(bd -> setSupplier.add(bd.getServiceSupplier().getSupplier()));
+        Map<Supplier, List<BookingDetail>> mapSupplierBookingDetail = mapBookingDetailBySupplier(setSupplier, allBookingDetail);
+        for (Supplier supplier: setSupplier) {
+            List<BookingDetail> listBookingDetailBySupplier = mapSupplierBookingDetail.get(supplier);
+            int totalAmount = listBookingDetailBySupplier.stream().mapToInt(BookingDetail::getPrice).sum();
+            int supplierAmount = (int)(totalAmount * PaymentTypeValue.FINAL_PAYMENT_VALUE);
+            int platformFee = (int)(totalAmount * PaymentTypeValue.DEPOSIT_VALUE);
+
+            Wallet supplierWallet = supplier.getAccount().getWallet();
+            supplierWallet.setBalance(supplierWallet.getBalance() + supplierAmount);
+            Wallet walletSaved = walletRepository.saveAndFlush(supplierWallet);
+            WalletHistory walletHistory = WalletHistory.builder()
+                    .wallet(walletSaved)
+                    .type(WalletHistoryType.PlUS)
+                    .createDate(Utils.formatVNDatetimeNow())
+                    .amount(supplierAmount)
+                    .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY_FROM_BOOKING, supplierAmount, booking.getId()))
+                    .build();
+            walletHistoryRepository.save(walletHistory);
+
+            TransactionSummary transactionSummary = TransactionSummary.builder()
+                    .booking(booking)
+                    .supplierAmount(supplierAmount)
+                    .dateCreated(Utils.formatVNDatetimeNow())
+                    .totalAmount(totalAmount)
+                    .platformFee(platformFee)
+                    .build();
+            transactionSummaryRepository.save(transactionSummary);
+        }
+    }
+}

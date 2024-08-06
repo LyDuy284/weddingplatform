@@ -64,4 +64,7 @@ public class Account {
     @ToString.Include
     @JsonIgnore
     private Collection<Supplier> supplier;
+
+    @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    private Wallet wallet;
 }

@@ -1,6 +1,7 @@
 package com.fu.weddingplatform.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -29,4 +30,9 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, St
       "order by bd.create_at desc")
   List<BookingDetail> findBySupplier(String supplierId);
 
+  @Query("select bd from BookingDetail bd where bd.serviceSupplier.supplier.id = ?1 and bd in ?2")
+  List<BookingDetail> findListBookingDetailBySupplierId(String supplierId, List<BookingDetail> bookingDetail);
+
+  @Query("select bd from BookingDetail bd where bd.id in ?1")
+  List<BookingDetail> findListBookingDetailInList(List<String> bookingDetailId);
 }

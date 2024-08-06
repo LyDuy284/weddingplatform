@@ -23,16 +23,23 @@ public class Wallet {
     private int balance;
 
     @OneToOne
-    @JoinColumn(name = "supplier_id", unique = true)
-    private Supplier supplier;
-
-    @OneToOne
-    @JoinColumn(name = "couple_id", unique = true)
-    private Couple couple;
+    @JoinColumn(name = "account_id", unique = true)
+    private Account account;
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Include
     @ToString.Include
     @JsonIgnore
-    private Collection<Transaction> transactions;
+    private Collection<WalletHistory> walletHistories;
+
+    /*
+    @OneToOne
+    @JoinColumn(name = "supplier_id", unique = true)
+    private Supplier supplier;
+
+    @OneToOne
+    @JoinColumn(name = "couple_id", unique = true)
+    private Couple couple;*/
+
+
 }
