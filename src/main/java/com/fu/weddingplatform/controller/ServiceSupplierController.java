@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierSuccessMessage;
 import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
+import com.fu.weddingplatform.request.serviceSupplier.UpdateServiceSupplier;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
@@ -41,6 +43,17 @@ public class ServiceSupplierController {
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(ServiceSupplierSuccessMessage.CREATE);
         responseDTO.setData(serviceSupplierResponse);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    @PutMapping("update")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+    public ResponseEntity<?> updateServiceSupplier(@Validated @RequestBody UpdateServiceSupplier request) {
+        ServiceSupplierFilterResponse data = serviceSupplierService.updateServiceSupplier(request);
+        ResponseDTO<ServiceSupplierFilterResponse> responseDTO = new ResponseDTO<>();
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ServiceSupplierSuccessMessage.UPDATE);
+        responseDTO.setData(data);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
