@@ -57,7 +57,9 @@ public class BlogPostServiceImp implements BlogPostService {
             if (blogPost.getImages() != null && blogPost.getImages() != "") {
                 String[] imageArray = blogPost.getImages().split("\n,");
                 for (String image : imageArray) {
-                    listImages.add(image.trim());
+                    if (image.trim() != "") {
+                        listImages.add(image.trim());
+                    }
                 }
             }
             blogPostResponse.setListImages(listImages);
@@ -91,7 +93,9 @@ public class BlogPostServiceImp implements BlogPostService {
             if (blogPost.getImages() != null && blogPost.getImages() != "") {
                 String[] imageArray = blogPost.getImages().split("\n,");
                 for (String image : imageArray) {
-                    listImages.add(image.trim());
+                    if (image.trim() != "") {
+                        listImages.add(image.trim());
+                    }
                 }
             }
             blogPostResponse.setListImages(listImages);
@@ -117,7 +121,9 @@ public class BlogPostServiceImp implements BlogPostService {
         if (blogPost.getImages() != null && blogPost.getImages() != "") {
             String[] imageArray = blogPost.getImages().split("\n,");
             for (String image : imageArray) {
-                listImages.add(image.trim());
+                if (image.trim() != "") {
+                    listImages.add(image.trim());
+                }
             }
         }
         response.setListImages(listImages);
@@ -150,7 +156,9 @@ public class BlogPostServiceImp implements BlogPostService {
         if (newBlog.getImages() != null && newBlog.getImages() != "") {
             String[] imageArray = newBlog.getImages().split("\n,");
             for (String image : imageArray) {
-                listImages.add(image.trim());
+                if (image.trim() != "") {
+                    listImages.add(image.trim());
+                }
             }
         }
         response.setListImages(listImages);
@@ -179,7 +187,9 @@ public class BlogPostServiceImp implements BlogPostService {
         if (blogPost.getImages() != null && blogPost.getImages() != "") {
             String[] imageArray = blogPost.getImages().split("\n,");
             for (String image : imageArray) {
-                listImages.add(image.trim());
+                if (image.trim() != "") {
+                    listImages.add(image.trim());
+                }
             }
         }
         response.setListImages(listImages);

@@ -105,20 +105,21 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
                 .createAt(Utils.formatVNDatetimeNow())
                 .build();
         Promotion promotion = null;
+        ServiceSupplier serviceSupplierSaved = serviceSupplierRepository.save(serviceSupplier);
+
         if (createDTO.getPromotionId() != null && createDTO.getPromotionId().trim() != "") {
             promotion = promotionRepository.findById(createDTO.getPromotionId()).orElseThrow(
                     () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
 
             PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier
                     .builder()
-                    .serviceSupplier(serviceSupplier)
+                    .serviceSupplier(serviceSupplierSaved)
                     .promotion(promotion)
                     .build();
 
             promotionServiceSupplierRepository.save(promotionServiceSupplier);
         }
 
-        ServiceSupplier serviceSupplierSaved = serviceSupplierRepository.save(serviceSupplier);
         ServiceSupplierResponse response = convertServiceSupplierToResponse(serviceSupplierSaved);
 
         return response;
@@ -181,7 +182,9 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         if (serviceSupplier.getImages() != null && serviceSupplier.getImages() != "") {
             String[] imageArray = serviceSupplier.getImages().split("\n,");
             for (String image : imageArray) {
-                listImages.add(image.trim());
+                if (image.trim() != "") {
+                    listImages.add(image.trim());
+                }
             }
         }
 
