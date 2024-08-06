@@ -4,11 +4,19 @@ import java.sql.Date;
 
 import com.fu.weddingplatform.entity.Account;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
-@RequiredArgsConstructor
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class CoupleResponse {
     String id;
     String partnerName1;

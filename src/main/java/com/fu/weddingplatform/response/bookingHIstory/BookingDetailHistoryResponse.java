@@ -14,6 +14,6 @@ import lombok.Setter;
 public class BookingDetailHistoryResponse {
     private String status;
     private String createdAt;
-    private String notedescription;
+    private String note;
 
 }

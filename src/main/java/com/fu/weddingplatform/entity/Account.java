@@ -66,5 +66,6 @@ public class Account {
     private Collection<Supplier> supplier;
 
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Wallet wallet;
 }

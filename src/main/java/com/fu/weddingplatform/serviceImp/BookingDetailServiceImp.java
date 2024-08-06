@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.fu.weddingplatform.constant.booking.BookingStatus;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailErrorMessage;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
+import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.BookingDetailHistory;
 import com.fu.weddingplatform.entity.BookingHistory;
@@ -102,7 +103,9 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     bookingDetail.setStatus(BookingDetailStatus.REJECTED);
 
-    bookingDetailRepository.save(bookingDetail);
+    Booking booking = bookingDetail.getBooking();
+    booking.setTotalPrice(booking.getTotalPrice() - bookingDetail.getPrice());
+    bookingDetailRepository.saveAndFlush(bookingDetail);
 
     BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
         .bookingDetail(bookingDetail)
@@ -179,7 +182,9 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     bookingDetail.setStatus(BookingDetailStatus.CANCELLED);
 
-    bookingDetailRepository.save(bookingDetail);
+    Booking booking = bookingDetail.getBooking();
+    booking.setTotalPrice(booking.getTotalPrice() - bookingDetail.getPrice());
+    bookingDetailRepository.saveAndFlush(bookingDetail);
 
     BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
         .bookingDetail(bookingDetail)
@@ -200,60 +205,60 @@ public class BookingDetailServiceImp implements BookingDetailService {
     }
 
     List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatus(
-        bookingDetail.getBooking(),
+        booking,
         BookingDetailStatus.PENDING);
 
     if (listBookingDetailPending.size() == 0) {
 
       List<BookingDetail> listBookingDetailComplete = bookingDetailRepository.findByBookingAndStatus(
-          bookingDetail.getBooking(),
+          booking,
           BookingDetailStatus.COMPLETED);
 
       List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatus(
-          bookingDetail.getBooking(),
+          booking,
           BookingDetailStatus.APPROVED);
 
       List<BookingDetail> listBookingDetailReject = bookingDetailRepository.findByBookingAndStatus(
-          bookingDetail.getBooking(),
+          booking,
           BookingDetailStatus.REJECTED);
 
       if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0
           && listBookingDetailReject.size() == 0) {
 
-        bookingDetail.getBooking().setStatus(BookingStatus.CANCLE);
+        booking.setStatus(BookingStatus.CANCLE);
 
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
-            .booking(bookingDetail.getBooking())
+            .booking(booking)
             .status(BookingStatus.CANCLE)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
       } else if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0) {
 
-        bookingDetail.getBooking().setStatus(BookingStatus.REJECT);
+        booking.setStatus(BookingStatus.REJECT);
 
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
-            .booking(bookingDetail.getBooking())
+            .booking(booking)
             .status(BookingStatus.REJECT)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
       } else if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() != 0) {
 
-        bookingDetail.getBooking().setStatus(BookingStatus.CONFIRM);
+        booking.setStatus(BookingStatus.CONFIRM);
 
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
-            .booking(bookingDetail.getBooking())
+            .booking(booking)
             .status(BookingStatus.CONFIRM)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
       } else {
-        bookingDetail.getBooking().setStatus(BookingStatus.COMPLETED);
+        booking.setStatus(BookingStatus.COMPLETED);
 
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
-            .booking(bookingDetail.getBooking())
+            .booking(booking)
             .status(BookingStatus.COMPLETED)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
