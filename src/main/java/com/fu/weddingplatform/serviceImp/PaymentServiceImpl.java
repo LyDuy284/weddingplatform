@@ -21,10 +21,16 @@ import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.*;
 import com.fu.weddingplatform.request.payment.CreatePaymentDTO;
 import com.fu.weddingplatform.request.payment.UpdatePaymentStatusDTO;
+import com.fu.weddingplatform.response.combo.ComboResponse;
+import com.fu.weddingplatform.service.BookingDetailService;
 import com.fu.weddingplatform.service.PaymentService;
 import com.fu.weddingplatform.utils.Utils;
 import com.fu.weddingplatform.utils.VNPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -71,6 +78,9 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     TransactionSummaryRepository transactionSummaryRepository;
+
+    @Autowired
+    BookingDetailService bookingDetailService;
 
     @Override
     @Transactional
@@ -127,7 +137,7 @@ public class PaymentServiceImpl implements PaymentService {
         vnp_Params.put("vnp_OrderInfo", objectMapper.writeValueAsString(paymentDTO));
         int amount = createInvoiceForEachSupplier(paymentRequest.getListBookingDetailId(), paymentRequest.isDeposit());
         vnp_Params.put("vnp_Amount", String.valueOf(amount * 100L));
-        vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL_SERVER);
+        vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -260,36 +270,43 @@ public class PaymentServiceImpl implements PaymentService {
         Booking booking = firstBookingDetail.getBooking();
         //update invoice
         updateInvoicePending(booking, updatePaymentStatusDTO);
-        List<BookingDetail>  bookingDetailList = bookingDetailRepository.findListBookingDetailInList(paymentDTO.getListBookingDetailId());
+        List<BookingDetail> bookingDetailList = bookingDetailRepository.findListBookingDetailInList(paymentDTO.getListBookingDetailId());
+        int totalAmount = 0;
         //update booking
-        if(paymentDTO.isDeposit()){
-            bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.PROCESSING));
-        }else{
-            bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.COMPLETED));
+        if (paymentDTO.isDeposit()) {
+//            bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.PROCESSING));
+            bookingDetailList.forEach(bd -> bookingDetailService.processingBookingDetail(bd.getId()));
+            totalAmount  = (int)(bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum() * PaymentTypeValue.DEPOSIT_VALUE);
+        } else {
+//            bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.COMPLETED));
+            bookingDetailList.forEach(bd -> bookingDetailService.completeBookingDetail(bd.getId()));
+            totalAmount  = (int)(bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum() * PaymentTypeValue.FINAL_PAYMENT_VALUE);
         }
-        bookingDetailRepository.saveAll(bookingDetailList);
+//        bookingDetailRepository.saveAll(bookingDetailList);
+        setTransactionSummary(booking, totalAmount);
         boolean check = checkBookingComplete(booking);
-        if(check){
+        if (check) {
             booking.setStatus(BookingStatus.COMPLETED);
             bookingRepository.save(booking);
             //transfer amount to wallet supplier
             transferAmountToSupplier(booking);
         }
+
         response.sendRedirect("https://www.youtube.com");
     }
 
-    private boolean checkBookingComplete(Booking booking){
+    private boolean checkBookingComplete(Booking booking) {
         List<Invoice> allInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PAID);
         int amount = allInvoice.stream().mapToInt(Invoice::getTotalPrice).sum();
         return amount == booking.getTotalPrice();
     }
 
-    private void updateInvoicePending(Booking booking, UpdatePaymentStatusDTO updatePaymentStatusDTO){
+    private void updateInvoicePending(Booking booking, UpdatePaymentStatusDTO updatePaymentStatusDTO) {
         List<Invoice> listInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PENDING);
         for (Invoice invoice : listInvoice) {
             //change invoice status
             invoice.setStatus(updatePaymentStatusDTO.getInvoiceStatus());
-            //add deposited in invoice detail
+            //update invoice detail status
             List<InvoiceDetail> listInvoiceDetail = (List<InvoiceDetail>) invoice.getInvoiceDetails();
             listInvoiceDetail.forEach(id -> id.setStatus(updatePaymentStatusDTO.getInvoiceDetailStatus()));
             //change transactions status
@@ -300,17 +317,15 @@ public class PaymentServiceImpl implements PaymentService {
         invoiceRepository.saveAll(listInvoice);
     }
 
-    private void transferAmountToSupplier(Booking booking){
+    private void transferAmountToSupplier(Booking booking) {
         List<BookingDetail> allBookingDetail = bookingDetailRepository.findByBookingAndStatus(booking, BookingDetailStatus.COMPLETED);
         Set<Supplier> setSupplier = new HashSet<>();
         allBookingDetail.forEach(bd -> setSupplier.add(bd.getServiceSupplier().getSupplier()));
         Map<Supplier, List<BookingDetail>> mapSupplierBookingDetail = mapBookingDetailBySupplier(setSupplier, allBookingDetail);
-        for (Supplier supplier: setSupplier) {
+        for (Supplier supplier : setSupplier) {
             List<BookingDetail> listBookingDetailBySupplier = mapSupplierBookingDetail.get(supplier);
             int totalAmount = listBookingDetailBySupplier.stream().mapToInt(BookingDetail::getPrice).sum();
-            int supplierAmount = (int)(totalAmount * PaymentTypeValue.FINAL_PAYMENT_VALUE);
-            int platformFee = (int)(totalAmount * PaymentTypeValue.DEPOSIT_VALUE);
-
+            int supplierAmount = (int) (totalAmount * PaymentTypeValue.FINAL_PAYMENT_VALUE);
             Wallet supplierWallet = supplier.getAccount().getWallet();
             supplierWallet.setBalance(supplierWallet.getBalance() + supplierAmount);
             Wallet walletSaved = walletRepository.saveAndFlush(supplierWallet);
@@ -322,15 +337,28 @@ public class PaymentServiceImpl implements PaymentService {
                     .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY_FROM_BOOKING, supplierAmount, booking.getId()))
                     .build();
             walletHistoryRepository.save(walletHistory);
-
-            TransactionSummary transactionSummary = TransactionSummary.builder()
-                    .booking(booking)
-                    .supplierAmount(supplierAmount)
-                    .dateCreated(Utils.formatVNDatetimeNow())
-                    .totalAmount(totalAmount)
-                    .platformFee(platformFee)
-                    .build();
-            transactionSummaryRepository.save(transactionSummary);
         }
+    }
+
+    private void setTransactionSummary(Booking booking, int totalAmount){
+        int supplierAmount = (int) (totalAmount * PaymentTypeValue.FINAL_PAYMENT_VALUE);
+        int platformFee = (int) (totalAmount * PaymentTypeValue.DEPOSIT_VALUE);
+        Optional<TransactionSummary> optionalTransactionSummary = transactionSummaryRepository.findByBookingId(booking.getId());
+        TransactionSummary transactionSummary;
+        if(optionalTransactionSummary.isPresent()){
+            transactionSummary = optionalTransactionSummary.get();
+            totalAmount += transactionSummary.getTotalAmount();
+            supplierAmount += transactionSummary.getSupplierAmount();
+            platformFee += transactionSummary.getPlatformFee();
+        }else{
+            transactionSummary = new TransactionSummary();
+            transactionSummary.setDateCreated(Utils.formatVNDatetimeNow());
+        }
+        transactionSummary.setBooking(booking);
+        transactionSummary.setSupplierAmount(supplierAmount);
+        transactionSummary.setTotalAmount(totalAmount);
+        transactionSummary.setPlatformFee(platformFee);
+        transactionSummary.setDateModified(Utils.formatVNDatetimeNow());
+        transactionSummaryRepository.save(transactionSummary);
     }
 }

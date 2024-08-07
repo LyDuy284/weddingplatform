@@ -37,7 +37,7 @@ public class ComboController {
         ListResponseDTO<ComboResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setData(comboResponses);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
-        responseDTO.setMessage(ComboSuccessMessage.CREATE);
+        responseDTO.setMessage(ComboSuccessMessage.GET);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
