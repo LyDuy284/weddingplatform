@@ -80,9 +80,10 @@ public class Utils {
         return decimalFormat.format(amount) + " VND";
     }
 
-    public static String formatServiceDetail(String name, String price) {
-        return String.format(" - %-25s %-20s", name , price);
+    public static String formatServiceDetail(String name, String price, String note, String dateComplete) {
+        return String.format("- " + "%-" + 35 + "s%s\n \t\tNgày hoàn thành: %s \n\t\tGhi chú: %s\n", name, price,
+                dateComplete,
+                note);
     }
 
 }
-    

@@ -38,7 +38,8 @@ public class BookingController {
 
   @PostMapping("create")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
-  public ResponseEntity<?> createBooking(@Validated @RequestBody CreateBookingDTO createBookingDTO) {
+  public ResponseEntity<?> createBooking(@Validated @RequestBody CreateBookingDTO createBookingDTO)
+      throws MessagingException {
     BookingResponse data = bookingService.createBooking(createBookingDTO);
     ResponseDTO<BookingResponse> responseDTO = new ResponseDTO<>();
     responseDTO.setStatus(ResponseStatusDTO.SUCCESS);

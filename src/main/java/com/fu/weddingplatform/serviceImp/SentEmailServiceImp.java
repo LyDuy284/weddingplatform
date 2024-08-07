@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.email.BookingByCouple;
+import com.fu.weddingplatform.constant.email.BookingForSupplier;
 import com.fu.weddingplatform.constant.email.Signature;
 import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.entity.BookingDetail;
@@ -31,7 +32,8 @@ public class SentEmailServiceImp implements SentEmailService {
   public void sentEmail(SentEmail sentEmail) throws MessagingException {
     MimeMessage mimeMessage = javaMailSender.createMimeMessage();
     MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-    mimeMessageHelper.setTo(sentEmail.getEmail());
+    mimeMessageHelper.setTo("dinhquanghuydt@gmail.com");
+    // mimeMessageHelper.setTo(sentEmail.getEmail());
     mimeMessageHelper.setSubject(sentEmail.getTitle());
     mimeMessageHelper.setText(sentEmail.getContent());
     mimeMessageHelper.setFrom(String.format("\"%s\" <%s>", "The-Day-PlatForm", "weddingplatform176@gmail.com"));
@@ -44,11 +46,12 @@ public class SentEmailServiceImp implements SentEmailService {
   @Override
   public void sentBookingForCouple(Booking booking) throws MessagingException {
 
-    String listService = "\n";
+    String listService = "";
 
     for (BookingDetail bookingDetail : booking.getBookingDetails()) {
       String service = Utils.formatServiceDetail(bookingDetail.getServiceSupplier().getName(),
-          Utils.formatAmountToVND(bookingDetail.getPrice())) + "\n";
+          Utils.formatAmountToVND(bookingDetail.getPrice()), bookingDetail.getNote(), bookingDetail.getCompletedDate())
+          + "\n";
       listService += service;
     }
 
@@ -67,7 +70,32 @@ public class SentEmailServiceImp implements SentEmailService {
         .title(title)
         .status(Status.PENDING)
         .build();
-    // sentEmail(email, title, content);
+
+    sentEmailRepository.save(sentEmail);
+
+  }
+
+  @Override
+  public void sentBookingForSupplier(BookingDetail bookingDetail) throws MessagingException {
+
+    String service = "\t" + Utils.formatServiceDetail(bookingDetail.getServiceSupplier().getName(),
+        Utils.formatAmountToVND(bookingDetail.getPrice()), bookingDetail.getNote(), bookingDetail.getCompletedDate())
+        + "\n";
+
+    String content = String.format(BookingForSupplier.content,
+        bookingDetail.getServiceSupplier().getSupplier().getSupplierName(), bookingDetail.getId(),
+        bookingDetail.getCreateAt(), service);
+    content += Signature.signature;
+
+    String email = bookingDetail.getServiceSupplier().getSupplier().getContactEmail();
+
+    String title = "Xác nhận đơn hàng";
+    SentEmail sentEmail = SentEmail.builder()
+        .email(email)
+        .content(content)
+        .title(title)
+        .status(Status.PENDING)
+        .build();
 
     sentEmailRepository.save(sentEmail);
   }

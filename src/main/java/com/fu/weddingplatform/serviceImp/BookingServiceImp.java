@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.mail.MessagingException;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -100,7 +102,7 @@ public class BookingServiceImp implements BookingService {
   private SentEmailService sentEmailService;
 
   @Override
-  public BookingResponse createBooking(CreateBookingDTO createDTO) {
+  public BookingResponse createBooking(CreateBookingDTO createDTO) throws MessagingException {
 
     Couple couple = coupleRepository.findById(createDTO.getCoupleId()).orElseThrow(
         () -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
@@ -193,12 +195,14 @@ public class BookingServiceImp implements BookingService {
     for (BookingDetail bookingDetail : listBookingDetails) {
       BookingDetail bookingDetailSaved = bookingDetailRepository.saveAndFlush(bookingDetail);
       listBookingDetailSaved.add(bookingDetailSaved);
+
       BookingDetailHistory bookingDetailHistory = BookingDetailHistory
           .builder()
           .createdAt(Utils.formatVNDatetimeNow())
           .status(bookingDetail.getStatus())
           .bookingDetail(bookingDetailSaved)
           .build();
+      sentEmailService.sentBookingForSupplier(bookingDetail);
 
       bookingDetailHistoryRepository.save(bookingDetailHistory);
 
@@ -225,7 +229,7 @@ public class BookingServiceImp implements BookingService {
     response.setListBookingDetail(listBookingDetailResponse);
     response.setCouple(coupleResponse);
     response.setTotalPrice(totalPrice);
-
+    sentEmailService.sentBookingForCouple(bookingSaved);
     return response;
   }
 

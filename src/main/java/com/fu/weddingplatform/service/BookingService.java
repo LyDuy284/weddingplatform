@@ -11,7 +11,7 @@ import com.fu.weddingplatform.response.booking.BookingResponse;
 import com.fu.weddingplatform.response.bookingHIstory.BookingHistoryResponse;
 
 public interface BookingService {
-  public BookingResponse createBooking(CreateBookingDTO createDTO);
+  public BookingResponse createBooking(CreateBookingDTO createDTO) throws MessagingException;
 
   public List<BookingDetailBySupplierResponse> getAllBookingBySupplier(String supplierId);
 
