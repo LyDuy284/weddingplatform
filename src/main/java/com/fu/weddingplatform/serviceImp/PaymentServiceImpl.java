@@ -309,7 +309,7 @@ public class PaymentServiceImpl implements PaymentService {
             transferAmountToSupplier(booking);
         }
 
-        response.sendRedirect("https://www.youtube.com");
+        response.sendRedirect("http://localhost:3000/booking-history");
     }
 
     private boolean checkBookingComplete(Booking booking) {
