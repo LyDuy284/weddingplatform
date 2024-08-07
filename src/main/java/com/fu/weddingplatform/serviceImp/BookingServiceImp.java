@@ -50,6 +50,7 @@ import com.fu.weddingplatform.service.BookingDetailService;
 import com.fu.weddingplatform.service.BookingService;
 import com.fu.weddingplatform.service.CoupleService;
 import com.fu.weddingplatform.service.PromotionService;
+import com.fu.weddingplatform.service.SentEmailService;
 import com.fu.weddingplatform.service.ServiceSupplierService;
 import com.fu.weddingplatform.utils.Utils;
 
@@ -95,6 +96,9 @@ public class BookingServiceImp implements BookingService {
   @Autowired
   private BookingDetailService bookingDetailService;
 
+  @Autowired
+  private SentEmailService sentEmailService;
+
   @Override
   public BookingResponse createBooking(CreateBookingDTO createDTO) {
 
@@ -116,6 +120,7 @@ public class BookingServiceImp implements BookingService {
     Booking bookingSaved = bookingRepository.save(booking);
 
     List<BookingDetailResponse> listBookingDetailResponse = new ArrayList<>();
+    List<BookingDetail> listBookingDetailSaved = new ArrayList<>();
 
     List<BookingDetail> listBookingDetails = new ArrayList<>();
     int totalPrice = 0;
@@ -175,8 +180,8 @@ public class BookingServiceImp implements BookingService {
     }
 
     bookingSaved.setTotalPrice(totalPrice);
-    bookingRepository.save(bookingSaved);
-    
+    bookingRepository.saveAndFlush(bookingSaved);
+
     BookingHistory bookingHistory = BookingHistory.builder()
         .booking(bookingSaved)
         .createdAt(Utils.formatVNDatetimeNow())
@@ -186,8 +191,8 @@ public class BookingServiceImp implements BookingService {
     bookingHistoryRepository.save(bookingHistory);
 
     for (BookingDetail bookingDetail : listBookingDetails) {
-      BookingDetail bookingDetailSaved = bookingDetailRepository.save(bookingDetail);
-
+      BookingDetail bookingDetailSaved = bookingDetailRepository.saveAndFlush(bookingDetail);
+      listBookingDetailSaved.add(bookingDetailSaved);
       BookingDetailHistory bookingDetailHistory = BookingDetailHistory
           .builder()
           .createdAt(Utils.formatVNDatetimeNow())
@@ -212,7 +217,8 @@ public class BookingServiceImp implements BookingService {
       listBookingDetailResponse.add(bookingDetailResponse);
 
     }
-
+    bookingSaved.setBookingDetails(listBookingDetails);
+    bookingRepository.save(bookingSaved);
     BookingResponse response = modelMapper.map(bookingSaved,
         BookingResponse.class);
     CoupleResponse coupleResponse = coupleService.getCoupleById(couple.getId());

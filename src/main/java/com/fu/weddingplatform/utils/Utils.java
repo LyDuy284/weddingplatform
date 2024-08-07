@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.utils;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -8,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.crypto.SecretKey;
 
@@ -68,4 +71,18 @@ public class Utils {
         return result;
     }
 
+    public static String formatAmountToVND(long amount) {
+        // Define the decimal format pattern
+        DecimalFormat decimalFormat = (DecimalFormat) NumberFormat.getNumberInstance(Locale.GERMAN);
+        decimalFormat.applyPattern("#,###");
+
+        // Format the amount and append the currency
+        return decimalFormat.format(amount) + " VND";
+    }
+
+    public static String formatServiceDetail(String name, String price) {
+        return String.format(" - %-25s %-20s", name , price);
+    }
+
 }
+    

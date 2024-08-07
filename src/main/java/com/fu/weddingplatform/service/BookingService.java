@@ -2,6 +2,8 @@ package com.fu.weddingplatform.service;
 
 import java.util.List;
 
+import javax.mail.MessagingException;
+
 import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
