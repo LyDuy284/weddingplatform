@@ -8,11 +8,13 @@ import javax.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
-import com.fu.weddingplatform.constant.email.BookingByCouple;
 import com.fu.weddingplatform.constant.email.BookingForSupplier;
+import com.fu.weddingplatform.constant.email.EmailBookingForCouple;
 import com.fu.weddingplatform.constant.email.RejectBookingDetail;
 import com.fu.weddingplatform.constant.email.Signature;
 import com.fu.weddingplatform.entity.Booking;
@@ -20,10 +22,12 @@ import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.SentEmail;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.SentEmailRepository;
+import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.service.SentEmailService;
 import com.fu.weddingplatform.utils.Utils;
 
 @Service
+@EnableScheduling
 public class SentEmailServiceImp implements SentEmailService {
 
   @Autowired
@@ -45,10 +49,9 @@ public class SentEmailServiceImp implements SentEmailService {
   public void sentEmail(SentEmail sentEmail) throws MessagingException {
     MimeMessage mimeMessage = javaMailSender.createMimeMessage();
     MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-    mimeMessageHelper.setTo("dinhquanghuydt@gmail.com");
-    // mimeMessageHelper.setTo(sentEmail.getEmail());
+    mimeMessageHelper.setTo(sentEmail.getEmail());
     mimeMessageHelper.setSubject(sentEmail.getTitle());
-    mimeMessageHelper.setText(sentEmail.getContent());
+    mimeMessageHelper.setText(sentEmail.getContent(), true);
     mimeMessageHelper.setFrom(String.format("\"%s\" <%s>", "The-Day-PlatForm", "weddingplatform176@gmail.com"));
     javaMailSender.send(mimeMessage);
 
@@ -57,35 +60,19 @@ public class SentEmailServiceImp implements SentEmailService {
   }
 
   @Override
-  public void sentBookingForCouple(Booking booking) throws MessagingException {
+  public void sentBookingForCouple(EmailBookingForCoupleDTO emailBookingForCoupleDTO) throws MessagingException {
 
-    String listService = "";
-
-    for (BookingDetail bookingDetail : booking.getBookingDetails()) {
-      String service = Utils.formatServiceDetail(bookingDetail.getServiceSupplier().getName(),
-          Utils.formatAmountToVND(bookingDetail.getPrice()), bookingDetail.getNote(), bookingDetail.getCompletedDate())
-          + "\n";
-      listService += service;
-    }
-
-    String totalPrice = Utils.formatAmountToVND(booking.getTotalPrice());
-
-    String content = String.format(BookingByCouple.content, booking.getCouple().getAccount().getName(), booking.getId(),
-        booking.getCreatedAt(), listService, totalPrice, Utils.formatAmountToVND(0), totalPrice);
-    content += Signature.signature;
-
-    String email = booking.getCouple().getAccount().getEmail();
+    String content = EmailBookingForCouple.content(emailBookingForCoupleDTO);
 
     String title = "Đặt hàng thành công";
     SentEmail sentEmail = SentEmail.builder()
-        .email(email)
+        .email(emailBookingForCoupleDTO.getEmail())
         .content(content)
         .title(title)
         .status(Status.PENDING)
         .build();
 
     sentEmailRepository.save(sentEmail);
-
   }
 
   @Override
@@ -158,6 +145,23 @@ public class SentEmailServiceImp implements SentEmailService {
         .build();
 
     sentEmailRepository.save(sentEmail);
+  }
+
+  @Scheduled(cron = "*/5 * * * * *") // 5 second
+  public void sendMailAuto() {
+    SentEmail emailSchedule = sentEmailRepository.findFirstByStatus(Status.PENDING);
+
+    try {
+      if (emailSchedule != null) {
+        sentEmail(emailSchedule);
+        sentEmailRepository.delete(emailSchedule);
+      }
+    } catch (Exception e) {
+      if (emailSchedule != null) {
+        sentEmailRepository.delete(emailSchedule);
+      }
+      throw new RuntimeException(e);
+    }
   }
 
 }

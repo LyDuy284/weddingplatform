@@ -40,6 +40,7 @@ import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.repository.SupplierRepository;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.request.booking.ServiceSupplierBookingDTO;
+import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
@@ -229,7 +230,17 @@ public class BookingServiceImp implements BookingService {
     response.setListBookingDetail(listBookingDetailResponse);
     response.setCouple(coupleResponse);
     response.setTotalPrice(totalPrice);
-    sentEmailService.sentBookingForCouple(bookingSaved);
+
+    EmailBookingForCoupleDTO emailBookingForCoupleDTO = EmailBookingForCoupleDTO.builder()
+        .bookingId(bookingSaved.getId())
+        .createdAt(bookingSaved.getCreatedAt())
+        .email(couple.getAccount().getEmail())
+        .name(couple.getAccount().getName())
+        .totalPrice(Utils.formatAmountToVND(bookingSaved.getTotalPrice()))
+        .listBookingDetails(listBookingDetailSaved)
+        .build();
+
+    sentEmailService.sentBookingForCouple(emailBookingForCoupleDTO);
     return response;
   }
 
