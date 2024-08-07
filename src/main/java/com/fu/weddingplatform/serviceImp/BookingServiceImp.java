@@ -207,7 +207,7 @@ public class BookingServiceImp implements BookingService {
 
       EmailCreateBookingToSupplier emailCreateBookingToSupplier = EmailCreateBookingToSupplier.builder()
           .email(bookingDetail.getServiceSupplier().getSupplier().getContactEmail())
-          .name(bookingDetail.getServiceSupplier().getName())
+          .name(bookingDetail.getServiceSupplier().getSupplier().getContactPersonName())
           .note(bookingDetail.getNote())
           .phone(couple.getAccount().getPhoneNumber())
           .completeDate(bookingDetail.getCompletedDate())

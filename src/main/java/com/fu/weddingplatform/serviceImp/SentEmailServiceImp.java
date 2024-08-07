@@ -50,7 +50,8 @@ public class SentEmailServiceImp implements SentEmailService {
   public void sentEmail(SentEmail sentEmail) throws MessagingException {
     MimeMessage mimeMessage = javaMailSender.createMimeMessage();
     MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-    mimeMessageHelper.setTo(sentEmail.getEmail());
+    mimeMessageHelper.setTo("dinhquanghuydt@gmail.com");
+    // mimeMessageHelper.setTo(sentEmail.getEmail());
     mimeMessageHelper.setSubject(sentEmail.getTitle());
     mimeMessageHelper.setText(sentEmail.getContent(), true);
     mimeMessageHelper.setFrom(String.format("\"%s\" <%s>", "The-Day-PlatForm", "weddingplatform176@gmail.com"));

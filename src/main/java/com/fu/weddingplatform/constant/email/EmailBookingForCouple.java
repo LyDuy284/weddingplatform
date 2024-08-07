@@ -12,7 +12,7 @@ public class EmailBookingForCouple {
                 emailBody.append(
                                 "<div style=\"display: flex; align-items: center; flex-direction: column; margin-top: 1rem; \">");
                 emailBody.append(
-                                "  <div style=\"width: fit-content;  background-color: #FFDAC0; padding: 2rem; border-radius: 0.5rem;\">");
+                                "  <div style=\"width: 72rem;  background-color: #FFDAC0; padding: 2rem; border-radius: 0.5rem;\">");
                 emailBody.append("<p>Thân gửi <b>" + emailBookingForCouple.getName() + "<b>,</p>");
                 emailBody.append(
                                 "<p>Lời đầu tiên, <b>The Day<b> xin gửi lời cảm ơn đến quý khách vì đã tin tưởng và sử dụng nền tảng cho ngày trọng đại của quý khách.</p>");
