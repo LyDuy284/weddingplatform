@@ -36,6 +36,7 @@ public class TransactionSummary {
     @GenericGenerator(name = "transaction-summary-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.TransactionSummaryIdEnerator")
     private String id;
     private String dateCreated;
+    private String dateModified;
     private int totalAmount;
     private int platformFee;
     private int supplierAmount;

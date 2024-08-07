@@ -17,11 +17,11 @@ import lombok.ToString;
 @ToString
 @Builder
 public class BookingDetailResponse {
-  private ServiceSupplierResponse serviceSupplierResponse;
+  private ServiceSupplierResponse serviceSupplier;
   private String id;
   private int price;
   private String note;
   private String completedDate;
   private String status;
-  private PromotionResponse promotionResponse;
+  private PromotionResponse promotionServiceSupplier;
 }

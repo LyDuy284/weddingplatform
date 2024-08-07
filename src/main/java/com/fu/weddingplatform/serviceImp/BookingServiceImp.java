@@ -214,10 +214,10 @@ public class BookingServiceImp implements BookingService {
       if (bookingDetail.getPromotionServiceSupplier() != null) {
         PromotionResponse promotionResponse = promotionService
             .convertPromotionToResponse(bookingDetail.getPromotionServiceSupplier().getPromotion());
-        bookingDetailResponse.setPromotionResponse(promotionResponse);
+        bookingDetailResponse.setPromotionServiceSupplier(promotionResponse);
       }
 
-      bookingDetailResponse.setServiceSupplierResponse(serviceSupplierResponse);
+      bookingDetailResponse.setServiceSupplier(serviceSupplierResponse);
       listBookingDetailResponse.add(bookingDetailResponse);
 
     }
@@ -265,8 +265,8 @@ public class BookingServiceImp implements BookingService {
       PromotionResponse promotionResponse = promotionService.convertPromotionToResponse(promotion);
 
       BookingDetailResponse bookingDetailResponse = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-      bookingDetailResponse.setPromotionResponse(promotionResponse);
-      bookingDetailResponse.setServiceSupplierResponse(serviceSupplierResponse);
+      bookingDetailResponse.setPromotionServiceSupplier(promotionResponse);
+      bookingDetailResponse.setServiceSupplier(serviceSupplierResponse);
       listBookingDetailResponses.add(bookingDetailResponse);
 
     }

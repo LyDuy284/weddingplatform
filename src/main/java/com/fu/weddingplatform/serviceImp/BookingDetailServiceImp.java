@@ -88,7 +88,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
     BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-    response.setServiceSupplierResponse(serviceSupplierResponse);
+    response.setServiceSupplier(serviceSupplierResponse);
     return response;
   }
 
@@ -181,7 +181,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
     BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-    response.setServiceSupplierResponse(serviceSupplierResponse);
+    response.setServiceSupplier(serviceSupplierResponse);
     return response;
   }
 
@@ -297,7 +297,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
     BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-    response.setServiceSupplierResponse(serviceSupplierResponse);
+    response.setServiceSupplier(serviceSupplierResponse);
     return response;
   }
 
@@ -306,7 +306,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.APPROVED))) {
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.PROCESSING))) {
       throw new ErrorException(BookingDetailErrorMessage.COMPLETE);
     }
 
@@ -345,7 +345,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
     BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-    response.setServiceSupplierResponse(serviceSupplierResponse);
+    response.setServiceSupplier(serviceSupplierResponse);
     return response;
   }
 
@@ -428,7 +428,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
     BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
-    response.setServiceSupplierResponse(serviceSupplierResponse);
+    response.setServiceSupplier(serviceSupplierResponse);
     return response;
   }
 
