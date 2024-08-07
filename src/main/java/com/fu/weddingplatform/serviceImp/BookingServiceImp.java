@@ -41,6 +41,7 @@ import com.fu.weddingplatform.repository.SupplierRepository;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.request.booking.ServiceSupplierBookingDTO;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
+import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
@@ -203,7 +204,21 @@ public class BookingServiceImp implements BookingService {
           .status(bookingDetail.getStatus())
           .bookingDetail(bookingDetailSaved)
           .build();
-      sentEmailService.sentBookingForSupplier(bookingDetail);
+
+      EmailCreateBookingToSupplier emailCreateBookingToSupplier = EmailCreateBookingToSupplier.builder()
+          .email(bookingDetail.getServiceSupplier().getSupplier().getContactEmail())
+          .name(bookingDetail.getServiceSupplier().getName())
+          .note(bookingDetail.getNote())
+          .phone(couple.getAccount().getPhoneNumber())
+          .completeDate(bookingDetail.getCompletedDate())
+          .price(Utils.formatAmountToVND(bookingDetail.getPrice()))
+          .customerName(couple.getAccount().getName())
+          .bookingDetailId(bookingDetailSaved.getId())
+          .createAt(bookingDetail.getCreateAt())
+          .serviceSupplierName(bookingDetail.getServiceSupplier().getName())
+          .build();
+
+      sentEmailService.sentBookingForSupplier(emailCreateBookingToSupplier);
 
       bookingDetailHistoryRepository.save(bookingDetailHistory);
 

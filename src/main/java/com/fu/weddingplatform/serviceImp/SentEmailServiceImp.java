@@ -13,9 +13,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
-import com.fu.weddingplatform.constant.email.BookingForSupplier;
 import com.fu.weddingplatform.constant.email.EmailBookingForCouple;
 import com.fu.weddingplatform.constant.email.RejectBookingDetail;
+import com.fu.weddingplatform.constant.email.SentEmailBookingToSupplier;
 import com.fu.weddingplatform.constant.email.Signature;
 import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.entity.BookingDetail;
@@ -23,6 +23,7 @@ import com.fu.weddingplatform.entity.SentEmail;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.SentEmailRepository;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
+import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
 import com.fu.weddingplatform.service.SentEmailService;
 import com.fu.weddingplatform.utils.Utils;
 
@@ -76,22 +77,13 @@ public class SentEmailServiceImp implements SentEmailService {
   }
 
   @Override
-  public void sentBookingForSupplier(BookingDetail bookingDetail) throws MessagingException {
+  public void sentBookingForSupplier(EmailCreateBookingToSupplier emailCreate) throws MessagingException {
 
-    String service = "\t" + Utils.formatServiceDetail(bookingDetail.getServiceSupplier().getName(),
-        Utils.formatAmountToVND(bookingDetail.getPrice()), bookingDetail.getNote(), bookingDetail.getCompletedDate())
-        + "\n";
-
-    String content = String.format(BookingForSupplier.content,
-        bookingDetail.getServiceSupplier().getSupplier().getSupplierName(), bookingDetail.getId(),
-        bookingDetail.getCreateAt(), service);
-    content += Signature.signature;
-
-    String email = bookingDetail.getServiceSupplier().getSupplier().getContactEmail();
+    String content = SentEmailBookingToSupplier.content(emailCreate);
 
     String title = "Xác nhận đơn hàng";
     SentEmail sentEmail = SentEmail.builder()
-        .email(email)
+        .email(emailCreate.getEmail())
         .content(content)
         .title(title)
         .status(Status.PENDING)
