@@ -13,4 +13,7 @@ public interface SentEmailService {
   public void sentBookingForCouple(Booking booking) throws MessagingException;
 
   public void sentBookingForSupplier(BookingDetail bookingDetail) throws MessagingException;
+
+  public void sentRejectBooking(BookingDetail bookingDetail) throws MessagingException;
+
 }

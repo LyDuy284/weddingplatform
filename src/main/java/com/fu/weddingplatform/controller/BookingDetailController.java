@@ -2,6 +2,8 @@ package com.fu.weddingplatform.controller;
 
 import java.util.List;
 
+import javax.mail.MessagingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +47,7 @@ public class BookingDetailController {
 
   @PutMapping("reject")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
-  public ResponseEntity<?> rejectBookingDetailById(@RequestParam String id) {
+  public ResponseEntity<?> rejectBookingDetailById(@RequestParam String id) throws MessagingException {
     BookingDetailResponse data = bookingDetailService.rejectBookingDetail(id);
     ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
     response.setData(data);

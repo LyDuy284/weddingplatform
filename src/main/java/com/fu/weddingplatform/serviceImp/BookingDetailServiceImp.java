@@ -5,6 +5,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.mail.MessagingException;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.bookingHIstory.BookingDetailHistoryResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.service.BookingDetailService;
+import com.fu.weddingplatform.service.SentEmailService;
 import com.fu.weddingplatform.service.ServiceSupplierService;
 import com.fu.weddingplatform.utils.Utils;
 
@@ -45,6 +48,9 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
   @Autowired
   private ModelMapper modelMapper;
+
+  @Autowired
+  private SentEmailService sentEmailService;
 
   @Override
   public BookingDetailResponse confirmBookingDetail(String bookingDetailId) {
@@ -93,7 +99,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
   }
 
   @Override
-  public BookingDetailResponse rejectBookingDetail(String bookingDetailId) {
+  public BookingDetailResponse rejectBookingDetail(String bookingDetailId) throws MessagingException {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 

@@ -1,7 +1,6 @@
 package com.fu.weddingplatform.repository;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -35,4 +34,7 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, St
 
   @Query("select bd from BookingDetail bd where bd.id in ?1")
   List<BookingDetail> findListBookingDetailInList(List<String> bookingDetailId);
+
+  @Query(value = "SELECT bd.* FROM booking_detail bd where bd.booking_id = ?1 and bd.status != 'REJECTED' and bd.status != 'CANCELLED'", nativeQuery = true)
+  List<BookingDetail> findValidBookingDetailByBooking(String bookingId);
 }

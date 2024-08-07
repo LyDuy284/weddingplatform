@@ -12,7 +12,7 @@ public class BookingByCouple {
             "Chi tiết: \n" + //
             "%s \n" + //
             "Tổng tiền: %s\n" + //
-            "Đã cọc: %s\n" + //
+            "Đã thanh toán: %s\n" + //
             "Còn lại: %s\n" + //
             "\n" + //
             "// Kiểm tra trạng thái đơn hàng tại: link\r\n" + //

@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.serviceImp;
 
+import java.util.List;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
@@ -11,10 +13,12 @@ import org.springframework.stereotype.Service;
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.email.BookingByCouple;
 import com.fu.weddingplatform.constant.email.BookingForSupplier;
+import com.fu.weddingplatform.constant.email.RejectBookingDetail;
 import com.fu.weddingplatform.constant.email.Signature;
 import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.SentEmail;
+import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.SentEmailRepository;
 import com.fu.weddingplatform.service.SentEmailService;
 import com.fu.weddingplatform.utils.Utils;
@@ -27,6 +31,15 @@ public class SentEmailServiceImp implements SentEmailService {
 
   @Autowired
   private SentEmailRepository sentEmailRepository;
+
+  // @Autowired
+  // private TransactionSummaryRepository transactionSummaryRepository;
+
+  // @Autowired
+  // private BookingRepository bookingRepository;
+
+  @Autowired
+  private BookingDetailRepository bookingDetailRepository;
 
   @Override
   public void sentEmail(SentEmail sentEmail) throws MessagingException {
@@ -90,6 +103,53 @@ public class SentEmailServiceImp implements SentEmailService {
     String email = bookingDetail.getServiceSupplier().getSupplier().getContactEmail();
 
     String title = "Xác nhận đơn hàng";
+    SentEmail sentEmail = SentEmail.builder()
+        .email(email)
+        .content(content)
+        .title(title)
+        .status(Status.PENDING)
+        .build();
+
+    sentEmailRepository.save(sentEmail);
+  }
+
+  @Override
+  public void sentRejectBooking(BookingDetail rejectBookingDetail) throws MessagingException {
+
+    String rejectService = "\t" + Utils.formatServiceDetail(rejectBookingDetail.getServiceSupplier().getName(),
+        Utils.formatAmountToVND(rejectBookingDetail.getPrice()), rejectBookingDetail.getNote(),
+        rejectBookingDetail.getCompletedDate())
+        + "\n";
+
+    String listService = "";
+
+    List<BookingDetail> listBookingDetails = bookingDetailRepository
+        .findValidBookingDetailByBooking(rejectBookingDetail.getBooking().getId());
+    Booking booking = rejectBookingDetail.getBooking();
+    for (BookingDetail bookingDetail : listBookingDetails) {
+      String service = "\t" + Utils.formatServiceDetail(bookingDetail.getServiceSupplier().getName(),
+          Utils.formatAmountToVND(bookingDetail.getPrice()), bookingDetail.getNote(),
+          bookingDetail.getCompletedDate())
+          + "\n";
+      listService += service;
+    }
+
+    int paymentAmount = 0;
+    // Utils.formatAmountToVND(booking.getTotalPrice());
+
+    String content = String.format(RejectBookingDetail.content,
+        rejectBookingDetail.getBooking().getCouple().getAccount().getName(), rejectBookingDetail.getServiceSupplier()
+            .getName(),
+        rejectBookingDetail.getId(),
+        rejectBookingDetail.getCreateAt(), rejectService, booking.getId(), booking.getCreatedAt(), listService,
+        Utils.formatAmountToVND(booking.getTotalPrice()),
+        Utils.formatAmountToVND(paymentAmount),
+        Utils.formatAmountToVND(booking.getTotalPrice() - paymentAmount));
+    content += Signature.signature;
+
+    String email = rejectBookingDetail.getServiceSupplier().getSupplier().getContactEmail();
+
+    String title = "Từ chối đơn hàng";
     SentEmail sentEmail = SentEmail.builder()
         .email(email)
         .content(content)

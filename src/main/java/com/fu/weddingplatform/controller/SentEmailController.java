@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fu.weddingplatform.constant.booking.BookingSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.entity.Booking;
+import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.exception.ErrorException;
+import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.BookingRepository;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.service.SentEmailService;
@@ -30,12 +32,15 @@ public class SentEmailController {
   @Autowired
   private BookingRepository bookingRepository;
 
+  @Autowired
+  private BookingDetailRepository bookingDetailRepository;
+
   @GetMapping("sent")
-  public ResponseEntity<?> sentEmail(@RequestParam String bookingId) throws MessagingException {
+  public ResponseEntity<?> sentEmail(@RequestParam String bookingDetailId) throws MessagingException {
     ResponseDTO<String> response = new ResponseDTO<>();
-    Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException("null"));
-    sentEmailService.sentBookingForCouple(booking);
+    sentEmailService.sentRejectBooking(bookingDetail);
     response.setData("sent");
     response.setStatus(ResponseStatusDTO.SUCCESS);
     response.setMessage(BookingSuccessMessage.GET_ALL_BY_SUPPLIER);
