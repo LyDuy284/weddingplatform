@@ -137,7 +137,7 @@ public class PaymentServiceImpl implements PaymentService {
         vnp_Params.put("vnp_OrderInfo", objectMapper.writeValueAsString(paymentDTO));
         int amount = createInvoiceForEachSupplier(paymentRequest.getListBookingDetailId(), paymentRequest.isDeposit());
         vnp_Params.put("vnp_Amount", String.valueOf(amount * 100L));
-        vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL);
+        vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL_SERVER);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -155,10 +155,12 @@ public class PaymentServiceImpl implements PaymentService {
 
     private int createInvoiceForEachSupplier(List<String> listBookingDetailId, boolean isDeposit) {
         Set<Supplier> setSupplier = getSuppliersInListBookingId(listBookingDetailId);
-        List<BookingDetail> bookingDetailList = bookingDetailRepository.findListBookingDetailInList(listBookingDetailId);
+        List<BookingDetail> bookingDetailList = bookingDetailRepository
+                .findListBookingDetailInList(listBookingDetailId);
         Map<Supplier, List<BookingDetail>> mapBooking = mapBookingDetailBySupplier(setSupplier, bookingDetailList);
         BookingDetail firstBookingDetail = bookingDetailRepository.findById(listBookingDetailId.get(0))
-                .orElseThrow(() -> new ErrorException(String.format(BookingDetailErrorMessage.NOT_FOUND_BOOKING, listBookingDetailId.get(0))));
+                .orElseThrow(() -> new ErrorException(
+                        String.format(BookingDetailErrorMessage.NOT_FOUND_BOOKING, listBookingDetailId.get(0))));
         int amount = 0;
         for (Supplier supplier : setSupplier) {
             List<BookingDetail> listBookingBySupplier = mapBooking.get(supplier);
@@ -185,12 +187,14 @@ public class PaymentServiceImpl implements PaymentService {
             int price;
             if (isDeposit) {
                 if (!bookingDetail.getStatus().equals(BookingDetailStatus.APPROVED)) {
-                    throw new ErrorException(String.format(BookingDetailErrorMessage.CANT_PAYMENT, bookingDetail.getId()));
+                    throw new ErrorException(
+                            String.format(BookingDetailErrorMessage.CANT_PAYMENT, bookingDetail.getId()));
                 }
                 price = (int) (bookingDetail.getPrice() * PaymentTypeValue.DEPOSIT_VALUE);
             } else {
                 invoiceDetailRepository.findDepositedInvoiceDetailByBookingDetailId(bookingDetail.getId())
-                        .orElseThrow(() -> new ErrorException(String.format(InvoiceDetailErrorMessage.NOT_FOUND_DEPOSITED_INVOICE, bookingDetail.getId())));
+                        .orElseThrow(() -> new ErrorException(String
+                                .format(InvoiceDetailErrorMessage.NOT_FOUND_DEPOSITED_INVOICE, bookingDetail.getId())));
                 price = (int) (bookingDetail.getPrice() * PaymentTypeValue.FINAL_PAYMENT_VALUE);
             }
             InvoiceDetail invoiceDetail = InvoiceDetail.builder()
@@ -219,19 +223,25 @@ public class PaymentServiceImpl implements PaymentService {
         return totalPrice;
     }
 
-//    private Map<Supplier, List<BookingDetail>> mapBookingDetailBySupplier(Set<Supplier> setSupplier, List<String> listBookingDetailId) {
-//        Map<Supplier, List<BookingDetail>> mapGroup = new HashMap<>();
-//        for (Supplier supplier : setSupplier) {
-//            List<BookingDetail> listBookingDetailBySupplier = bookingDetailRepository.findListBookingDetailBySupplierId(supplier.getId(), listBookingDetailId);
-//            mapGroup.put(supplier, listBookingDetailBySupplier);
-//        }
-//        return mapGroup;
-//    }
+    // private Map<Supplier, List<BookingDetail>>
+    // mapBookingDetailBySupplier(Set<Supplier> setSupplier, List<String>
+    // listBookingDetailId) {
+    // Map<Supplier, List<BookingDetail>> mapGroup = new HashMap<>();
+    // for (Supplier supplier : setSupplier) {
+    // List<BookingDetail> listBookingDetailBySupplier =
+    // bookingDetailRepository.findListBookingDetailBySupplierId(supplier.getId(),
+    // listBookingDetailId);
+    // mapGroup.put(supplier, listBookingDetailBySupplier);
+    // }
+    // return mapGroup;
+    // }
 
-    private Map<Supplier, List<BookingDetail>> mapBookingDetailBySupplier(Set<Supplier> setSupplier, List<BookingDetail> listBookingDetail) {
+    private Map<Supplier, List<BookingDetail>> mapBookingDetailBySupplier(Set<Supplier> setSupplier,
+            List<BookingDetail> listBookingDetail) {
         Map<Supplier, List<BookingDetail>> mapGroup = new HashMap<>();
         for (Supplier supplier : setSupplier) {
-            List<BookingDetail> listBookingDetailBySupplier = bookingDetailRepository.findListBookingDetailBySupplierId(supplier.getId(), listBookingDetail);
+            List<BookingDetail> listBookingDetailBySupplier = bookingDetailRepository
+                    .findListBookingDetailBySupplierId(supplier.getId(), listBookingDetail);
             mapGroup.put(supplier, listBookingDetailBySupplier);
         }
         return mapGroup;
@@ -241,7 +251,8 @@ public class PaymentServiceImpl implements PaymentService {
         Set<Supplier> setSupplier = new HashSet<>();
         for (String bookingDetailId : listBookingDetailId) {
             BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId)
-                    .orElseThrow(() -> new ErrorException(String.format(BookingDetailErrorMessage.NOT_FOUND_BY_ID, bookingDetailId)));
+                    .orElseThrow(() -> new ErrorException(
+                            String.format(BookingDetailErrorMessage.NOT_FOUND_BY_ID, bookingDetailId)));
             setSupplier.add(bookingDetail.getServiceSupplier().getSupplier());
         }
         return setSupplier;
@@ -250,8 +261,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public void responsePaymentVNP(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        //String vnpTransactionNo = request.getParameter("vnp_TransactionNo");
-        //int amount = (int) (Long.parseLong(request.getParameter("vnp_Amount")) / 100);
+        // String vnpTransactionNo = request.getParameter("vnp_TransactionNo");
+        // int amount = (int) (Long.parseLong(request.getParameter("vnp_Amount")) /
+        // 100);
         UpdatePaymentStatusDTO updatePaymentStatusDTO = new UpdatePaymentStatusDTO();
         if (VNResponseCode.PAYMENT_SUCCESSFULLY_VALE.equals(request.getParameter("vnp_ResponseCode"))) {
             updatePaymentStatusDTO.setInvoiceStatus(InvoiceStatus.PAID);
@@ -262,33 +274,38 @@ public class PaymentServiceImpl implements PaymentService {
             updatePaymentStatusDTO.setInvoiceDetailStatus(InvoiceDetailStatus.CANCELLED);
             updatePaymentStatusDTO.setTransactionStatus(TransactionStatus.CANCELLED);
         }
-        //invoice infor
+        // invoice infor
         String paymentInfor = request.getParameter("vnp_OrderInfo");
         CreatePaymentDTO paymentDTO = objectMapper.readValue(paymentInfor, CreatePaymentDTO.class);
         BookingDetail firstBookingDetail = bookingDetailRepository.findById(paymentDTO.getListBookingDetailId().get(0))
-                .orElseThrow(() -> new ErrorException(String.format(BookingDetailErrorMessage.NOT_FOUND_BOOKING, paymentDTO.getListBookingDetailId().get(0))));
+                .orElseThrow(() -> new ErrorException(String.format(BookingDetailErrorMessage.NOT_FOUND_BOOKING,
+                        paymentDTO.getListBookingDetailId().get(0))));
         Booking booking = firstBookingDetail.getBooking();
-        //update invoice
+        // update invoice
         updateInvoicePending(booking, updatePaymentStatusDTO);
-        List<BookingDetail> bookingDetailList = bookingDetailRepository.findListBookingDetailInList(paymentDTO.getListBookingDetailId());
+        List<BookingDetail> bookingDetailList = bookingDetailRepository
+                .findListBookingDetailInList(paymentDTO.getListBookingDetailId());
         int totalAmount = 0;
-        //update booking
+        // update booking
         if (paymentDTO.isDeposit()) {
-//            bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.PROCESSING));
+            // bookingDetailList.forEach(bd ->
+            // bd.setStatus(BookingDetailStatus.PROCESSING));
             bookingDetailList.forEach(bd -> bookingDetailService.processingBookingDetail(bd.getId()));
-            totalAmount  = (int)(bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum() * PaymentTypeValue.DEPOSIT_VALUE);
+            totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
+                    * PaymentTypeValue.DEPOSIT_VALUE);
         } else {
-//            bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.COMPLETED));
+            // bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.COMPLETED));
             bookingDetailList.forEach(bd -> bookingDetailService.completeBookingDetail(bd.getId()));
-            totalAmount  = (int)(bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum() * PaymentTypeValue.FINAL_PAYMENT_VALUE);
+            totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
+                    * PaymentTypeValue.FINAL_PAYMENT_VALUE);
         }
-//        bookingDetailRepository.saveAll(bookingDetailList);
+        // bookingDetailRepository.saveAll(bookingDetailList);
         setTransactionSummary(booking, totalAmount);
         boolean check = checkBookingComplete(booking);
         if (check) {
             booking.setStatus(BookingStatus.COMPLETED);
             bookingRepository.save(booking);
-            //transfer amount to wallet supplier
+            // transfer amount to wallet supplier
             transferAmountToSupplier(booking);
         }
 
@@ -304,12 +321,12 @@ public class PaymentServiceImpl implements PaymentService {
     private void updateInvoicePending(Booking booking, UpdatePaymentStatusDTO updatePaymentStatusDTO) {
         List<Invoice> listInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PENDING);
         for (Invoice invoice : listInvoice) {
-            //change invoice status
+            // change invoice status
             invoice.setStatus(updatePaymentStatusDTO.getInvoiceStatus());
-            //update invoice detail status
+            // update invoice detail status
             List<InvoiceDetail> listInvoiceDetail = (List<InvoiceDetail>) invoice.getInvoiceDetails();
             listInvoiceDetail.forEach(id -> id.setStatus(updatePaymentStatusDTO.getInvoiceDetailStatus()));
-            //change transactions status
+            // change transactions status
             Payment payment = paymentRepository.findByInvoiceIdAndPaymentMethod(invoice.getId(), PaymentMethod.VNPAY);
             List<Transaction> listTransaction = transactionRepository.findByPaymentId(payment.getId());
             listTransaction.forEach(t -> t.setStatus(updatePaymentStatusDTO.getTransactionStatus()));
@@ -318,10 +335,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void transferAmountToSupplier(Booking booking) {
-        List<BookingDetail> allBookingDetail = bookingDetailRepository.findByBookingAndStatus(booking, BookingDetailStatus.COMPLETED);
+        List<BookingDetail> allBookingDetail = bookingDetailRepository.findByBookingAndStatus(booking,
+                BookingDetailStatus.COMPLETED);
         Set<Supplier> setSupplier = new HashSet<>();
         allBookingDetail.forEach(bd -> setSupplier.add(bd.getServiceSupplier().getSupplier()));
-        Map<Supplier, List<BookingDetail>> mapSupplierBookingDetail = mapBookingDetailBySupplier(setSupplier, allBookingDetail);
+        Map<Supplier, List<BookingDetail>> mapSupplierBookingDetail = mapBookingDetailBySupplier(setSupplier,
+                allBookingDetail);
         for (Supplier supplier : setSupplier) {
             List<BookingDetail> listBookingDetailBySupplier = mapSupplierBookingDetail.get(supplier);
             int totalAmount = listBookingDetailBySupplier.stream().mapToInt(BookingDetail::getPrice).sum();
@@ -334,23 +353,25 @@ public class PaymentServiceImpl implements PaymentService {
                     .type(WalletHistoryType.PlUS)
                     .createDate(Utils.formatVNDatetimeNow())
                     .amount(supplierAmount)
-                    .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY_FROM_BOOKING, supplierAmount, booking.getId()))
+                    .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY_FROM_BOOKING,
+                            supplierAmount, booking.getId()))
                     .build();
             walletHistoryRepository.save(walletHistory);
         }
     }
 
-    private void setTransactionSummary(Booking booking, int totalAmount){
+    private void setTransactionSummary(Booking booking, int totalAmount) {
         int supplierAmount = (int) (totalAmount * PaymentTypeValue.FINAL_PAYMENT_VALUE);
         int platformFee = (int) (totalAmount * PaymentTypeValue.DEPOSIT_VALUE);
-        Optional<TransactionSummary> optionalTransactionSummary = transactionSummaryRepository.findByBookingId(booking.getId());
+        Optional<TransactionSummary> optionalTransactionSummary = transactionSummaryRepository
+                .findByBookingId(booking.getId());
         TransactionSummary transactionSummary;
-        if(optionalTransactionSummary.isPresent()){
+        if (optionalTransactionSummary.isPresent()) {
             transactionSummary = optionalTransactionSummary.get();
             totalAmount += transactionSummary.getTotalAmount();
             supplierAmount += transactionSummary.getSupplierAmount();
             platformFee += transactionSummary.getPlatformFee();
-        }else{
+        } else {
             transactionSummary = new TransactionSummary();
             transactionSummary.setDateCreated(Utils.formatVNDatetimeNow());
         }
