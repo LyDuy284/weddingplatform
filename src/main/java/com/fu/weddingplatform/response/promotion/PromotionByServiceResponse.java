@@ -17,7 +17,7 @@ import lombok.ToString;
 @Builder
 public class PromotionByServiceResponse {
   private String id;
-  private String promotionDetails;
+  private String name;
   private int value;
   private String type;
   private Date startDate;
