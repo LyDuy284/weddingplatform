@@ -3,6 +3,7 @@ package com.fu.weddingplatform.serviceImp;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.mail.MessagingException;
@@ -74,16 +75,13 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     bookingDetailHistoryRepository.save(bookingDetailHistory);
 
-    List<BookingDetail> listBookingDetails = bookingDetailRepository.findByBookingAndStatus(bookingDetail.getBooking(),
-        BookingDetailStatus.PENDING);
-
-    if (listBookingDetails.size() == 0) {
-      bookingDetail.getBooking().setStatus(BookingStatus.CONFIRM);
+    if (checkApprovedBooking(bookingDetail.getBooking())) {
+      bookingDetail.getBooking().setStatus(BookingStatus.APPROVED);
 
       BookingHistory bookingHistory = BookingHistory.builder()
           .createdAt(Utils.formatVNDatetimeNow())
           .booking(bookingDetail.getBooking())
-          .status(BookingStatus.CONFIRM)
+          .status(BookingStatus.APPROVED)
           .build();
 
       bookingHistoryRepository.saveAndFlush(bookingHistory);
@@ -127,58 +125,66 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     if (listBookingDetailPending.size() == 0) {
 
-      List<BookingDetail> listBookingDetailComplete = bookingDetailRepository.findByBookingAndStatus(
-          bookingDetail.getBooking(),
-          BookingDetailStatus.COMPLETED);
-
-      List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatus(
-          bookingDetail.getBooking(),
-          BookingDetailStatus.APPROVED);
-
-      List<BookingDetail> listBookingDetailProcessing = bookingDetailRepository.findByBookingAndStatus(
-          bookingDetail.getBooking(),
-          BookingDetailStatus.PROCESSING);
-
-      if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0
-          && listBookingDetailProcessing.size() == 0) {
-        bookingDetail.getBooking().setStatus(BookingStatus.REJECT);
+      if (checkRejectBooking(booking)) {
+        bookingDetail.getBooking().setStatus(BookingStatus.REJECTED);
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
-            .status(BookingStatus.REJECT)
+            .status(BookingStatus.REJECTED)
             .build();
-
         bookingHistoryRepository.saveAndFlush(bookingHistory);
-      } else if (listBookingDetailConfirm.size() != 0) {
-
-        bookingDetail.getBooking().setStatus(BookingStatus.CONFIRM);
-
+      } else if (checkApprovedBooking(booking)) {
+        bookingDetail.getBooking().setStatus(BookingStatus.APPROVED);
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
-            .status(BookingStatus.CONFIRM)
+            .status(BookingStatus.APPROVED)
             .build();
-
         bookingHistoryRepository.saveAndFlush(bookingHistory);
-      } else if (listBookingDetailProcessing.size() != 0) {
 
+      } else if (checkDepositBooking(booking)) {
+        bookingDetail.getBooking().setStatus(BookingStatus.DEPOSITED);
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.DEPOSITED)
+            .build();
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
+      } else if (checkProcessingBooking(booking)) {
         bookingDetail.getBooking().setStatus(BookingStatus.PROCESSING);
-
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
             .status(BookingStatus.PROCESSING)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
-      } else {
-        bookingDetail.getBooking().setStatus(BookingStatus.COMPLETED);
 
+      } else if (checkDoneBooking(booking)) {
+        bookingDetail.getBooking().setStatus(BookingStatus.DONE);
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.DONE)
+            .build();
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
+      } else if (checkFinalPaymentBooking(booking)) {
+        bookingDetail.getBooking().setStatus(BookingStatus.FINAL_PAYMENT);
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(bookingDetail.getBooking())
+            .status(BookingStatus.FINAL_PAYMENT)
+            .build();
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
+
+      } else if (checkCompleteBooking(booking)) {
+        bookingDetail.getBooking().setStatus(BookingStatus.COMPLETED);
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(bookingDetail.getBooking())
             .status(BookingStatus.COMPLETED)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
+
       }
 
     }
@@ -186,7 +192,8 @@ public class BookingDetailServiceImp implements BookingDetailService {
     ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 
-    BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
+    BookingDetailResponse response = modelMapper.map(bookingDetail,
+        BookingDetailResponse.class);
     response.setServiceSupplier(serviceSupplierResponse);
     return response;
   }
@@ -200,7 +207,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
       throw new ErrorException(BookingDetailErrorMessage.CANCLE);
     }
 
-    bookingDetail.setStatus(BookingDetailStatus.CANCELLED);
+    bookingDetail.setStatus(BookingDetailStatus.CANCELED);
 
     Booking booking = bookingDetail.getBooking();
     booking.setTotalPrice(booking.getTotalPrice() - bookingDetail.getPrice());
@@ -209,7 +216,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
         .bookingDetail(bookingDetail)
         .createdAt(Utils.formatVNDatetimeNow())
-        .status(BookingDetailStatus.CANCELLED)
+        .status(BookingDetailStatus.CANCELED)
         .build();
 
     bookingDetailHistoryRepository.save(bookingDetailHistory);
@@ -229,56 +236,46 @@ public class BookingDetailServiceImp implements BookingDetailService {
         BookingDetailStatus.PENDING);
 
     if (listBookingDetailPending.size() == 0) {
+      if (checkCancleBooking(booking)) {
 
-      List<BookingDetail> listBookingDetailComplete = bookingDetailRepository.findByBookingAndStatus(
-          booking,
-          BookingDetailStatus.COMPLETED);
-
-      List<BookingDetail> listBookingDetailConfirm = bookingDetailRepository.findByBookingAndStatus(
-          booking,
-          BookingDetailStatus.APPROVED);
-
-      List<BookingDetail> listBookingDetailReject = bookingDetailRepository.findByBookingAndStatus(
-          booking,
-          BookingDetailStatus.REJECTED);
-
-      List<BookingDetail> listBookingDetailProcessing = bookingDetailRepository.findByBookingAndStatus(
-          booking,
-          BookingDetailStatus.PROCESSING);
-
-      if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0
-          && listBookingDetailReject.size() == 0 && listBookingDetailPending.size() == 0) {
-
-        booking.setStatus(BookingStatus.CANCLE);
+        booking.setStatus(BookingStatus.CANCELED);
 
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(booking)
-            .status(BookingStatus.CANCLE)
+            .status(BookingStatus.CANCELED)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
-      } else if (listBookingDetailComplete.size() == 0 && listBookingDetailConfirm.size() == 0
-          && listBookingDetailPending.size() == 0) {
+      } else if (checkRejectBooking(booking)) {
 
-        booking.setStatus(BookingStatus.REJECT);
+        booking.setStatus(BookingStatus.REJECTED);
 
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(booking)
-            .status(BookingStatus.REJECT)
+            .status(BookingStatus.REJECTED)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
-      } else if (listBookingDetailConfirm.size() != 0) {
+      } else if (checkApprovedBooking(booking)) {
 
-        booking.setStatus(BookingStatus.CONFIRM);
+        booking.setStatus(BookingStatus.APPROVED);
 
         BookingHistory bookingHistory = BookingHistory.builder()
             .createdAt(Utils.formatVNDatetimeNow())
             .booking(booking)
-            .status(BookingStatus.CONFIRM)
+            .status(BookingStatus.APPROVED)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
-      } else if (listBookingDetailProcessing.size() != 0) {
+      } else if (checkDepositBooking(booking)) {
+        booking.setStatus(BookingStatus.DEPOSITED);
+
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(booking)
+            .status(BookingStatus.DEPOSITED)
+            .build();
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
+      } else if (checkProcessingBooking(booking)) {
         booking.setStatus(BookingStatus.PROCESSING);
 
         BookingHistory bookingHistory = BookingHistory.builder()
@@ -287,7 +284,25 @@ public class BookingDetailServiceImp implements BookingDetailService {
             .status(BookingStatus.PROCESSING)
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
-      } else {
+      } else if (checkDoneBooking(booking)) {
+        booking.setStatus(BookingStatus.DONE);
+
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(booking)
+            .status(BookingStatus.DONE)
+            .build();
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
+      } else if (checkFinalPaymentBooking(booking)) {
+        booking.setStatus(BookingStatus.FINAL_PAYMENT);
+
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(booking)
+            .status(BookingStatus.FINAL_PAYMENT)
+            .build();
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
+      } else if (checkCompleteBooking(booking)) {
         booking.setStatus(BookingStatus.COMPLETED);
 
         BookingHistory bookingHistory = BookingHistory.builder()
@@ -297,7 +312,6 @@ public class BookingDetailServiceImp implements BookingDetailService {
             .build();
         bookingHistoryRepository.saveAndFlush(bookingHistory);
       }
-
     }
     ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
@@ -330,21 +344,19 @@ public class BookingDetailServiceImp implements BookingDetailService {
     List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatusNot(
         bookingDetail.getBooking(),
         BookingDetailStatus.PENDING);
-    List<BookingDetail> listBookingDetailProcessing = bookingDetailRepository.findByBookingAndStatusNot(
-        bookingDetail.getBooking(),
-        BookingDetailStatus.PROCESSING);
 
-    if (listBookingDetailPending.size() == 0 && listBookingDetailProcessing.size() == 0) {
+    if (listBookingDetailPending.size() == 0) {
+      Booking booking = bookingDetail.getBooking();
+      if (checkCompleteBooking(booking)) {
+        booking.setStatus(BookingStatus.COMPLETED);
 
-      bookingDetail.getBooking().setStatus(BookingStatus.COMPLETED);
-
-      BookingHistory bookingHistory = BookingHistory.builder()
-          .createdAt(Utils.formatVNDatetimeNow())
-          .booking(bookingDetail.getBooking())
-          .status(BookingStatus.COMPLETED)
-          .build();
-
-      bookingHistoryRepository.saveAndFlush(bookingHistory);
+        BookingHistory bookingHistory = BookingHistory.builder()
+            .createdAt(Utils.formatVNDatetimeNow())
+            .booking(booking)
+            .status(BookingStatus.COMPLETED)
+            .build();
+        bookingHistoryRepository.saveAndFlush(bookingHistory);
+      }
     }
 
     ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
@@ -383,7 +395,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.APPROVED))) {
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.DEPOSITED))) {
       throw new ErrorException(BookingDetailErrorMessage.PROCESSING);
     }
 
@@ -394,37 +406,145 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
         .bookingDetail(bookingDetail)
         .createdAt(Utils.formatVNDatetimeNow())
-        .status(BookingDetailStatus.APPROVED)
+        .status(BookingDetailStatus.PROCESSING)
         .build();
 
     bookingDetailHistoryRepository.save(bookingDetailHistory);
 
-    List<BookingDetail> listPendingBookingDetails = bookingDetailRepository.findByBookingAndStatus(
-        bookingDetail.getBooking(),
-        BookingDetailStatus.PENDING);
+    if (checkProcessingBooking(bookingDetail.getBooking())) {
 
-    List<BookingDetail> listProcessingBookingDetails = bookingDetailRepository.findByBookingAndStatus(
-        bookingDetail.getBooking(),
-        BookingDetailStatus.PROCESSING);
-
-    if (listPendingBookingDetails.size() == 0 && listProcessingBookingDetails.size() == 0) {
-      bookingDetail.getBooking().setStatus(BookingStatus.CONFIRM);
-
-      BookingHistory bookingHistory = BookingHistory.builder()
-          .createdAt(Utils.formatVNDatetimeNow())
-          .booking(bookingDetail.getBooking())
-          .status(BookingStatus.CONFIRM)
-          .build();
-
-      bookingHistoryRepository.saveAndFlush(bookingHistory);
-
-    } else if (listPendingBookingDetails.size() == 0) {
-      bookingDetail.getBooking().setStatus(BookingStatus.CONFIRM);
+      bookingDetail.getBooking().setStatus(BookingStatus.PROCESSING);
 
       BookingHistory bookingHistory = BookingHistory.builder()
           .createdAt(Utils.formatVNDatetimeNow())
           .booking(bookingDetail.getBooking())
           .status(BookingStatus.PROCESSING)
+          .build();
+      bookingHistoryRepository.saveAndFlush(bookingHistory);
+    }
+
+    ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+        .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+    BookingDetailResponse response = modelMapper.map(bookingDetail,
+        BookingDetailResponse.class);
+    response.setServiceSupplier(serviceSupplierResponse);
+    return response;
+
+  }
+
+  @Override
+  public BookingDetailResponse depositBookingDetail(String bookingDetailId) {
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.APPROVED))) {
+      throw new ErrorException(BookingDetailErrorMessage.DEPOSIT);
+    }
+
+    bookingDetail.setStatus(BookingDetailStatus.DEPOSITED);
+
+    bookingDetailRepository.save(bookingDetail);
+
+    BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
+        .bookingDetail(bookingDetail)
+        .createdAt(Utils.formatVNDatetimeNow())
+        .status(BookingDetailStatus.DEPOSITED)
+        .build();
+
+    bookingDetailHistoryRepository.save(bookingDetailHistory);
+
+    if (checkDepositBooking(bookingDetail.getBooking())) {
+      bookingDetail.getBooking().setStatus(BookingStatus.DEPOSITED);
+
+      BookingHistory bookingHistory = BookingHistory.builder()
+          .createdAt(Utils.formatVNDatetimeNow())
+          .booking(bookingDetail.getBooking())
+          .status(BookingStatus.DEPOSITED)
+          .build();
+
+      bookingHistoryRepository.saveAndFlush(bookingHistory);
+
+    }
+
+    ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+        .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+    BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
+    response.setServiceSupplier(serviceSupplierResponse);
+    return response;
+  }
+
+  @Override
+  public BookingDetailResponse doneBookingDetail(String bookingDetailId) {
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.APPROVED))) {
+      throw new ErrorException(BookingDetailErrorMessage.DONE);
+    }
+
+    bookingDetail.setStatus(BookingDetailStatus.DONE);
+
+    bookingDetailRepository.save(bookingDetail);
+
+    BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
+        .bookingDetail(bookingDetail)
+        .createdAt(Utils.formatVNDatetimeNow())
+        .status(BookingDetailStatus.DONE)
+        .build();
+
+    bookingDetailHistoryRepository.save(bookingDetailHistory);
+
+    if (checkDoneBooking(bookingDetail.getBooking())) {
+      bookingDetail.getBooking().setStatus(BookingStatus.DONE);
+
+      BookingHistory bookingHistory = BookingHistory.builder()
+          .createdAt(Utils.formatVNDatetimeNow())
+          .booking(bookingDetail.getBooking())
+          .status(BookingStatus.DONE)
+          .build();
+
+      bookingHistoryRepository.saveAndFlush(bookingHistory);
+
+    }
+
+    ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
+        .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+    BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
+    response.setServiceSupplier(serviceSupplierResponse);
+    return response;
+  }
+
+  @Override
+  public BookingDetailResponse finalPaymentBookingDetail(String bookingDetailId) {
+    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+        () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
+
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.DONE))) {
+      throw new ErrorException(BookingDetailErrorMessage.FINAL_PAYMENT);
+    }
+
+    bookingDetail.setStatus(BookingDetailStatus.FINAL_PAYMENT);
+
+    bookingDetailRepository.save(bookingDetail);
+
+    BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
+        .bookingDetail(bookingDetail)
+        .createdAt(Utils.formatVNDatetimeNow())
+        .status(BookingDetailStatus.FINAL_PAYMENT)
+        .build();
+
+    bookingDetailHistoryRepository.save(bookingDetailHistory);
+
+    if (checkFinalPaymentBooking(bookingDetail.getBooking())) {
+      bookingDetail.getBooking().setStatus(BookingStatus.FINAL_PAYMENT);
+
+      BookingHistory bookingHistory = BookingHistory.builder()
+          .createdAt(Utils.formatVNDatetimeNow())
+          .booking(bookingDetail.getBooking())
+          .status(BookingStatus.FINAL_PAYMENT)
           .build();
 
       bookingHistoryRepository.saveAndFlush(bookingHistory);
@@ -436,6 +556,133 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
     response.setServiceSupplier(serviceSupplierResponse);
     return response;
+
+  }
+
+  public boolean checkCompleteBooking(Booking booking) {
+
+    int checkApproved = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.REJECTED, BookingDetailStatus.CANCELED, BookingDetailStatus.COMPLETED),
+        booking);
+
+    int checkComplete = bookingDetailRepository.countByStatusInAndBooking(Arrays.asList(BookingDetailStatus.COMPLETED),
+        booking);
+
+    if (checkApproved == booking.getBookingDetails().size() && checkComplete != 0) {
+      return true;
+    } else
+      return false;
+
+  }
+
+  public boolean checkDepositBooking(Booking booking) {
+
+    int checkApproved = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.PENDING, BookingDetailStatus.APPROVED), booking);
+
+    int checkDeposit = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.DEPOSITED), booking);
+
+    if (checkApproved == 0 && checkDeposit != 0) {
+      return true;
+    } else
+      return false;
+
+  }
+
+  public boolean checkProcessingBooking(Booking booking) {
+
+    int checkApproved = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.PENDING, BookingDetailStatus.APPROVED, BookingDetailStatus.DEPOSITED),
+        booking);
+
+    int checkProcessingBooking = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.PROCESSING), booking);
+
+    if (checkApproved == 0 && checkProcessingBooking != 0) {
+      return true;
+    } else
+      return false;
+
+  }
+
+  public boolean checkApprovedBooking(Booking booking) {
+
+    int checkPending = bookingDetailRepository.countByStatusNotInAndBooking(
+        Arrays.asList(BookingDetailStatus.PENDING),
+        booking);
+
+    int checkApprovedBooking = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.APPROVED), booking);
+
+    if (checkPending == 0 && checkApprovedBooking != 0) {
+      return true;
+    } else
+      return false;
+
+  }
+
+  public boolean checkCancleBooking(Booking booking) {
+
+    int checkCancleBooking = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.CANCELED),
+        booking);
+
+    if (checkCancleBooking == booking.getBookingDetails().size()) {
+      return true;
+    } else
+      return false;
+
+  }
+
+  public boolean checkFinalPaymentBooking(Booking booking) {
+
+    int checkApprovedBooking = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.APPROVED, BookingDetailStatus.PENDING, BookingDetailStatus.DEPOSITED,
+            BookingDetailStatus.PROCESSING, BookingDetailStatus.DONE),
+        booking);
+
+    int checkFinalPaymentBooking = bookingDetailRepository
+        .countByStatusInAndBooking(Arrays.asList(), booking);
+
+    if (checkApprovedBooking == 0 && checkFinalPaymentBooking != 0) {
+      return true;
+    } else
+      return false;
+
+  }
+
+  public boolean checkRejectBooking(Booking booking) {
+
+    int checkPendingBooking = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.PENDING, BookingDetailStatus.APPROVED),
+        booking);
+
+    int checkRejectBooking = bookingDetailRepository
+        .countByStatusInAndBooking(Arrays.asList(BookingDetailStatus.CANCELED, BookingDetailStatus.REJECTED), booking);
+
+    if (checkPendingBooking == 0 && checkRejectBooking == booking.getBookingDetails().size()) {
+      return true;
+    } else
+      return false;
+
+  }
+
+  public boolean checkDoneBooking(Booking booking) {
+
+    int checkApprovedBooking = bookingDetailRepository.countByStatusInAndBooking(
+        Arrays.asList(BookingDetailStatus.APPROVED, BookingDetailStatus.PENDING, BookingDetailStatus.DEPOSITED,
+            BookingDetailStatus.PROCESSING),
+        booking);
+
+    int checkDoneBooking = bookingDetailRepository
+        .countByStatusInAndBooking(Arrays.asList(BookingDetailStatus.DONE), booking);
+
+    if (checkApprovedBooking == 0 && checkDoneBooking != 0) {
+      return true;
+    } else
+      return false;
+
   }
 
 }

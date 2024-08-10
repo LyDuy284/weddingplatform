@@ -149,22 +149,29 @@ public class BookingServiceImp implements BookingService {
 
       Promotion promotion = null;
       int price = 0;
+      if (serviceSupplierBookingDTO.getQuantity() == 0) {
+        serviceSupplierBookingDTO.setQuantity(1);
+      }
+
+
+
       if (promotionServiceSupplier != null) {
         promotion = promotionServiceSupplier.getPromotion();
 
         switch (promotion.getType()) {
           case PromotionType.PERCENT:
-            price = (int) (serviceSupplier.get().getPrice() * (100 - promotion.getValue()) *
+            price = (int) (serviceSupplier.get().getPrice() * serviceSupplierBookingDTO.getQuantity()
+                * (100 - promotion.getValue()) *
                 0.01);
             break;
           case PromotionType.MONEY:
-            price = serviceSupplier.get().getPrice() - promotion.getValue();
+            price = serviceSupplier.get().getPrice() * serviceSupplierBookingDTO.getQuantity() - promotion.getValue();
             break;
           default:
             break;
         }
       } else {
-        price = serviceSupplier.get().getPrice();
+        price = serviceSupplier.get().getPrice() * serviceSupplierBookingDTO.getQuantity();
       }
 
       BookingDetail bookingDetail = BookingDetail.builder()
@@ -173,6 +180,7 @@ public class BookingServiceImp implements BookingService {
           .completedDate(completeDate.toString())
           .note(serviceSupplierBookingDTO.getNote())
           .price(price)
+          .quantity(serviceSupplierBookingDTO.getQuantity())
           .createAt(Utils.formatVNDatetimeNow())
           .promotionServiceSupplier(promotionServiceSupplier)
           .status(BookingDetailStatus.PENDING)
@@ -362,7 +370,7 @@ public class BookingServiceImp implements BookingService {
 
     response.setCouple(coupleResponse);
     response.setListBookingDetail(listBookingDetailResponses);
-    response.setStatus(BookingStatus.CANCLE);
+    response.setStatus(BookingStatus.CANCELED);
     return response;
   }
 

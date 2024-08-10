@@ -20,6 +20,7 @@ public class BookingDetailResponse {
   private ServiceSupplierResponse serviceSupplier;
   private String id;
   private int price;
+  private int quantity;
   private String note;
   private String completedDate;
   private String status;

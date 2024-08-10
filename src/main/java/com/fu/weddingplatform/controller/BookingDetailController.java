@@ -67,6 +67,28 @@ public class BookingDetailController {
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
 
+  @PutMapping("processing")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+  public ResponseEntity<?> processingBookingDetailById(@RequestParam String id) {
+    BookingDetailResponse data = bookingDetailService.processingBookingDetail(id);
+    ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
+    response.setData(data);
+    response.setStatus(ResponseStatusDTO.SUCCESS);
+    response.setMessage(BookingSuccessMessage.PROCESSING);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
+  @PutMapping("done")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+  public ResponseEntity<?> doneBookingDetailById(@RequestParam String id) {
+    BookingDetailResponse data = bookingDetailService.doneBookingDetail(id);
+    ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
+    response.setData(data);
+    response.setStatus(ResponseStatusDTO.SUCCESS);
+    response.setMessage(BookingSuccessMessage.DONE);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
   @PutMapping("cancle")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
   public ResponseEntity<?> cancleBookingDetailById(@RequestParam String id) {

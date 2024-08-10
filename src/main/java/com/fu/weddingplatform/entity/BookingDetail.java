@@ -42,6 +42,7 @@ public class BookingDetail {
     @GenericGenerator(name = "booking-detail-id", strategy = "com.fu.weddingplatform.custom.customGenerateId.BookingDetailIdGenerator")
     private String id;
     private int price;
+    private int quantity;
     @Column(columnDefinition = "text")
     private String note;
     private String status;

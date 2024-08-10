@@ -22,6 +22,7 @@ public class BookingDetailBySupplierResponse {
     private String bookingDetailId;
     private ServiceSupplierBySupplierBooking serviceSupplierResponse;
     private int price;
+    private int quantity;
     private String note;
     private String createAt;
     private String completedDate;

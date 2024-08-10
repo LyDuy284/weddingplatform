@@ -15,9 +15,15 @@ public interface BookingDetailService {
 
   public BookingDetailResponse cancleBookingDetail(String bookingDetailId);
 
+  public BookingDetailResponse depositBookingDetail(String bookingDetailId);
+
   public BookingDetailResponse completeBookingDetail(String bookingDetailId);
 
   public BookingDetailResponse processingBookingDetail(String bookingDetailId);
+
+  public BookingDetailResponse doneBookingDetail(String bookingDetailId);
+
+  public BookingDetailResponse finalPaymentBookingDetail(String bookingDetailId);
 
   public List<BookingDetailHistoryResponse> getBookingDetailHistoryById(String bookingDetailId);
 }
