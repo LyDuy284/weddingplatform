@@ -326,7 +326,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.PROCESSING))) {
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.DONE))) {
       throw new ErrorException(BookingDetailErrorMessage.COMPLETE);
     }
 
@@ -480,7 +480,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.APPROVED))) {
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.PROCESSING))) {
       throw new ErrorException(BookingDetailErrorMessage.DONE);
     }
 
