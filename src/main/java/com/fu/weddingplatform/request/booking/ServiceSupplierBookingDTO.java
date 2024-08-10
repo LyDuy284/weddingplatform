@@ -17,6 +17,7 @@ import lombok.ToString;
 @Builder
 public class ServiceSupplierBookingDTO {
   private String serviceSupplierId;
+  private int quantity;
   private Date dateCompleted;
   private String note;
 }
