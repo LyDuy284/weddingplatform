@@ -41,4 +41,9 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, St
   int countByStatusInAndBooking(List<String> statuses, Booking booking);
 
   int countByStatusNotInAndBooking(List<String> statuses, Booking booking);
+
+  @Query(value = "SELECT bd.* FROM booking_detail bd \n" + //
+      " where bd.status not like 'CANCELED' and  bd.status not like 'REJECTED' \n" + //
+      " and bd.booking_id = ?1", nativeQuery = true)
+  List<BookingDetail> findAvailableBookingDetailByBooking(String bookingId);
 }

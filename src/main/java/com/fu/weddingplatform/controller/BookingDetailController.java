@@ -47,8 +47,9 @@ public class BookingDetailController {
 
   @PutMapping("reject")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
-  public ResponseEntity<?> rejectBookingDetailById(@RequestParam String id) throws MessagingException {
-    BookingDetailResponse data = bookingDetailService.rejectBookingDetail(id);
+  public ResponseEntity<?> rejectBookingDetailById(@RequestParam String id,
+      @RequestParam String reason) throws MessagingException {
+    BookingDetailResponse data = bookingDetailService.rejectBookingDetail(id, reason);
     ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);

@@ -35,15 +35,17 @@ public class SentEmailController {
   @Autowired
   private BookingDetailRepository bookingDetailRepository;
 
-  @GetMapping("sent")
-  public ResponseEntity<?> sentEmail(@RequestParam String bookingDetailId) throws MessagingException {
-    ResponseDTO<String> response = new ResponseDTO<>();
-    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
-        () -> new ErrorException("null"));
-    sentEmailService.sentRejectBooking(bookingDetail);
-    response.setData("sent");
-    response.setStatus(ResponseStatusDTO.SUCCESS);
-    response.setMessage(BookingSuccessMessage.GET_ALL_BY_SUPPLIER);
-    return new ResponseEntity<>(response, HttpStatus.OK);
-  }
+  // @GetMapping("sent")
+  // public ResponseEntity<?> sentEmail(@RequestParam String bookingDetailId)
+  // throws MessagingException {
+  // ResponseDTO<String> response = new ResponseDTO<>();
+  // BookingDetail bookingDetail =
+  // bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+  // () -> new ErrorException("null"));
+  // sentEmailService.sentRejectBooking(bookingDetail);
+  // response.setData("sent");
+  // response.setStatus(ResponseStatusDTO.SUCCESS);
+  // response.setMessage(BookingSuccessMessage.GET_ALL_BY_SUPPLIER);
+  // return new ResponseEntity<>(response, HttpStatus.OK);
+  // }
 }

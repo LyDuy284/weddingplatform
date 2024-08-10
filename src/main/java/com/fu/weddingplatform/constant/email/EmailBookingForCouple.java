@@ -50,11 +50,11 @@ public class EmailBookingForCouple {
                 emailBody.append("</ul></div>");
                 emailBody.append(
                                 "<div><span style=\"display: inline-block; width: 8rem;\">Tổng tiền:</span><b><i>"
-                                                + emailBookingForCouple.getTotalPrice() + " </i></b>VND</div>");
+                                                + emailBookingForCouple.getTotalPrice() + " </i></b></div>");
                 emailBody.append(
-                                "<div><span style=\"display: inline-block; width: 8rem;\">Đã thanh toán:</span><b><i>0 </i></b>VND</div>");
+                                "<div><span style=\"display: inline-block; width: 8rem;\">Đã thanh toán:</span><b><i>0 </i></b></div>");
                 emailBody.append("<div><span style=\"display: inline-block; width: 8rem;\">Còn lại:</span><b><i>"
-                                + emailBookingForCouple.getTotalPrice() + " </i></b>VND</div></div>");
+                                + emailBookingForCouple.getTotalPrice() + " </i></b></div></div>");
                 emailBody.append("<p>Kiểm tra trạng thái đơn hàng tại: link</p>");
                 emailBody.append(
                                 "<p>Mọi thắc mắc quý khách có thể gửi Email hoặc liên hệ trực tiếp thông qua số điện thoại 0979477952 (Mr.Duy).</p>");
