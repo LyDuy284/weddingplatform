@@ -608,7 +608,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
   public boolean checkApprovedBooking(Booking booking) {
 
-    int checkPending = bookingDetailRepository.countByStatusNotInAndBooking(
+    int checkPending = bookingDetailRepository.countByStatusInAndBooking(
         Arrays.asList(BookingDetailStatus.PENDING),
         booking);
 

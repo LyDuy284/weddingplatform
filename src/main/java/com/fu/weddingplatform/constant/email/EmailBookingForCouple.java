@@ -10,7 +10,7 @@ public class EmailBookingForCouple {
                 StringBuilder emailBody = new StringBuilder();
                 emailBody.append("<html><body>");
                 emailBody.append(
-                                "<div style=\"display: flex; align-items: center; flex-direction: column; margin-top: 1rem; \">");
+                                "<div style=\"display: flex; align-items: center; flex-direction: column; margin-top: 1rem; height: max-content;\">");
                 emailBody.append(
                                 "  <div style=\"width: 72rem;  background-color: #FFDAC0; padding: 2rem; border-radius: 0.5rem;\">");
                 emailBody.append("<p>Thân gửi <b>" + emailBookingForCouple.getName() + "<b>,</p>");
@@ -29,9 +29,12 @@ public class EmailBookingForCouple {
                         emailBody.append("<li style=\"padding-top: 1rem;\">");
                         emailBody.append(
                                         "<div style=\" width: 90%; display: flex; justify-content: space-between; border-bottom: 2px dashed; padding-bottom: 0.6rem;\">");
-                        emailBody.append("<span style=\"width: 70%\"><b>"
-                                        + bookingDetail.getServiceSupplier().getName() + "</b></span>");
-                        emailBody.append("<span style=\\\"width: 30%\\\">"
+                        emailBody.append(
+                                        "<span style=\"width: 75%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\"><b>"
+                                                        + bookingDetail.getServiceSupplier().getName() + "</b></span>");
+                        emailBody.append("<span style=\"width: 8%; text-align: center;\"><b>"
+                                        + bookingDetail.getQuantity() + "</b></span>");
+                        emailBody.append("<span style=\"width: 17%; text-align: right;\">"
                                         + Utils.formatAmountToVND(bookingDetail.getPrice()) + "</span>");
                         emailBody.append("</div><div style=\"margin-left: 1rem; padding-top: 1rem;\">");
                         emailBody.append("<span>- Ngày hoàn thành:</span>");
