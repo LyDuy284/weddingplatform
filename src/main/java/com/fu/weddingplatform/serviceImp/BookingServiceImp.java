@@ -153,16 +153,14 @@ public class BookingServiceImp implements BookingService {
         serviceSupplierBookingDTO.setQuantity(1);
       }
 
-
-
       if (promotionServiceSupplier != null) {
         promotion = promotionServiceSupplier.getPromotion();
 
         switch (promotion.getType()) {
           case PromotionType.PERCENT:
             price = (int) (serviceSupplier.get().getPrice() * serviceSupplierBookingDTO.getQuantity()
-                * (100 - promotion.getValue()) *
-                0.01);
+                * ((100 - promotion.getValue()) *
+                    0.01));
             break;
           case PromotionType.MONEY:
             price = serviceSupplier.get().getPrice() * serviceSupplierBookingDTO.getQuantity() - promotion.getValue();

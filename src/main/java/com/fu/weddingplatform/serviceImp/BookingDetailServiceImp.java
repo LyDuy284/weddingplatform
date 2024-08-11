@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javax.mail.MessagingException;
 
@@ -19,11 +20,14 @@ import com.fu.weddingplatform.entity.Booking;
 import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.BookingDetailHistory;
 import com.fu.weddingplatform.entity.BookingHistory;
+import com.fu.weddingplatform.entity.TransactionSummary;
 import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.BookingHistoryRepository;
+import com.fu.weddingplatform.repository.TransactionSummaryRepository;
+import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.bookingHIstory.BookingDetailHistoryResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
@@ -52,6 +56,9 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
   @Autowired
   private SentEmailService sentEmailService;
+
+  @Autowired
+  private TransactionSummaryRepository transactionSummaryRepository;
 
   @Override
   public BookingDetailResponse confirmBookingDetail(String bookingDetailId) {
@@ -97,7 +104,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
   }
 
   @Override
-  public BookingDetailResponse rejectBookingDetail(String bookingDetailId) throws MessagingException {
+  public BookingDetailResponse rejectBookingDetail(String bookingDetailId, String reason) throws MessagingException {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
@@ -113,6 +120,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
         .bookingDetail(bookingDetail)
+        .description(reason)
         .createdAt(Utils.formatVNDatetimeNow())
         .status(BookingDetailStatus.REJECTED)
         .build();
@@ -195,6 +203,30 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetailResponse response = modelMapper.map(bookingDetail,
         BookingDetailResponse.class);
     response.setServiceSupplier(serviceSupplierResponse);
+
+    List<BookingDetail> listAvailableBookings = bookingDetailRepository
+        .findAvailableBookingDetailByBooking(booking.getId());
+
+    Optional<TransactionSummary> transactionSummary = transactionSummaryRepository.findFirstByBooking(booking);
+
+    RejectMailDTO rejectMailDTO = RejectMailDTO.builder()
+        .mail(bookingDetail.getBooking().getCouple().getAccount().getEmail())
+        .bookingDetail(bookingDetail)
+        .coupleName(bookingDetail.getBooking().getCouple().getAccount().getName())
+        .supplierName(bookingDetail.getServiceSupplier().getSupplier().getSupplierName())
+        .listCurrentBookingDetails(listAvailableBookings)
+        .totalPrice(Utils.formatAmountToVND(booking.getTotalPrice()))
+        .remaining(Utils.formatAmountToVND(booking.getTotalPrice()))
+        .paidPrice(Utils.formatAmountToVND(0))
+        .reason(reason)
+        .build();
+    sentEmailService.sentRejectBooking(rejectMailDTO);
+    if (transactionSummary.isPresent()) {
+      rejectMailDTO.setPaidPrice(Utils.formatAmountToVND(transactionSummary.get().getTotalAmount()));
+      rejectMailDTO
+          .setRemaining(Utils.formatAmountToVND(booking.getTotalPrice() - transactionSummary.get().getTotalAmount()));
+    }
+
     return response;
   }
 

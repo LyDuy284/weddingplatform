@@ -11,7 +11,7 @@ public interface BookingDetailService {
 
   public BookingDetailResponse confirmBookingDetail(String bookingDetailId);
 
-  public BookingDetailResponse rejectBookingDetail(String bookingDetailId) throws MessagingException;
+  public BookingDetailResponse rejectBookingDetail(String bookingDetailId, String reason) throws MessagingException;
 
   public BookingDetailResponse cancleBookingDetail(String bookingDetailId);
 

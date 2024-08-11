@@ -2,10 +2,10 @@ package com.fu.weddingplatform.service;
 
 import javax.mail.MessagingException;
 
-import com.fu.weddingplatform.entity.BookingDetail;
 import com.fu.weddingplatform.entity.SentEmail;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
+import com.fu.weddingplatform.request.email.RejectMailDTO;
 
 public interface SentEmailService {
 
@@ -15,6 +15,6 @@ public interface SentEmailService {
 
   public void sentBookingForSupplier(EmailCreateBookingToSupplier content) throws MessagingException;
 
-  public void sentRejectBooking(BookingDetail bookingDetail) throws MessagingException;
+  public void sentRejectBooking(RejectMailDTO rejectMailDTO) throws MessagingException;
 
 }
