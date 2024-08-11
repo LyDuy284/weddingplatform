@@ -34,8 +34,14 @@ public class Transaction {
     private String transactionType;
     private String status;
 
-    @OneToOne
-    @JoinColumn(name = "invoice_detail_id", unique = true)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "invoice_detail_id")
+    @EqualsAndHashCode.Include
+    @ToString.Include
+//    @OneToOne
+//    @JoinColumn(name = "invoice_detail_id", unique = true)
     private InvoiceDetail invoiceDetail;
 
     @JsonIgnore

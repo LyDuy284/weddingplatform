@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.mail.MessagingException;
 
+import com.fu.weddingplatform.service.PaymentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ import com.fu.weddingplatform.service.BookingDetailService;
 import com.fu.weddingplatform.service.SentEmailService;
 import com.fu.weddingplatform.service.ServiceSupplierService;
 import com.fu.weddingplatform.utils.Utils;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BookingDetailServiceImp implements BookingDetailService {
@@ -59,6 +61,9 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
   @Autowired
   private TransactionSummaryRepository transactionSummaryRepository;
+
+  @Autowired
+  private PaymentService paymentService;
 
   @Override
   public BookingDetailResponse confirmBookingDetail(String bookingDetailId) {
@@ -231,6 +236,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
   }
 
   @Override
+  @Transactional
   public BookingDetailResponse cancleBookingDetail(String bookingDetailId) {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
@@ -259,8 +265,9 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     int daysBetween = (int) ChronoUnit.DAYS.between(completedDate, currentDate);
 
-    if (daysBetween > 10) {
-      // refund 80%
+    if (Math.abs(daysBetween) > 10) {
+      // refund 40%
+      int refundPrice = paymentService.refundDepositedTransaction(booking.getCouple().getId(), bookingDetailId);
     }
 
     List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatus(

@@ -9,4 +9,6 @@ import java.io.IOException;
 public interface PaymentService {
     String requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp, CreatePaymentDTO paymentRequest) throws JsonProcessingException;
     void responsePaymentVNP(HttpServletRequest req, HttpServletResponse response) throws IOException;
+
+    int refundDepositedTransaction(String coupleId, String bookingDetailId);
 }

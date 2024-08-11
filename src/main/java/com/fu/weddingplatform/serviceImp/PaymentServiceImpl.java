@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fu.weddingplatform.constant.booking.BookingStatus;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailErrorMessage;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
+import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.constant.invoice.InvoiceStatus;
 import com.fu.weddingplatform.constant.invoiceDetail.InvoiceDetailErrorMessage;
 import com.fu.weddingplatform.constant.invoiceDetail.InvoiceDetailStatus;
+import com.fu.weddingplatform.constant.payment.PaymentErrorMessage;
 import com.fu.weddingplatform.constant.payment.PaymentTypeValue;
 import com.fu.weddingplatform.constant.payment.vnpay.VNPayConstant;
 import com.fu.weddingplatform.constant.payment.vnpay.VNResponseCode;
@@ -39,7 +41,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -118,6 +119,84 @@ public class PaymentServiceImpl implements PaymentService {
         return VNPayConstant.VNP_PAY_URL + queryUrl;
     }
 
+    @Override
+    @Transactional
+    public int refundDepositedTransaction(String coupleId, String bookingDetailId) {
+        Optional<BookingDetail> optionalBookingDetail = bookingDetailRepository.findById(bookingDetailId);
+        if(optionalBookingDetail.isPresent()){
+            if(optionalBookingDetail.get().getStatus().equals(BookingDetailStatus.COMPLETED)){
+                throw new ErrorException(String.format(PaymentErrorMessage.CANT_REFUND, bookingDetailId));
+            }
+            Optional<InvoiceDetail> optionalInvoiceDetail = invoiceDetailRepository.findDepositedInvoiceDetailByBookingDetailId(bookingDetailId);
+            if(optionalInvoiceDetail.isPresent()){
+                Optional<Transaction> optionalTransaction = transactionRepository.findCompletedTransaction(optionalInvoiceDetail.get().getId());
+                if(optionalTransaction.isPresent()){
+                    InvoiceDetail invoiceDetail = optionalInvoiceDetail.get();
+
+                    Transaction transaction = optionalTransaction.get();
+                    transaction.setStatus(TransactionStatus.REFUNDED);
+                    transactionRepository.saveAndFlush(transaction);
+
+                    int refundPrice = (int)(transaction.getAmount() * PaymentTypeValue.REFUND_VALUE);
+                    Payment payment = transaction.getPayment();
+                    payment.setAmount(payment.getAmount() - refundPrice);
+                    paymentRepository.saveAndFlush(payment);
+
+                    invoiceDetail.setStatus(InvoiceDetailStatus.REFUNDED);
+                    invoiceDetailRepository.saveAndFlush(invoiceDetail);
+
+                    Invoice invoice = payment.getInvoice();
+                    invoice.setTotalPrice(invoice.getTotalPrice() - refundPrice);
+                    invoiceRepository.saveAndFlush(invoice);
+
+                    InvoiceDetail newInvoiceDetail = InvoiceDetail.builder()
+                            .isDeposit(true)
+                            .invoice(invoice)
+                            .price(transaction.getAmount() - refundPrice)
+                            .status(InvoiceDetailStatus.COMPLETED)
+                            .bookingDetail(optionalBookingDetail.get())
+                            .createAt(Utils.formatVNDatetimeNow())
+                            .build();
+                    InvoiceDetail invoiceDetailSaved = invoiceDetailRepository.saveAndFlush(newInvoiceDetail);
+
+                    Transaction transactionRefund = Transaction.builder()
+                            .payment(payment)
+                            .invoiceDetail(invoiceDetail)
+                            .amount(refundPrice)
+                            .transactionType(TransactionType.REFUND)
+                            .status(TransactionStatus.COMPLETED)
+                            .dateCreated(Utils.formatVNDatetimeNow())
+                            .build();
+                    transactionRepository.saveAndFlush(transactionRefund);
+
+                    Transaction newTransaction = Transaction.builder()
+                            .payment(payment)
+                            .invoiceDetail(invoiceDetailSaved)
+                            .amount(newInvoiceDetail.getPrice())
+                            .transactionType(TransactionType.PAYMENT)
+                            .status(TransactionStatus.COMPLETED)
+                            .dateCreated(Utils.formatVNDatetimeNow())
+                            .build();
+                    transactionRepository.saveAndFlush(newTransaction);
+
+                    Couple couple = coupleRepository.findById(coupleId)
+                            .orElseThrow(() -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
+                    UpdateBalanceWallet updateBalanceWallet = UpdateBalanceWallet.builder()
+                            .accountId(couple.getAccount().getId())
+                            .amount(refundPrice)
+                            .type(WalletHistoryType.PlUS)
+                            .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY, refundPrice, bookingDetailId))
+                            .build();
+                    walletService.updateBalanceWallet(updateBalanceWallet);
+
+                    refundTransactionSummary(invoice.getBooking(), refundPrice, transaction.getAmount());
+                    return refundPrice;
+                }
+            }
+        }
+        return 0;
+    }
+
     private Map<String, String> setVNPParams(HttpServletRequest req, CreatePaymentDTO paymentRequest)
             throws JsonProcessingException {
         String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
@@ -176,7 +255,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     private PaymentVNPInfor createInvoice(Booking booking, List<BookingDetail> listBookingDetail, boolean isDeposit) {
         List<String> listVNPBookingDetailId = new ArrayList<>();
+        Map<Payment, List<Transaction>> mapPaymentTransactions = new HashMap<>();
         Wallet wallet = walletRepository.findByAccountId(booking.getCouple().getAccount().getId()).get();
+        int vnpAmount = 0;
+        int walletAmount = 0;
+        int countVNPTransaction = 0;
         Invoice invoice = Invoice.builder()
                 .booking(booking)
                 .createAt(Utils.formatVNDatetimeNow())
@@ -193,10 +276,6 @@ public class PaymentServiceImpl implements PaymentService {
                 .paymentMethod(PaymentMethod.WALLET)
                 .dateCreated(Utils.formatVNDatetimeNow())
                 .build();
-        Map<Payment, List<Transaction>> mapPaymentTransactions = new HashMap<>();
-        int vnpAmount = 0;
-        int walletAmount = 0;
-        int countVNPTransaction = 0;
         for (BookingDetail bookingDetail : listBookingDetail) {
             int price;
             if (isDeposit) {
@@ -236,8 +315,9 @@ public class PaymentServiceImpl implements PaymentService {
                 }
                 listTransaction.add(transaction);
                 mapPaymentTransactions.put(paymentVNPay, listTransaction);
-                vnpAmount += price;
+
                 ++countVNPTransaction;
+                vnpAmount += price;
                 listVNPBookingDetailId.add(bookingDetail.getId());
             }else{
                 //update balance wallet
@@ -245,7 +325,7 @@ public class PaymentServiceImpl implements PaymentService {
                         .accountId(wallet.getAccount().getId())
                         .amount(price)
                         .type(WalletHistoryType.MINUS)
-                        .description(String.format(WalletHistoryConstant.DESCRIPTION_MINUS_MONEY_FROM_BOOKING, price, bookingDetail.getId()))
+                        .description(String.format(WalletHistoryConstant.DESCRIPTION_MINUS_MONEY, price, bookingDetail.getId()))
                         .build();
                 wallet = walletService.updateBalanceWallet(updateBalanceWallet);
                 invoiceDetailSaved.setStatus(InvoiceDetailStatus.COMPLETED);
@@ -271,8 +351,6 @@ public class PaymentServiceImpl implements PaymentService {
                 }
                 listTransaction.add(transaction);
                 mapPaymentTransactions.put(paymentWallet, listTransaction);
-                //set transaction summary
-
                 walletAmount += price;
             }
         }
@@ -287,6 +365,7 @@ public class PaymentServiceImpl implements PaymentService {
             Payment paymentSaved = paymentRepository.saveAndFlush(paymentWallet);
             mapPaymentTransactions.get(paymentWallet).forEach(o -> o.setPayment(paymentSaved));
             transactionRepository.saveAllAndFlush(mapPaymentTransactions.get(paymentWallet));
+            //set transaction summary
             setTransactionSummary(booking, walletAmount);
         }
         if(countVNPTransaction == 0){
@@ -341,15 +420,19 @@ public class PaymentServiceImpl implements PaymentService {
         // String vnpTransactionNo = request.getParameter("vnp_TransactionNo");
         // int amount = (int) (Long.parseLong(request.getParameter("vnp_Amount")) /
         // 100);
-        UpdatePaymentStatusDTO updatePaymentStatusDTO = new UpdatePaymentStatusDTO();
+        UpdatePaymentStatusDTO updatePaymentStatusDTO;
         if (VNResponseCode.PAYMENT_SUCCESSFULLY_VALE.equals(request.getParameter("vnp_ResponseCode"))) {
-            updatePaymentStatusDTO.setInvoiceStatus(InvoiceStatus.PAID);
-            updatePaymentStatusDTO.setInvoiceDetailStatus(InvoiceDetailStatus.COMPLETED);
-            updatePaymentStatusDTO.setTransactionStatus(TransactionStatus.COMPLETED);
+            updatePaymentStatusDTO = UpdatePaymentStatusDTO.builder()
+                    .invoiceStatus(InvoiceStatus.PAID)
+                    .invoiceDetailStatus(InvoiceDetailStatus.COMPLETED)
+                    .transactionStatus(TransactionStatus.COMPLETED)
+                    .build();
         } else {
-            updatePaymentStatusDTO.setInvoiceStatus(InvoiceStatus.CANCELLED);
-            updatePaymentStatusDTO.setInvoiceDetailStatus(InvoiceDetailStatus.CANCELLED);
-            updatePaymentStatusDTO.setTransactionStatus(TransactionStatus.CANCELLED);
+            updatePaymentStatusDTO = UpdatePaymentStatusDTO.builder()
+                    .invoiceStatus(InvoiceStatus.CANCELLED)
+                    .invoiceDetailStatus(InvoiceDetailStatus.CANCELLED)
+                    .transactionStatus(TransactionStatus.CANCELLED)
+                    .build();
         }
         // invoice infor
         String paymentInfor = request.getParameter("vnp_OrderInfo");
@@ -385,9 +468,10 @@ public class PaymentServiceImpl implements PaymentService {
             // transfer amount to wallet supplier
             transferAmountToSupplier(booking);
         }
-
         response.sendRedirect("http://localhost:3000/booking-history");
     }
+
+
 
     private boolean checkBookingComplete(Booking booking) {
         List<Invoice> allInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PAID);
@@ -425,7 +509,7 @@ public class PaymentServiceImpl implements PaymentService {
         for (Supplier supplier : setSupplier) {
             List<BookingDetail> listBookingDetailBySupplier = mapSupplierBookingDetail.get(supplier);
             int totalAmount = listBookingDetailBySupplier.stream().mapToInt(BookingDetail::getPrice).sum();
-            int supplierAmount = (int) (totalAmount * PaymentTypeValue.FINAL_PAYMENT_VALUE);
+            int supplierAmount = (int) (totalAmount * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
             Wallet supplierWallet = supplier.getAccount().getWallet();
             supplierWallet.setBalance(supplierWallet.getBalance() + supplierAmount);
             Wallet walletSaved = walletRepository.saveAndFlush(supplierWallet);
@@ -434,7 +518,7 @@ public class PaymentServiceImpl implements PaymentService {
                     .type(WalletHistoryType.PlUS)
                     .createDate(Utils.formatVNDatetimeNow())
                     .amount(supplierAmount)
-                    .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY_FROM_BOOKING,
+                    .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY,
                             supplierAmount, booking.getId()))
                     .build();
             walletHistoryRepository.save(walletHistory);
@@ -442,8 +526,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void setTransactionSummary(Booking booking, int totalAmount) {
-        int supplierAmount = (int) (totalAmount * PaymentTypeValue.FINAL_PAYMENT_VALUE);
-        int platformFee = (int) (totalAmount * PaymentTypeValue.DEPOSIT_VALUE);
+        int supplierAmount = (int) (totalAmount * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
+        int platformFee = (int) (totalAmount * PaymentTypeValue.PLATFORM_FEE_VALUE);
         Optional<TransactionSummary> optionalTransactionSummary = transactionSummaryRepository
                 .findByBookingId(booking.getId());
         TransactionSummary transactionSummary;
@@ -460,6 +544,18 @@ public class PaymentServiceImpl implements PaymentService {
         transactionSummary.setSupplierAmount(supplierAmount);
         transactionSummary.setTotalAmount(totalAmount);
         transactionSummary.setPlatformFee(platformFee);
+        transactionSummary.setDateModified(Utils.formatVNDatetimeNow());
+        transactionSummaryRepository.save(transactionSummary);
+    }
+
+    private void refundTransactionSummary(Booking booking, int refundPrice, int servicePrice) {
+        int platformFee = (int)((servicePrice - refundPrice) * PaymentTypeValue.PLATFORM_FEE_VALUE);
+        int supplierAmount = (int)((servicePrice - refundPrice) * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
+        TransactionSummary transactionSummary = transactionSummaryRepository.findByBookingId(booking.getId())
+                .orElseThrow(() -> new ErrorException("TransactionSummary notfound"));
+        transactionSummary.setPlatformFee(transactionSummary.getPlatformFee() - (int)(servicePrice * PaymentTypeValue.PLATFORM_FEE_VALUE) + platformFee);
+        transactionSummary.setSupplierAmount(transactionSummary.getSupplierAmount() - (int)(servicePrice * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE) + supplierAmount);
+        transactionSummary.setTotalAmount(transactionSummary.getTotalAmount() - refundPrice);
         transactionSummary.setDateModified(Utils.formatVNDatetimeNow());
         transactionSummaryRepository.save(transactionSummary);
     }
