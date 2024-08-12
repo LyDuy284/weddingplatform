@@ -30,6 +30,7 @@ import com.fu.weddingplatform.service.PaymentService;
 import com.fu.weddingplatform.service.WalletService;
 import com.fu.weddingplatform.utils.Utils;
 import com.fu.weddingplatform.utils.VNPayUtil;
+import net.bytebuddy.build.Plugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -357,14 +358,18 @@ public class PaymentServiceImpl implements PaymentService {
         if(vnpAmount != 0){
             paymentVNPay.setAmount(vnpAmount);
             Payment paymentSaved = paymentRepository.saveAndFlush(paymentVNPay);
-            mapPaymentTransactions.get(paymentVNPay).forEach(o -> o.setPayment(paymentSaved));
-            transactionRepository.saveAllAndFlush(mapPaymentTransactions.get(paymentVNPay));
+            for (Transaction transaction: mapPaymentTransactions.get(paymentVNPay)) {
+                transaction.setPayment(paymentSaved);
+                transactionRepository.saveAndFlush(transaction);
+            }
         }
         if(walletAmount != 0){
             paymentWallet.setAmount(walletAmount);
             Payment paymentSaved = paymentRepository.saveAndFlush(paymentWallet);
-            mapPaymentTransactions.get(paymentWallet).forEach(o -> o.setPayment(paymentSaved));
-            transactionRepository.saveAllAndFlush(mapPaymentTransactions.get(paymentWallet));
+            for (Transaction transaction: mapPaymentTransactions.get(paymentWallet)) {
+                transaction.setPayment(paymentSaved);
+                transactionRepository.saveAndFlush(transaction);
+            }
             //set transaction summary
             setTransactionSummary(booking, walletAmount);
         }
@@ -468,7 +473,7 @@ public class PaymentServiceImpl implements PaymentService {
             // transfer amount to wallet supplier
             transferAmountToSupplier(booking);
         }
-        response.sendRedirect("http://localhost:3000/booking-history");
+        response.sendRedirect(VNPayConstant.VNP_REDIRECT_CLIENT);
     }
 
 
