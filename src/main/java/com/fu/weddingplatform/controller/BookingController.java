@@ -25,6 +25,7 @@ import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
+import com.fu.weddingplatform.response.booking.BookingGroupBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
 import com.fu.weddingplatform.response.bookingHIstory.BookingHistoryResponse;
 import com.fu.weddingplatform.service.BookingService;
@@ -48,11 +49,24 @@ public class BookingController {
     return new ResponseEntity<>(responseDTO, HttpStatus.OK);
   }
 
+  @GetMapping("getBookingDetailBySupplierAndBooking")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+  public ResponseEntity<?> getBookingDetailBySupplier(@RequestParam String supplierId,
+      @RequestParam String bookingId) {
+    List<BookingDetailBySupplierResponse> data = bookingService.getAllBookingDetailBySupplierAndBookingId(supplierId,
+        bookingId);
+    ListResponseDTO<BookingDetailBySupplierResponse> response = new ListResponseDTO<>();
+    response.setData(data);
+    response.setStatus(ResponseStatusDTO.SUCCESS);
+    response.setMessage(BookingSuccessMessage.GET_ALL_BY_SUPPLIER);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
+
   @GetMapping("getBySupplier")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
   public ResponseEntity<?> getBySupplier(@RequestParam String supplierId) {
-    List<BookingDetailBySupplierResponse> data = bookingService.getAllBookingBySupplier(supplierId);
-    ListResponseDTO<BookingDetailBySupplierResponse> response = new ListResponseDTO<>();
+    List<BookingGroupBySupplierResponse> data = bookingService.getBookingBySupplier(supplierId);
+    ListResponseDTO<BookingGroupBySupplierResponse> response = new ListResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
     response.setMessage(BookingSuccessMessage.GET_ALL_BY_SUPPLIER);

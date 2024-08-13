@@ -20,4 +20,11 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
       " order by bd.booking_id desc")
   List<String> findBookingIdBySupplierId(String supplierId);
 
+  @Query(nativeQuery = true, value = "SELECT distinct b.*  FROM the_day.booking_detail bd \n" + //
+      "    join service_supplier ss on bd.service_supplier_id = ss.id \n" + //
+      "    join supplier s on s.id = ss.supplier_id \n" + //
+      "    join booking b on b.id = bd.booking_id \n" + //
+      "where s.id = ?1")
+  List<Booking> findBookingBySupplierId(String supplierId);
+
 }

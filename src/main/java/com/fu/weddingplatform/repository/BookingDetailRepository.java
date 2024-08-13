@@ -25,9 +25,9 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, St
   @Query(nativeQuery = true, value = " SELECT bd.* FROM booking_detail bd \n" + //
       "   join service_supplier ss on bd.service_supplier_id = ss.id \n" + //
       "   join supplier s on s.id = ss.supplier_id \n" + //
-      "where s.id = ?1 \n" + //
+      "where s.id = ?1 and bd.booking_id = ?2\n" + //
       "order by bd.create_at desc")
-  List<BookingDetail> findBySupplier(String supplierId);
+  List<BookingDetail> findBySupplierAndBooking(String supplierId, String bookingId);
 
   @Query("select bd from BookingDetail bd where bd.serviceSupplier.supplier.id = ?1 and bd in ?2")
   List<BookingDetail> findListBookingDetailBySupplierId(String supplierId, List<BookingDetail> bookingDetail);

@@ -44,6 +44,7 @@ import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
+import com.fu.weddingplatform.response.booking.BookingGroupBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingResponse;
 import com.fu.weddingplatform.response.bookingHIstory.BookingHistoryResponse;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
@@ -308,12 +309,16 @@ public class BookingServiceImp implements BookingService {
   }
 
   @Override
-  public List<BookingDetailBySupplierResponse> getAllBookingBySupplier(String supplierId) {
+  public List<BookingDetailBySupplierResponse> getAllBookingDetailBySupplierAndBookingId(String supplierId,
+      String bookingId) {
 
     supplierRepository.findById(supplierId).orElseThrow(
         () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
-    List<BookingDetail> listBookingDetails = bookingDetailRepository.findBySupplier(supplierId);
+    bookingRepository.findById(bookingId).orElseThrow(
+        () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
+
+    List<BookingDetail> listBookingDetails = bookingDetailRepository.findBySupplierAndBooking(supplierId, bookingId);
 
     List<BookingDetailBySupplierResponse> response = new ArrayList<>();
 
@@ -410,6 +415,26 @@ public class BookingServiceImp implements BookingService {
       BookingHistoryResponse bookingHistoryResponse = modelMapper.map(bookingHistory,
           BookingHistoryResponse.class);
       response.add(bookingHistoryResponse);
+    }
+    return response;
+  }
+
+  @Override
+  public List<BookingGroupBySupplierResponse> getBookingBySupplier(String supplierId) {
+    supplierRepository.findById(supplierId).orElseThrow(
+        () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+
+    List<Booking> listBooking = bookingRepository.findBookingBySupplierId(supplierId);
+
+    if (listBooking.size() == 0) {
+      throw new EmptyException(BookingErrorMessage.EMPTY_LIST);
+    }
+    List<BookingGroupBySupplierResponse> response = new ArrayList<BookingGroupBySupplierResponse>();
+    for (Booking booking : listBooking) {
+      BookingGroupBySupplierResponse bookingResponse = modelMapper.map(booking, BookingGroupBySupplierResponse.class);
+      CoupleResponse coupleResponse = coupleService.getCoupleById(booking.getCouple().getId());
+      bookingResponse.setCoupleResponse(coupleResponse);
+      response.add(bookingResponse);
     }
     return response;
   }
