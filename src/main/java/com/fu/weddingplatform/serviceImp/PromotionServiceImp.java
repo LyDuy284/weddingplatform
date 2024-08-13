@@ -177,10 +177,13 @@ public class PromotionServiceImp implements PromotionService {
 
     String currentDate = Utils.getCurrentDate().toString();
 
+    System.out.println(currentDate);
+
     List<Promotion> promotionList = promotionRepository.findExpriedPromotion(currentDate);
 
     for (Promotion promotion : promotionList) {
-      for (PromotionServiceSupplier promotionServiceSupplier : promotion.getPromotionServiceSuppliers()) {
+      for (PromotionServiceSupplier promotionServiceSupplier : promotionServiceSupplierRepository
+          .findByPromotion(promotion)) {
         promotionServiceSupplier.setStatus(Status.EXPRIED);
         promotionServiceSupplierRepository.save(promotionServiceSupplier);
       }

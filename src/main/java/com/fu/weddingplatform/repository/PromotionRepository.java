@@ -17,7 +17,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, String> {
 
         public List<Promotion> findBySupplierAndStatus(Supplier supplier, String status);
 
-        @Query(nativeQuery = true, value = "SELECT * FROM the_day.promotion \n" + //
+        @Query(nativeQuery = true, value = "SELECT * FROM promotion \n" + //
                         " where end_date < ?1 and status = 'ACTIVATED'")
         public List<Promotion> findExpriedPromotion(String currentDate);
 
