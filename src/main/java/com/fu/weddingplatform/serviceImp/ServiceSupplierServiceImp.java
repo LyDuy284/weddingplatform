@@ -115,6 +115,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
                     .builder()
                     .serviceSupplier(serviceSupplierSaved)
                     .promotion(promotion)
+                    .status(Status.ACTIVATED)
                     .build();
 
             promotionServiceSupplierRepository.save(promotionServiceSupplier);
