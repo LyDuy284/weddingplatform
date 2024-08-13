@@ -33,6 +33,8 @@ import com.fu.weddingplatform.repository.BookingRepository;
 import com.fu.weddingplatform.repository.InvoiceDetailRepository;
 import com.fu.weddingplatform.repository.TransactionRepository;
 import com.fu.weddingplatform.repository.TransactionSummaryRepository;
+import com.fu.weddingplatform.request.booking.CancelBookingDTO;
+import com.fu.weddingplatform.request.email.CancelBookingMailForSupplierDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.bookingHIstory.BookingDetailHistoryResponse;
@@ -120,8 +122,8 @@ public class BookingDetailServiceImp implements BookingDetailService {
   }
 
   @Override
-  public BookingDetailResponse rejectBookingDetail(String bookingDetailId, String reason) throws MessagingException {
-    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+  public BookingDetailResponse rejectBookingDetail(CancelBookingDTO cancelBookingDTO) throws MessagingException {
+    BookingDetail bookingDetail = bookingDetailRepository.findById(cancelBookingDTO.getBookingDetailId()).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
     if (!(bookingDetail.getStatus().equals(BookingDetailStatus.PENDING))) {
@@ -136,7 +138,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     BookingDetailHistory bookingDetailHistory = BookingDetailHistory.builder()
         .bookingDetail(bookingDetail)
-        .description(reason)
+        .description(cancelBookingDTO.getReason())
         .createdAt(Utils.formatVNDatetimeNow())
         .status(BookingDetailStatus.REJECTED)
         .build();
@@ -232,7 +234,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
         .totalPrice(Utils.formatAmountToVND(booking.getTotalPrice()))
         .remaining(Utils.formatAmountToVND(booking.getTotalPrice()))
         .paidPrice(Utils.formatAmountToVND(0))
-        .reason(reason)
+        .reason(cancelBookingDTO.getReason())
         .build();
 
     Optional<TransactionSummary> transactionSummary = transactionSummaryRepository.findFirstByBooking(booking);
@@ -249,8 +251,8 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
   @Override
   @Transactional
-  public BookingDetailResponse cancleBookingDetail(String bookingDetailId) {
-    BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
+  public BookingDetailResponse cancleBookingDetail(CancelBookingDTO cancelBookingDTO) {
+    BookingDetail bookingDetail = bookingDetailRepository.findById(cancelBookingDTO.getBookingDetailId()).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
     if ((bookingDetail.getStatus().equals(BookingDetailStatus.COMPLETED))) {
@@ -279,14 +281,15 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     // check deposited
     Optional<InvoiceDetail> optionalInvoiceDetail = invoiceDetailRepository
-        .findDepositedInvoiceDetailByBookingDetailId(bookingDetailId);
+        .findDepositedInvoiceDetailByBookingDetailId(cancelBookingDTO.getBookingDetailId());
     if (optionalInvoiceDetail.isPresent()) {
       Optional<Transaction> optionalTransaction = transactionRepository
           .findCompletedTransaction(optionalInvoiceDetail.get().getId());
       if (optionalTransaction.isPresent()) {
         if (Math.abs(daysBetween) > 10) {
           // refund 40%
-          int refundPrice = paymentService.refundDepositedTransaction(booking.getCouple().getId(), bookingDetailId);
+          int refundPrice = paymentService.refundDepositedTransaction(booking.getCouple().getId(),
+              cancelBookingDTO.getBookingDetailId());
           int depositedPrice = optionalTransaction.get().getAmount();
           booking.setTotalPrice(booking.getTotalPrice() + (depositedPrice - refundPrice));
         } else {
@@ -378,6 +381,18 @@ public class BookingDetailServiceImp implements BookingDetailService {
         bookingHistoryRepository.saveAndFlush(bookingHistory);
       }
     }
+
+    CancelBookingMailForSupplierDTO cancleBookingMail = CancelBookingMailForSupplierDTO.builder()
+        .supplierName(bookingDetail.getServiceSupplier().getSupplier().getSupplierName())
+        .supplierEmail(bookingDetail.getServiceSupplier().getSupplier().getContactEmail())
+        .coupleName(booking.getCouple().getAccount().getName())
+        .phoneNumber(booking.getCouple().getAccount().getPhoneNumber())
+        .bookingDetail(bookingDetail)
+        .reason(cancelBookingDTO.getReason())
+        .build();
+
+    sentEmailService.sentCancelBookingDetailForSupplier(cancleBookingMail);
+
     ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
 

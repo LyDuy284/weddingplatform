@@ -11,6 +11,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fu.weddingplatform.constant.booking.BookingSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
+import com.fu.weddingplatform.request.booking.CancelBookingDTO;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
@@ -47,9 +49,9 @@ public class BookingDetailController {
 
   @PutMapping("reject")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
-  public ResponseEntity<?> rejectBookingDetailById(@RequestParam String id,
-      @RequestParam String reason) throws MessagingException {
-    BookingDetailResponse data = bookingDetailService.rejectBookingDetail(id, reason);
+  public ResponseEntity<?> rejectBookingDetailById(
+      @RequestBody CancelBookingDTO cancelBookingDTO) throws MessagingException {
+    BookingDetailResponse data = bookingDetailService.rejectBookingDetail(cancelBookingDTO);
     ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);
@@ -92,8 +94,8 @@ public class BookingDetailController {
 
   @PutMapping("cancle")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
-  public ResponseEntity<?> cancleBookingDetailById(@RequestParam String id) {
-    BookingDetailResponse data = bookingDetailService.cancleBookingDetail(id);
+  public ResponseEntity<?> cancleBookingDetailById(@RequestBody CancelBookingDTO cancelBookingDTO) {
+    BookingDetailResponse data = bookingDetailService.cancleBookingDetail(cancelBookingDTO);
     ResponseDTO<BookingDetailResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);

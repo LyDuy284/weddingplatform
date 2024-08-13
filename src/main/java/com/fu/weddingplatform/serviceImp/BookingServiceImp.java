@@ -38,6 +38,7 @@ import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.repository.PromotionServiceSupplierRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.repository.SupplierRepository;
+import com.fu.weddingplatform.request.booking.CancelBookingDTO;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.request.booking.ServiceSupplierBookingDTO;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
@@ -217,6 +218,7 @@ public class BookingServiceImp implements BookingService {
           .name(bookingDetail.getServiceSupplier().getSupplier().getContactPersonName())
           .note(bookingDetail.getNote())
           .phone(couple.getAccount().getPhoneNumber())
+          .quantity(bookingDetail.getQuantity())
           .completeDate(bookingDetail.getCompletedDate())
           .price(Utils.formatAmountToVND(bookingDetail.getPrice()))
           .customerName(couple.getAccount().getName())
@@ -356,15 +358,16 @@ public class BookingServiceImp implements BookingService {
   }
 
   @Override
-  public BookingResponse cancelBooking(String bookingId) {
+  public BookingResponse cancelBooking(CancelBookingDTO cancelBooking) {
 
-    Booking booking = bookingRepository.findById(bookingId).orElseThrow(
+    Booking booking = bookingRepository.findById(cancelBooking.getBookingDetailId()).orElseThrow(
         () -> new ErrorException(BookingErrorMessage.BOOKING_NOT_FOUND));
 
     List<BookingDetail> listBookingDetails = booking.getBookingDetails().stream().collect(Collectors.toList());
     List<BookingDetailResponse> listBookingDetailResponses = new ArrayList<BookingDetailResponse>();
     for (BookingDetail detail : listBookingDetails) {
-      BookingDetailResponse bookingDetailResponse = bookingDetailService.cancleBookingDetail(detail.getId());
+      BookingDetailResponse bookingDetailResponse = bookingDetailService
+          .cancleBookingDetail(new CancelBookingDTO(detail.getId(), cancelBooking.getReason()));
       listBookingDetailResponses.add(bookingDetailResponse);
     }
     CoupleResponse coupleResponse = coupleService.getCoupleById(booking.getCouple().getId());

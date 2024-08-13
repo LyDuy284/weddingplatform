@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fu.weddingplatform.constant.booking.BookingSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
+import com.fu.weddingplatform.request.booking.CancelBookingDTO;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
@@ -108,8 +109,8 @@ public class BookingController {
 
   @PutMapping("cancle")
   @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
-  public ResponseEntity<?> cancleBookingById(@RequestParam String id) {
-    BookingResponse data = bookingService.cancelBooking(id);
+  public ResponseEntity<?> cancleBookingById(@RequestBody CancelBookingDTO cancelBookingDTO) {
+    BookingResponse data = bookingService.cancelBooking(cancelBookingDTO);
     ResponseDTO<BookingResponse> response = new ResponseDTO<>();
     response.setData(data);
     response.setStatus(ResponseStatusDTO.SUCCESS);

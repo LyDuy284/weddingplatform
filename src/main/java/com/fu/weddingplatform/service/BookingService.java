@@ -5,6 +5,7 @@ import java.util.List;
 import javax.mail.MessagingException;
 
 import com.fu.weddingplatform.entity.Booking;
+import com.fu.weddingplatform.request.booking.CancelBookingDTO;
 import com.fu.weddingplatform.request.booking.CreateBookingDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailBySupplierResponse;
 import com.fu.weddingplatform.response.booking.BookingGroupBySupplierResponse;
@@ -23,7 +24,7 @@ public interface BookingService {
 
   public BookingResponse convertBookingToBookingResponse(Booking booking);
 
-  public BookingResponse cancelBooking(String bookingId);
+  public BookingResponse cancelBooking(CancelBookingDTO bookingDTO);
 
   public List<BookingGroupBySupplierResponse> getBookingBySupplier(String supplierId);
 

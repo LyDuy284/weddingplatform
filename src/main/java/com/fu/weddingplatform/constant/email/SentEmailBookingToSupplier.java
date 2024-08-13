@@ -22,6 +22,12 @@ public class SentEmailBookingToSupplier {
                 emailBody.append("<p>Số điện thoại: <b>" + content.getPhone() + "</b></p>");
                 emailBody.append("<p>Chi tiết:</p><div>");
                 emailBody.append(
+                                "<div style=\" width: 90%; display: flex; justify-content: space-between; border-bottom: 2px dashed; padding-bottom: 0.6rem; margin-bottom: 0.5rem\">");
+                emailBody.append(
+                                "<span style=\"width: 75%; text-align: center;\"><b>Tên dịch vụ</b></span>");
+                emailBody.append("<span style=\"width: 8%; text-align: center;\"><b>Số lượng</b></span>");
+                emailBody.append("<span style=\"width: 17%; text-align: center;\"><b>Giá</b></span></div>");
+                emailBody.append(
                                 "<div style=\" width: 90%; display: flex; justify-content: space-between; border-bottom: 2px dashed; padding-bottom: 0.6rem;\">");
                 emailBody.append(
                                 "<span style=\"width: 75%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\"><b>"

@@ -19,7 +19,7 @@ public class EmailCreateBookingToSupplier {
   private String customerName;
   private String phone;
   private String serviceSupplierName;
-  private String quantity;
+  private int quantity;
   private String price;
   private String completeDate;
   private String note;
