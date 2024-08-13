@@ -111,6 +111,7 @@ public class AuthServiceImp implements AuthService {
             loginResponse = LoginResponse.builder()
                     .accountId(account.getId())
                     .email(account.getEmail())
+                    .name(account.getName())
                     .status(account.getStatus())
                     .roleName(account.getRole().getName())
                     .userId(userId)
@@ -214,11 +215,11 @@ public class AuthServiceImp implements AuthService {
                 .build();
 
         Couple newCouple = coupleRepository.save(couple);
-//        Wallet wallet = Wallet.builder()
-//                .balance(0)
-//                .couple(newCouple)
-//                .build();
-//        walletRepository.save(wallet);
+        // Wallet wallet = Wallet.builder()
+        // .balance(0)
+        // .couple(newCouple)
+        // .build();
+        // walletRepository.save(wallet);
         response = modelMapper.map(accountSaved, RegsiterCoupleReponse.class);
 
         response.setAccountId(accountSaved.getId());
@@ -336,12 +337,12 @@ public class AuthServiceImp implements AuthService {
                 .status(Status.ACTIVATED)
                 .build();
         areaRepository.save(area);
-//        Wallet wallet = Wallet.builder()
-//                .balance(0)
-//                .supplier(newSupplier)
-//                .build();
-//
-//        walletRepository.save(wallet);
+        // Wallet wallet = Wallet.builder()
+        // .balance(0)
+        // .supplier(newSupplier)
+        // .build();
+        //
+        // walletRepository.save(wallet);
 
         response = modelMapper.map(accountSaved, RegsiterSupplierReponse.class);
 
