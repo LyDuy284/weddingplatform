@@ -9,6 +9,10 @@ import java.util.Optional;
 
 import javax.mail.MessagingException;
 
+import com.fu.weddingplatform.constant.payment.PaymentTypeValue;
+import com.fu.weddingplatform.entity.*;
+import com.fu.weddingplatform.repository.*;
+import com.fu.weddingplatform.service.PaymentService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,17 +20,8 @@ import org.springframework.stereotype.Service;
 import com.fu.weddingplatform.constant.booking.BookingStatus;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailErrorMessage;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
-import com.fu.weddingplatform.entity.Booking;
-import com.fu.weddingplatform.entity.BookingDetail;
-import com.fu.weddingplatform.entity.BookingDetailHistory;
-import com.fu.weddingplatform.entity.BookingHistory;
-import com.fu.weddingplatform.entity.TransactionSummary;
 import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
-import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
-import com.fu.weddingplatform.repository.BookingDetailRepository;
-import com.fu.weddingplatform.repository.BookingHistoryRepository;
-import com.fu.weddingplatform.repository.TransactionSummaryRepository;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.bookingHIstory.BookingDetailHistoryResponse;
@@ -35,6 +30,7 @@ import com.fu.weddingplatform.service.BookingDetailService;
 import com.fu.weddingplatform.service.SentEmailService;
 import com.fu.weddingplatform.service.ServiceSupplierService;
 import com.fu.weddingplatform.utils.Utils;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BookingDetailServiceImp implements BookingDetailService {
@@ -59,6 +55,15 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
   @Autowired
   private TransactionSummaryRepository transactionSummaryRepository;
+
+  @Autowired
+  private PaymentService paymentService;
+  @Autowired
+  private InvoiceDetailRepository invoiceDetailRepository;
+  @Autowired
+  private TransactionRepository transactionRepository;
+  @Autowired
+  private BookingRepository bookingRepository;
 
   @Override
   public BookingDetailResponse confirmBookingDetail(String bookingDetailId) {
@@ -231,6 +236,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
   }
 
   @Override
+  @Transactional
   public BookingDetailResponse cancleBookingDetail(String bookingDetailId) {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
@@ -259,9 +265,23 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     int daysBetween = (int) ChronoUnit.DAYS.between(completedDate, currentDate);
 
-    if (daysBetween > 10) {
-      // refund 80%
+    // check deposited
+    Optional<InvoiceDetail> optionalInvoiceDetail = invoiceDetailRepository.findDepositedInvoiceDetailByBookingDetailId(bookingDetailId);
+    if(optionalInvoiceDetail.isPresent()){
+      Optional<Transaction> optionalTransaction = transactionRepository.findCompletedTransaction(optionalInvoiceDetail.get().getId());
+      if(optionalTransaction.isPresent()){
+        if (Math.abs(daysBetween) > 10) {
+          // refund 40%
+          int refundPrice = paymentService.refundDepositedTransaction(booking.getCouple().getId(), bookingDetailId);
+          int depositedPrice = optionalTransaction.get().getAmount();
+          booking.setTotalPrice(booking.getTotalPrice() + (depositedPrice - refundPrice));
+        }else{
+          booking.setTotalPrice(booking.getTotalPrice() + optionalTransaction.get().getAmount());
+        }
+        bookingRepository.saveAndFlush(booking);
+      }
     }
+
 
     List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatus(
         booking,
@@ -358,7 +378,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.PROCESSING))) {
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.DONE))) {
       throw new ErrorException(BookingDetailErrorMessage.COMPLETE);
     }
 
@@ -512,7 +532,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
     BookingDetail bookingDetail = bookingDetailRepository.findById(bookingDetailId).orElseThrow(
         () -> new ErrorException(BookingDetailErrorMessage.NOT_FOUND));
 
-    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.APPROVED))) {
+    if (!(bookingDetail.getStatus().equals(BookingDetailStatus.PROCESSING))) {
       throw new ErrorException(BookingDetailErrorMessage.DONE);
     }
 

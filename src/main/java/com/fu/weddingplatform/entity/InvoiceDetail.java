@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Collection;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -58,7 +60,11 @@ public class InvoiceDetail {
   @ToString.Include
   private PromotionServiceSupplier promotionServiceSupplier;
 
-  @OneToOne(mappedBy = "invoiceDetail", cascade = CascadeType.ALL)
-  private Transaction transaction;
+  @OneToMany(mappedBy = "invoiceDetail", cascade = CascadeType.ALL)
+  @EqualsAndHashCode.Include
+  @ToString.Include
+  @JsonIgnore
+//  @OneToOne(mappedBy = "invoiceDetail", cascade = CascadeType.ALL)
+  private Collection<Transaction> transactions;
 
 }

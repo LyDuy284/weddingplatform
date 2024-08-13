@@ -14,6 +14,7 @@ public class TransactionResponse {
     String dateCreated;
     int amount;
     String transactionType;
+    String paymentMethod;
     String status;
     InvoiceDetailResponse invoiceDetail;
 

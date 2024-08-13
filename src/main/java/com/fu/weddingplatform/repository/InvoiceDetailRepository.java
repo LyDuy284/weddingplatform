@@ -14,5 +14,5 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, St
     Optional<InvoiceDetail> findDepositedInvoiceDetailByBookingDetailId(String bookingDetailId);
 
     @Query("select id from InvoiceDetail id where id.bookingDetail.id = ?1 and id.status = 'COMPLETED'")
-    List<InvoiceDetail> findInvoiceDetailByBookingDetailId(String bookingDetailId);
+    List<InvoiceDetail> findCompletedInvoiceDetail(String bookingDetailId);
 }
