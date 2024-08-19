@@ -3,6 +3,7 @@ package com.fu.weddingplatform.serviceImp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -373,7 +374,8 @@ public class AuthServiceImp implements AuthService {
             account = Optional.of(registerForGoogleLogin(email, name, RoleName.ROLE_COUPLE));
             new Couple();
             Couple couple = Couple.builder().account(account.get()).status(Status.ACTIVATED).build();
-            coupleRepository.save(couple);
+            account.get().setCouples(Arrays.asList(couple));
+            coupleRepository.saveAndFlush(couple);
         }
         SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(account.get().getRole().getName());
         simpleGrantedAuthorities.add(simpleGrantedAuthority);
@@ -402,6 +404,7 @@ public class AuthServiceImp implements AuthService {
                 .accountId(account.get().getId())
                 .email(account.get().getEmail())
                 .status(account.get().getStatus())
+                .name(name)
                 .roleName(account.get().getRole().getName())
                 .userId(userId)
                 .token(tokenResponse)
