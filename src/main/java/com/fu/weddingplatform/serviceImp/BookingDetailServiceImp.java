@@ -34,6 +34,7 @@ import com.fu.weddingplatform.repository.InvoiceDetailRepository;
 import com.fu.weddingplatform.repository.TransactionRepository;
 import com.fu.weddingplatform.repository.TransactionSummaryRepository;
 import com.fu.weddingplatform.request.booking.CancelBookingDTO;
+import com.fu.weddingplatform.request.email.CancelBookingDetailMailForCouple;
 import com.fu.weddingplatform.request.email.CancelBookingMailForSupplierDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
@@ -395,6 +396,22 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+    List<BookingDetail> listCurrentBookings = bookingDetailRepository.findValidBookingDetailByBooking(booking.getId());
+
+    CancelBookingDetailMailForCouple cancelBookingDetailMailForCouple = CancelBookingDetailMailForCouple.builder()
+        .coupleName(booking.getCouple().getAccount().getName())
+        .coupleMail(booking.getCouple().getAccount().getEmail())
+        .bookingDetail(bookingDetail)
+        .booking(booking)
+        .currentBooking(listCurrentBookings)
+        .totalAmount(Utils.formatAmountToVND(booking.getTotalPrice()))
+        .paymentAmount(Utils.formatAmountToVND(0))
+        .remaining(Utils.formatAmountToVND(0))
+        .reason(cancelBookingDTO.getReason())
+        .build();
+
+    sentEmailService.sentCancelBookingDetailForCouple(cancelBookingDetailMailForCouple);
 
     BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
     response.setServiceSupplier(serviceSupplierResponse);
