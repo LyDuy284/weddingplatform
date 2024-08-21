@@ -289,6 +289,9 @@ public class PaymentServiceImpl implements PaymentService {
                 invoiceDetailRepository.findDepositedInvoiceDetailByBookingDetailId(bookingDetail.getId())
                         .orElseThrow(() -> new ErrorException(String
                                 .format(InvoiceDetailErrorMessage.NOT_FOUND_DEPOSITED_INVOICE, bookingDetail.getId())));
+                if(!bookingDetail.getStatus().equals(BookingDetailStatus.DONE)){
+                    throw new ErrorException(String.format(BookingDetailErrorMessage.NOT_DONE, bookingDetail.getId()));
+                }
                 price = (int) (bookingDetail.getPrice() * PaymentTypeValue.FINAL_PAYMENT_VALUE);
             }
             InvoiceDetail invoiceDetail = InvoiceDetail.builder()
@@ -425,20 +428,7 @@ public class PaymentServiceImpl implements PaymentService {
         // String vnpTransactionNo = request.getParameter("vnp_TransactionNo");
         // int amount = (int) (Long.parseLong(request.getParameter("vnp_Amount")) /
         // 100);
-        UpdatePaymentStatusDTO updatePaymentStatusDTO;
-        if (VNResponseCode.PAYMENT_SUCCESSFULLY_VALE.equals(request.getParameter("vnp_ResponseCode"))) {
-            updatePaymentStatusDTO = UpdatePaymentStatusDTO.builder()
-                    .invoiceStatus(InvoiceStatus.PAID)
-                    .invoiceDetailStatus(InvoiceDetailStatus.COMPLETED)
-                    .transactionStatus(TransactionStatus.COMPLETED)
-                    .build();
-        } else {
-            updatePaymentStatusDTO = UpdatePaymentStatusDTO.builder()
-                    .invoiceStatus(InvoiceStatus.CANCELLED)
-                    .invoiceDetailStatus(InvoiceDetailStatus.CANCELLED)
-                    .transactionStatus(TransactionStatus.CANCELLED)
-                    .build();
-        }
+
         // invoice infor
         String paymentInfor = request.getParameter("vnp_OrderInfo");
         CreatePaymentDTO paymentDTO = objectMapper.readValue(paymentInfor, CreatePaymentDTO.class);
@@ -446,37 +436,50 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new ErrorException(String.format(BookingDetailErrorMessage.NOT_FOUND_BOOKING,
                         paymentDTO.getListBookingDetailId().get(0))));
         Booking booking = firstBookingDetail.getBooking();
-        // update invoice
-        updateInvoicePending(booking, updatePaymentStatusDTO);
-        List<BookingDetail> bookingDetailList = bookingDetailRepository
-                .findListBookingDetailInList(paymentDTO.getListBookingDetailId());
-        int totalAmount = 0;
-        // update booking
-        if (paymentDTO.isDeposit()) {
-            // bookingDetailList.forEach(bd ->
-            // bd.setStatus(BookingDetailStatus.PROCESSING));
-            bookingDetailList.forEach(bd -> bookingDetailService.depositBookingDetail(bd.getId()));
-            totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
-                    * PaymentTypeValue.DEPOSIT_VALUE);
+        if (!VNResponseCode.PAYMENT_SUCCESSFULLY_VALE.equals(request.getParameter("vnp_ResponseCode"))) {
+            UpdatePaymentStatusDTO updatePaymentStatusDTO = UpdatePaymentStatusDTO.builder()
+                    .invoiceStatus(InvoiceStatus.CANCELLED)
+                    .invoiceDetailStatus(InvoiceDetailStatus.CANCELLED)
+                    .transactionStatus(TransactionStatus.CANCELLED)
+                    .build();
+            // update invoice
+            updateInvoicePending(booking, updatePaymentStatusDTO);
         } else {
-            // bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.COMPLETED));
-            bookingDetailList.forEach(bd -> bookingDetailService.completeBookingDetail(bd.getId()));
-            totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
-                    * PaymentTypeValue.FINAL_PAYMENT_VALUE);
-        }
-        // bookingDetailRepository.saveAll(bookingDetailList);
-        setTransactionSummary(booking, totalAmount);
-        boolean check = checkBookingComplete(booking);
-        if (check) {
-            booking.setStatus(BookingStatus.COMPLETED);
-            bookingRepository.save(booking);
-            // transfer amount to wallet supplier
-            transferAmountToSupplier(booking);
+            UpdatePaymentStatusDTO updatePaymentStatusDTO = UpdatePaymentStatusDTO.builder()
+                    .invoiceStatus(InvoiceStatus.PAID)
+                    .invoiceDetailStatus(InvoiceDetailStatus.COMPLETED)
+                    .transactionStatus(TransactionStatus.COMPLETED)
+                    .build();
+            // update invoice
+            updateInvoicePending(booking, updatePaymentStatusDTO);
+            List<BookingDetail> bookingDetailList = bookingDetailRepository
+                    .findListBookingDetailInList(paymentDTO.getListBookingDetailId());
+            int totalAmount = 0;
+            // update booking
+            if (paymentDTO.isDeposit()) {
+                // bookingDetailList.forEach(bd ->
+                // bd.setStatus(BookingDetailStatus.PROCESSING));
+                bookingDetailList.forEach(bd -> bookingDetailService.depositBookingDetail(bd.getId()));
+                totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
+                        * PaymentTypeValue.DEPOSIT_VALUE);
+            } else {
+                // bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.COMPLETED));
+                bookingDetailList.forEach(bd -> bookingDetailService.completeBookingDetail(bd.getId()));
+                totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
+                        * PaymentTypeValue.FINAL_PAYMENT_VALUE);
+            }
+            // bookingDetailRepository.saveAll(bookingDetailList);
+            setTransactionSummary(booking, totalAmount);
+            boolean check = checkBookingComplete(booking);
+            if (check) {
+                booking.setStatus(BookingStatus.COMPLETED);
+                bookingRepository.save(booking);
+                // transfer amount to wallet supplier
+                transferAmountToSupplier(booking);
+            }
         }
         response.sendRedirect(VNPayConstant.VNP_REDIRECT_CLIENT);
     }
-
-
 
     private boolean checkBookingComplete(Booking booking) {
         List<Invoice> allInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PAID);
