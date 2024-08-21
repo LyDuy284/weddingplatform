@@ -15,5 +15,6 @@ public class BookingDetailErrorMessage {
   public static final String CANT_PAYMENT = "Can't Payment this booking id: %s";
   public static final String NOT_FOUND_BOOKING = "Not found booking with id: %s";
   public static final String NOT_FOUND_BY_ID = "Booking service is not found by id: %s";
+  public static final String NOT_DONE = "%s is not Done";
 
 }
