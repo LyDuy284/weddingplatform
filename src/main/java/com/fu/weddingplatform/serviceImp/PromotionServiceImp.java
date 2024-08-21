@@ -90,27 +90,27 @@ public class PromotionServiceImp implements PromotionService {
         .build();
     Promotion promotionSaved = promotionRepository.save(promotion);
 
-    for (String serviceSupplierId : createDTO.getListServiceSupplierId()) {
-      ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
-          () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+    // for (String serviceSupplierId : createDTO.getListServiceSupplierId()) {
+    //   ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
+    //       () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
-      PromotionServiceSupplier existPromotionServiceSupplier = promotionServiceSupplierRepository
-          .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
+    //   PromotionServiceSupplier existPromotionServiceSupplier = promotionServiceSupplierRepository
+    //       .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
 
-      if (existPromotionServiceSupplier != null) {
-        existPromotionServiceSupplier.setStatus(Status.DISABLED);
-        promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
-      }
+    //   if (existPromotionServiceSupplier != null) {
+    //     existPromotionServiceSupplier.setStatus(Status.DISABLED);
+    //     promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
+    //   }
 
-      PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier.builder()
-          .promotion(promotionSaved)
-          .serviceSupplier(serviceSupplier)
-          .status(Status.ACTIVATED)
-          .build();
+    //   PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier.builder()
+    //       .promotion(promotionSaved)
+    //       .serviceSupplier(serviceSupplier)
+    //       .status(Status.ACTIVATED)
+    //       .build();
 
-      promotionServiceSupplierRepository.save(promotionServiceSupplier);
+    //   promotionServiceSupplierRepository.save(promotionServiceSupplier);
 
-    }
+    // }
 
     PromotionResponse promotionResponse = modelMapper.map(promotionSaved, PromotionResponse.class);
     return promotionResponse;

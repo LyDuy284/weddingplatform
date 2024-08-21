@@ -116,6 +116,8 @@ public class AuthServiceImp implements AuthService {
                     .status(account.getStatus())
                     .roleName(account.getRole().getName())
                     .userId(userId)
+                    .phoneNumber(account.getPhoneNumber())
+                    .image(account.getImage())
                     .balance(balance)
                     .token(token)
                     .build();
@@ -407,6 +409,8 @@ public class AuthServiceImp implements AuthService {
                 .name(name)
                 .roleName(account.get().getRole().getName())
                 .userId(userId)
+                .phoneNumber(account.get().getPhoneNumber())
+                .image(account.get().getImage())
                 .token(tokenResponse)
                 .build();
     }

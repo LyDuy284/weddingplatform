@@ -1,7 +1,6 @@
 package com.fu.weddingplatform.request.promotion;
 
 import java.sql.Date;
-import java.util.List;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
@@ -31,5 +30,4 @@ public class CreatePromotionDTO {
   private String name;
   private Date startDate;
   private Date endDate;
-  private List<String> listServiceSupplierId;
 }
