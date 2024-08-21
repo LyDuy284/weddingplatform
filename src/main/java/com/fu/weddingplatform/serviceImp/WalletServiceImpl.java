@@ -1,15 +1,14 @@
 package com.fu.weddingplatform.serviceImp;
 
+import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
+import com.fu.weddingplatform.constant.staff.StaffErrorMessage;
 import com.fu.weddingplatform.constant.wallet.WalletErrorMessage;
 import com.fu.weddingplatform.constant.walletHistory.WalletHistoryConstant;
 import com.fu.weddingplatform.constant.walletHistory.WalletHistoryType;
-import com.fu.weddingplatform.entity.Account;
-import com.fu.weddingplatform.entity.Wallet;
-import com.fu.weddingplatform.entity.WalletHistory;
+import com.fu.weddingplatform.entity.*;
 import com.fu.weddingplatform.exception.ErrorException;
-import com.fu.weddingplatform.repository.AccountRepository;
-import com.fu.weddingplatform.repository.WalletHistoryRepository;
-import com.fu.weddingplatform.repository.WalletRepository;
+import com.fu.weddingplatform.repository.*;
+import com.fu.weddingplatform.request.wallet.TopUpWallet;
 import com.fu.weddingplatform.request.wallet.UpdateBalanceWallet;
 import com.fu.weddingplatform.response.wallet.WalletResponse;
 import com.fu.weddingplatform.service.WalletService;
@@ -34,6 +33,10 @@ public class WalletServiceImpl implements WalletService {
 
     @Autowired
     WalletHistoryRepository walletHistoryRepository;
+    @Autowired
+    private CoupleRepository coupleRepository;
+    @Autowired
+    private StaffRepository staffRepository;
 
     @Override
     public WalletResponse getBalanceWallet(int accountId) {
@@ -66,5 +69,21 @@ public class WalletServiceImpl implements WalletService {
         Wallet walletSaved = walletRepository.save(wallet);
         walletHistoryRepository.save(walletHistory);
         return walletSaved;
+    }
+
+    @Override
+    public WalletResponse topUpByStaff(TopUpWallet request) {
+        Couple couple = coupleRepository.findById(request.getCoupleId())
+                .orElseThrow(() ->  new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
+        Staff staff = staffRepository.findById(request.getStaffId())
+                .orElseThrow(() -> new ErrorException(StaffErrorMessage.NOT_FOUND));
+        UpdateBalanceWallet updateBalanceWallet = UpdateBalanceWallet.builder()
+                .type(WalletHistoryType.PlUS)
+                .accountId(couple.getAccount().getId())
+                .amount(request.getAmount())
+                .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY, request.getAmount(), staff.getId()))
+                .build();
+        Wallet wallet = updateBalanceWallet(updateBalanceWallet);
+        return modelMapper.map(wallet, WalletResponse.class);
     }
 }
