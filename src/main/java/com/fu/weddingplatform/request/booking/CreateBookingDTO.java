@@ -1,5 +1,6 @@
 package com.fu.weddingplatform.request.booking;
 
+import java.sql.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import lombok.ToString;
 @ToString
 @Builder
 public class CreateBookingDTO {
+  private Date weddingDate;
   private String coupleId;
   private List<ServiceSupplierBookingDTO> listServiceSupplier;
 }

@@ -6,6 +6,7 @@ import com.fu.weddingplatform.request.account.UpdateCoupleDTO;
 import com.fu.weddingplatform.request.account.UpdateSupplierDTO;
 import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Account.SupplierResponse;
+import com.fu.weddingplatform.response.couple.CoupleResponse;
 
 public interface AccountService {
     public List<AccountResponse> getAllUsersByAdmin(int pageNo, int pageSize);
@@ -18,6 +19,10 @@ public interface AccountService {
 
     public SupplierResponse updateSupplierProfile(UpdateSupplierDTO updateDTO);
 
-    public AccountResponse updateCoupleProfile(UpdateCoupleDTO updateCoupleDTO);
+    public CoupleResponse updateCoupleProfile(UpdateCoupleDTO updateCoupleDTO);
+
+    public CoupleResponse getCoupleProfile(String id);
+
+    public SupplierResponse getSupplierProfile(String id);
 
 }

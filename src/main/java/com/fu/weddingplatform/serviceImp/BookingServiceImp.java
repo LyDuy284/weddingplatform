@@ -120,6 +120,7 @@ public class BookingServiceImp implements BookingService {
     Booking booking = Booking.builder()
         .couple(couple)
         .createdAt(Utils.formatVNDatetimeNow())
+        .weddingDate(createDTO.getWeddingDate().toString())
         .status(BookingStatus.PENDING)
         .build();
 
@@ -127,6 +128,7 @@ public class BookingServiceImp implements BookingService {
 
     List<BookingDetailResponse> listBookingDetailResponse = new ArrayList<>();
     List<BookingDetail> listBookingDetailSaved = new ArrayList<>();
+    LocalDate weddingDate = createDTO.getWeddingDate().toLocalDate();
 
     List<BookingDetail> listBookingDetails = new ArrayList<>();
     int totalPrice = 0;
@@ -143,6 +145,10 @@ public class BookingServiceImp implements BookingService {
 
       if (currentDate.isEqual(completeDate) || currentDate.isAfter(completeDate)) {
         throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_GREATER_THAN_CURRENT_DATE);
+      }
+
+      if (completeDate.isAfter(weddingDate)) {
+        throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_LESS_THAN_WEDDING_DATE);
       }
 
       PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository

@@ -4,9 +4,11 @@ import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.account.AccountSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
+import com.fu.weddingplatform.request.account.UpdateCoupleDTO;
 import com.fu.weddingplatform.request.account.UpdateSupplierDTO;
 import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Account.SupplierResponse;
+import com.fu.weddingplatform.response.couple.CoupleResponse;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.service.AccountService;
@@ -16,6 +18,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/account")
@@ -89,6 +93,39 @@ public class AccountController {
         SupplierResponse data = accountService.updateSupplierProfile(updateSupplierDTO);
         responseDTO.setData(data);
         responseDTO.setMessage(AccountSuccessMessage.UPDATE_ACCOUNT);
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @PutMapping("updateCoupleProfile")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
+    public ResponseEntity<?> updateCoupleProfile(@RequestBody UpdateCoupleDTO updateDTO) {
+        ResponseDTO<CoupleResponse> responseDTO = new ResponseDTO<>();
+        CoupleResponse data = accountService.updateCoupleProfile(updateDTO);
+        responseDTO.setData(data);
+        responseDTO.setMessage(AccountSuccessMessage.UPDATE_ACCOUNT);
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("getCoupleProfile")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_COUPLE)
+    public ResponseEntity<?> getCoupleProfile(@RequestParam String id) {
+        ResponseDTO<CoupleResponse> responseDTO = new ResponseDTO<>();
+        CoupleResponse data = accountService.getCoupleProfile(id);
+        responseDTO.setData(data);
+        responseDTO.setMessage(AccountSuccessMessage.GET_COUPLE);
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        return ResponseEntity.ok().body(responseDTO);
+    }
+
+    @GetMapping("getSupplierProfile")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+    public ResponseEntity<?> getSupplierProfile(@RequestParam String id) {
+        ResponseDTO<SupplierResponse> responseDTO = new ResponseDTO<>();
+        SupplierResponse data = accountService.getSupplierProfile(id);
+        responseDTO.setData(data);
+        responseDTO.setMessage(AccountSuccessMessage.GET_COUPLE);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }
