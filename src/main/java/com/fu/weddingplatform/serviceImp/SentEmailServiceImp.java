@@ -50,8 +50,8 @@ public class SentEmailServiceImp implements SentEmailService {
     mimeMessageHelper.setFrom(String.format("\"%s\" <%s>", "The-Day-PlatForm", "weddingplatform176@gmail.com"));
     javaMailSender.send(mimeMessage);
 
-    sentEmail.setStatus(Status.DONE);
-    sentEmailRepository.save(sentEmail);
+    // sentEmail.setStatus(Status.DONE);
+    sentEmailRepository.delete(sentEmail);
   }
 
   @Override

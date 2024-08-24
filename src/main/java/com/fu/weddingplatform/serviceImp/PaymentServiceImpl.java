@@ -64,6 +64,7 @@ import com.fu.weddingplatform.repository.TransactionSummaryRepository;
 import com.fu.weddingplatform.repository.WalletHistoryRepository;
 import com.fu.weddingplatform.repository.WalletRepository;
 import com.fu.weddingplatform.request.email.DepositedEmailForCouple;
+import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
 import com.fu.weddingplatform.request.payment.CreatePaymentDTO;
 import com.fu.weddingplatform.request.payment.UpdatePaymentStatusDTO;
 import com.fu.weddingplatform.request.wallet.UpdateBalanceWallet;
@@ -505,9 +506,39 @@ public class PaymentServiceImpl implements PaymentService {
                 totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
                         * PaymentTypeValue.DEPOSIT_VALUE);
 
+                for (BookingDetail bookingDetail : bookingDetailList) {
+                    DepositedEmailForSupplierDTO depositedEmailForSupplierDTO = DepositedEmailForSupplierDTO.builder()
+                            .bookingDetail(bookingDetail)
+                            .couple(bookingDetail.getBooking().getCouple())
+                            .paymentAmount(Utils.formatAmountToVND(0))
+                            .remainingAmount(Utils.formatAmountToVND(0))
+                            .build();
+
+                    Optional<InvoiceDetail> invoiceDetail = invoiceDetailRepository
+                            .findDepositedInvoiceDetailByBookingDetailId(bookingDetail.getId());
+
+                    if (invoiceDetail.isPresent()) {
+                        depositedEmailForSupplierDTO
+                                .setPaymentAmount(Utils.formatAmountToVND(invoiceDetail.get().getPrice()));
+                        depositedEmailForSupplierDTO
+                                .setRemainingAmount(Utils
+                                        .formatAmountToVND(bookingDetail.getPrice() - invoiceDetail.get().getPrice()));
+                    }
+                    sentEmailService.sentDepositedEmailForSupplier(depositedEmailForSupplierDTO);
+                }
+
+                DepositedEmailForCouple depositedEmailForCouple = DepositedEmailForCouple.builder()
+                        .booking(booking)
+                        .couple(booking.getCouple())
+                        .listBookingDetails(bookingDetailList)
+                        .paymentAmount(Utils.formatAmountToVND(totalAmount))
+                        .remainingAmount(Utils.formatAmountToVND(booking.getTotalPrice() - totalAmount))
+                        .totalAmount(Utils.formatAmountToVND(booking.getTotalPrice()))
+                        .build();
+
+                sentEmailService.sentDepositedEmailForCouple(depositedEmailForCouple);
 
             } else {
-                // bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.COMPLETED));
                 bookingDetailList.forEach(bd -> bookingDetailService.completeBookingDetail(bd.getId()));
                 totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
                         * PaymentTypeValue.FINAL_PAYMENT_VALUE);
@@ -522,7 +553,6 @@ public class PaymentServiceImpl implements PaymentService {
                 transferAmountToSupplier(booking);
             }
         }
-
         response.sendRedirect(VNPayConstant.VNP_REDIRECT_CLIENT);
     }
 
