@@ -14,6 +14,7 @@ import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.email.CancelBookingDetailForCouple;
 import com.fu.weddingplatform.constant.email.CancelBookingForSupplier;
 import com.fu.weddingplatform.constant.email.DepositBookingForSupplier;
+import com.fu.weddingplatform.constant.email.DepositBookingMailForCouple;
 import com.fu.weddingplatform.constant.email.EmailBookingForCouple;
 import com.fu.weddingplatform.constant.email.RejectBookingDetail;
 import com.fu.weddingplatform.constant.email.SentEmailBookingToSupplier;
@@ -21,6 +22,7 @@ import com.fu.weddingplatform.entity.SentEmail;
 import com.fu.weddingplatform.repository.SentEmailRepository;
 import com.fu.weddingplatform.request.email.CancelBookingDetailMailForCouple;
 import com.fu.weddingplatform.request.email.CancelBookingMailForSupplierDTO;
+import com.fu.weddingplatform.request.email.DepositedEmailForCouple;
 import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
@@ -154,6 +156,22 @@ public class SentEmailServiceImp implements SentEmailService {
     String title = "Đơn hàng đã được thanh toán cọc";
     SentEmail sentEmail = SentEmail.builder()
         .email(depositedEmailForSupplierDTO.getBookingDetail().getServiceSupplier().getSupplier().getContactEmail())
+        .content(content)
+        .title(title)
+        .status(Status.PENDING)
+        .build();
+
+    sentEmailRepository.save(sentEmail);
+  }
+
+  @Override
+  public void sentDepositedEmailForCouple(DepositedEmailForCouple depositedEmailForCouple) {
+
+    String content = DepositBookingMailForCouple.content(depositedEmailForCouple);
+
+    String title = "Đơn hàng đã được thanh toán cọc";
+    SentEmail sentEmail = SentEmail.builder()
+        .email(depositedEmailForCouple.getCouple().getAccount().getEmail())
         .content(content)
         .title(title)
         .status(Status.PENDING)

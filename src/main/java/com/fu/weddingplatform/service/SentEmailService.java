@@ -5,6 +5,7 @@ import javax.mail.MessagingException;
 import com.fu.weddingplatform.entity.SentEmail;
 import com.fu.weddingplatform.request.email.CancelBookingDetailMailForCouple;
 import com.fu.weddingplatform.request.email.CancelBookingMailForSupplierDTO;
+import com.fu.weddingplatform.request.email.DepositedEmailForCouple;
 import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
@@ -25,5 +26,7 @@ public interface SentEmailService {
   public void sentCancelBookingDetailForCouple(CancelBookingDetailMailForCouple cancelBookingDetailMailForCouple);
 
   public void sentDepositedEmailForSupplier(DepositedEmailForSupplierDTO depositedEmailForSupplierDTO);
+
+  public void sentDepositedEmailForCouple(DepositedEmailForCouple depositedEmailForCouple);
 
 }

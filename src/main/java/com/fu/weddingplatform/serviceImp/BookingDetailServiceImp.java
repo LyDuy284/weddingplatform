@@ -36,6 +36,7 @@ import com.fu.weddingplatform.repository.TransactionSummaryRepository;
 import com.fu.weddingplatform.request.booking.CancelBookingDTO;
 import com.fu.weddingplatform.request.email.CancelBookingDetailMailForCouple;
 import com.fu.weddingplatform.request.email.CancelBookingMailForSupplierDTO;
+import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.bookingHIstory.BookingDetailHistoryResponse;
@@ -575,6 +576,24 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());
+
+    Optional<InvoiceDetail> invoiceDetail = invoiceDetailRepository
+        .findDepositedInvoiceDetailByBookingDetailId(bookingDetailId);
+
+    DepositedEmailForSupplierDTO depositedEmailForSupplierDTO = DepositedEmailForSupplierDTO.builder()
+        .bookingDetail(bookingDetail)
+        .couple(bookingDetail.getBooking().getCouple())
+        .paymentAmount(Utils.formatAmountToVND(0))
+        .remainingAmount(Utils.formatAmountToVND(0))
+        .build();
+
+    if (invoiceDetail.isPresent()) {
+      depositedEmailForSupplierDTO.setPaymentAmount(Utils.formatAmountToVND(invoiceDetail.get().getPrice()));
+      depositedEmailForSupplierDTO
+          .setRemainingAmount(Utils.formatAmountToVND(bookingDetail.getPrice() - invoiceDetail.get().getPrice()));
+    }
+    System.out.println("run supplier");
+    sentEmailService.sentDepositedEmailForSupplier(depositedEmailForSupplierDTO);
 
     BookingDetailResponse response = modelMapper.map(bookingDetail, BookingDetailResponse.class);
     response.setServiceSupplier(serviceSupplierResponse);

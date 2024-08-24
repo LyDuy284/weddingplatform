@@ -29,7 +29,6 @@ import com.fu.weddingplatform.constant.booking.BookingStatus;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailErrorMessage;
 import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
 import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
-import com.fu.weddingplatform.constant.email.DepositBookingForSupplier;
 import com.fu.weddingplatform.constant.invoice.InvoiceStatus;
 import com.fu.weddingplatform.constant.invoiceDetail.InvoiceDetailErrorMessage;
 import com.fu.weddingplatform.constant.invoiceDetail.InvoiceDetailStatus;
@@ -64,7 +63,7 @@ import com.fu.weddingplatform.repository.TransactionRepository;
 import com.fu.weddingplatform.repository.TransactionSummaryRepository;
 import com.fu.weddingplatform.repository.WalletHistoryRepository;
 import com.fu.weddingplatform.repository.WalletRepository;
-import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
+import com.fu.weddingplatform.request.email.DepositedEmailForCouple;
 import com.fu.weddingplatform.request.payment.CreatePaymentDTO;
 import com.fu.weddingplatform.request.payment.UpdatePaymentStatusDTO;
 import com.fu.weddingplatform.request.wallet.UpdateBalanceWallet;
@@ -327,14 +326,6 @@ public class PaymentServiceImpl implements PaymentService {
                 }
                 price = (int) (bookingDetail.getPrice() * PaymentTypeValue.DEPOSIT_VALUE);
 
-                DepositedEmailForSupplierDTO depositedEmailForSupplierDTO = DepositedEmailForSupplierDTO.builder()
-                        .bookingDetail(bookingDetail)
-                        .couple(bookingDetail.getBooking().getCouple())
-                        .paymentAmount(Utils.formatAmountToVND(price))
-                        .remainingAmount(Utils.formatAmountToVND(bookingDetail.getPrice() - price))
-                        .build();
-                sentEmailService.sentDepositedEmailForSupplier(depositedEmailForSupplierDTO);
-
             } else {
                 invoiceDetailRepository.findDepositedInvoiceDetailByBookingDetailId(bookingDetail.getId())
                         .orElseThrow(() -> new ErrorException(String
@@ -513,6 +504,8 @@ public class PaymentServiceImpl implements PaymentService {
                 bookingDetailList.forEach(bd -> bookingDetailService.depositBookingDetail(bd.getId()));
                 totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
                         * PaymentTypeValue.DEPOSIT_VALUE);
+
+
             } else {
                 // bookingDetailList.forEach(bd -> bd.setStatus(BookingDetailStatus.COMPLETED));
                 bookingDetailList.forEach(bd -> bookingDetailService.completeBookingDetail(bd.getId()));
@@ -529,6 +522,7 @@ public class PaymentServiceImpl implements PaymentService {
                 transferAmountToSupplier(booking);
             }
         }
+
         response.sendRedirect(VNPayConstant.VNP_REDIRECT_CLIENT);
     }
 
