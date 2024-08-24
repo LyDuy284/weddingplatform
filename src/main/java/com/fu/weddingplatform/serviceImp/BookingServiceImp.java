@@ -1,6 +1,7 @@
 package com.fu.weddingplatform.serviceImp;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -141,6 +142,8 @@ public class BookingServiceImp implements BookingService {
         throw new ErrorException(ServiceErrorMessage.NOT_FOUND);
       }
 
+      DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+      String localDateTime = serviceSupplierBookingDTO.getDateCompleted().format(dateTimeFormatter);
       LocalDate completeDate = serviceSupplierBookingDTO.getDateCompleted().toLocalDate();
 
       if (currentDate.isEqual(completeDate) || currentDate.isAfter(completeDate)) {
@@ -183,7 +186,7 @@ public class BookingServiceImp implements BookingService {
       BookingDetail bookingDetail = BookingDetail.builder()
           .booking(bookingSaved)
           .serviceSupplier(serviceSupplier.get())
-          .completedDate(completeDate.toString())
+          .completedDate(localDateTime)
           .note(serviceSupplierBookingDTO.getNote())
           .price(price)
           .quantity(serviceSupplierBookingDTO.getQuantity())

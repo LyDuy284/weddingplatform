@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.promotion.PromotionErrorMessage;
+import com.fu.weddingplatform.constant.promotion.PromotionType;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
 import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
 import com.fu.weddingplatform.constant.validation.ValidationMessage;
@@ -77,6 +78,12 @@ public class PromotionServiceImp implements PromotionService {
 
     if (createDTO.getValue() <= 0) {
       throw new ErrorException(ValidationMessage.GREATER_THAN_ZERO);
+    }
+
+    if (createDTO.getType().equalsIgnoreCase(PromotionType.PERCENT)){
+      if (createDTO.getValue() >= 100){
+        throw new ErrorException(ValidationMessage.PROMOTION_LESS_THEN_100);
+      }
     }
 
     Promotion promotion = Promotion.builder()

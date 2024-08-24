@@ -60,6 +60,12 @@ public class Utils {
         return localDate;
     }
 
+    public static LocalDateTime convertStringToLocalDateTime(String date) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime localDate = LocalDateTime.parse(date, formatter);
+        return localDate;
+    }
+
     public static List<String> parseStringToListImages(String imageString) {
         List<String> result = new ArrayList<String>();
         if (imageString != null && imageString != "") {

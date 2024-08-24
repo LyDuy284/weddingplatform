@@ -131,7 +131,6 @@ public class AccountServiceImp implements AccountService {
         Account account = supplier.getAccount();
         account.setName(updateDTO.getName());
         account.setImage(updateDTO.getImage());
-        account.setPhoneNumber(updateDTO.getPhoneNumber());
 
         accountRepository.save(account);
 
@@ -146,7 +145,7 @@ public class AccountServiceImp implements AccountService {
                     .district(updateDTO.getDistrict())
                     .ward(updateDTO.getWard())
                     .apartmentNumber(updateDTO.getApartmentNumber())
-                    // .supplier(supplier)
+                    .supplier(supplier)
                     .status(Status.ACTIVATED)
                     .build();
         } else {
