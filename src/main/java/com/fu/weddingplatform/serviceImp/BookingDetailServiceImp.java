@@ -36,6 +36,7 @@ import com.fu.weddingplatform.repository.TransactionSummaryRepository;
 import com.fu.weddingplatform.request.booking.CancelBookingDTO;
 import com.fu.weddingplatform.request.email.CancelBookingDetailMailForCouple;
 import com.fu.weddingplatform.request.email.CancelBookingMailForSupplierDTO;
+import com.fu.weddingplatform.request.email.MailApproveForCoupleDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.bookingHIstory.BookingDetailHistoryResponse;
@@ -113,6 +114,13 @@ public class BookingDetailServiceImp implements BookingDetailService {
       bookingHistoryRepository.saveAndFlush(bookingHistory);
 
     }
+
+    MailApproveForCoupleDTO mail = MailApproveForCoupleDTO.builder()
+        .bookingDetail(bookingDetail)
+        .couple(bookingDetail.getBooking().getCouple())
+        .build();
+
+    sentEmailService.sentApprovedEmailForCouple(mail);
 
     ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService
         .convertServiceSupplierToResponse(bookingDetail.getServiceSupplier());

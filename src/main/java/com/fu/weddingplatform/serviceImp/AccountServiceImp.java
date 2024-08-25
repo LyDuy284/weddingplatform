@@ -1,7 +1,6 @@
 package com.fu.weddingplatform.serviceImp;
 
 import java.sql.Date;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +16,6 @@ import com.fu.weddingplatform.constant.account.AccountErrorMessage;
 import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleErrorMessage;
 import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
-import com.fu.weddingplatform.constant.validation.ValidationMessage;
 import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.entity.Area;
 import com.fu.weddingplatform.entity.Couple;
@@ -172,13 +170,6 @@ public class AccountServiceImp implements AccountService {
     public CoupleResponse updateCoupleProfile(UpdateCoupleDTO updateCoupleDTO) {
         Couple couple = coupleRepository.findById(updateCoupleDTO.getCoupleId()).orElseThrow(
                 () -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
-
-        LocalDate weddingDate = Utils.convertStringToLocalDate(updateCoupleDTO.getWeddingDate());
-        LocalDate currentDate = Utils.getCurrentDate();
-
-        // if (!(currentDate.isBefore(weddingDate))) {
-        //     throw new ErrorException(ValidationMessage.NOT_BEFORE_CURRENT_DATE);
-        // }
 
         couple.setPartnerName1(updateCoupleDTO.getPartnerName1());
         couple.setPartnerName2(updateCoupleDTO.getPartnerName2());

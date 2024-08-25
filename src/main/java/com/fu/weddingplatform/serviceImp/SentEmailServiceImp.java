@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
+import com.fu.weddingplatform.constant.email.ApprovedMailForCouple;
 import com.fu.weddingplatform.constant.email.CancelBookingDetailForCouple;
 import com.fu.weddingplatform.constant.email.CancelBookingForSupplier;
 import com.fu.weddingplatform.constant.email.DepositBookingForSupplier;
@@ -26,6 +27,7 @@ import com.fu.weddingplatform.request.email.DepositedEmailForCouple;
 import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
+import com.fu.weddingplatform.request.email.MailApproveForCoupleDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.service.SentEmailService;
 
@@ -172,6 +174,21 @@ public class SentEmailServiceImp implements SentEmailService {
     String title = "Đơn hàng đã được thanh toán cọc";
     SentEmail sentEmail = SentEmail.builder()
         .email(depositedEmailForCouple.getCouple().getAccount().getEmail())
+        .content(content)
+        .title(title)
+        .status(Status.PENDING)
+        .build();
+
+    sentEmailRepository.save(sentEmail);
+  }
+
+  @Override
+  public void sentApprovedEmailForCouple(MailApproveForCoupleDTO mailApproveForCoupleDTO) {
+    String content = ApprovedMailForCouple.content(mailApproveForCoupleDTO);
+
+    String title = "Đơn hàng đã được xác nhận";
+    SentEmail sentEmail = SentEmail.builder()
+        .email(mailApproveForCoupleDTO.getCouple().getAccount().getEmail())
         .content(content)
         .title(title)
         .status(Status.PENDING)

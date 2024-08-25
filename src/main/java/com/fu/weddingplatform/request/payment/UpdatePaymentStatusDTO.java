@@ -1,8 +1,10 @@
 package com.fu.weddingplatform.request.payment;
 
-import com.fu.weddingplatform.constant.invoice.InvoiceStatus;
-import com.fu.weddingplatform.constant.transaction.TransactionStatus;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
