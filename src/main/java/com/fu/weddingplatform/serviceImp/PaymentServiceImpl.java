@@ -19,6 +19,8 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fu.weddingplatform.request.payment.PaymentRequestVNP;
+import com.fu.weddingplatform.response.payment.PaymentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -123,9 +125,17 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public String requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp, CreatePaymentDTO paymentRequest)
+    public PaymentResponse requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp, CreatePaymentDTO paymentRequest)
             throws JsonProcessingException {
-        Map<String, String> vnp_Params = setVNPParams(req, paymentRequest);
+        PaymentRequestVNP  paymentRequestVNP = createPaymentRequest(req, paymentRequest);
+        if(paymentRequestVNP.getAmountVNPay() == 0){
+            return PaymentResponse.builder()
+                    .urlPaymentVNPay(null)
+                    .amountPaymentVNPay(paymentRequestVNP.getAmountVNPay())
+                    .amountPaidWallet(paymentRequestVNP.getAmountWalletPaid())
+                    .build();
+        }
+        Map<String, String> vnp_Params = paymentRequestVNP.getVnpParams();
 
         List<String> fieldNames = new ArrayList<>(vnp_Params.keySet());
         Collections.sort(fieldNames);
@@ -153,7 +163,11 @@ public class PaymentServiceImpl implements PaymentService {
         String queryUrl = query.toString();
         String vnp_SecureHash = VNPayUtil.hmacSHA512(VNPayConstant.VNP_HASH_SECRET, hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;
-        return VNPayConstant.VNP_PAY_URL + queryUrl;
+        return PaymentResponse.builder()
+                .urlPaymentVNPay(VNPayConstant.VNP_PAY_URL + queryUrl)
+                .amountPaymentVNPay(paymentRequestVNP.getAmountVNPay())
+                .amountPaidWallet(paymentRequestVNP.getAmountWalletPaid())
+                .build();
     }
 
     @Override
@@ -237,7 +251,7 @@ public class PaymentServiceImpl implements PaymentService {
         return 0;
     }
 
-    private Map<String, String> setVNPParams(HttpServletRequest req, CreatePaymentDTO paymentRequest)
+    private PaymentRequestVNP createPaymentRequest(HttpServletRequest req, CreatePaymentDTO paymentRequest)
             throws JsonProcessingException {
         String vnp_TxnRef = String.valueOf(System.currentTimeMillis());
         String vnp_IpAddr = req.getRemoteAddr();
@@ -271,7 +285,11 @@ public class PaymentServiceImpl implements PaymentService {
         String vnp_ExpireDate = formatter.format(cld.getTime());
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
-        return vnp_Params;
+        return PaymentRequestVNP.builder()
+                .vnpParams(vnp_Params)
+                .amountVNPay(paymentInfor.getVnpAmount())
+                .amountWalletPaid(paymentInfor.getAmountPaidWallet())
+                .build();
     }
 
     private PaymentVNPInfor createInvoiceByEachSupplier(List<String> listBookingDetailId, boolean isDeposit) {
@@ -291,6 +309,7 @@ public class PaymentServiceImpl implements PaymentService {
                     isDeposit);
             paymentVNPInfor.setVnpAmount(paymentVNPInfor.getVnpAmount() + paymentInfor.getVnpAmount());
             paymentVNPInfor.getListVNPBookingDetailId().addAll(paymentInfor.getListVNPBookingDetailId());
+            paymentVNPInfor.setAmountPaidWallet(paymentVNPInfor.getAmountPaidWallet() + paymentInfor.getAmountPaidWallet());
         }
         return paymentVNPInfor;
     }
@@ -427,6 +446,7 @@ public class PaymentServiceImpl implements PaymentService {
         return PaymentVNPInfor.builder()
                 .listVNPBookingDetailId(listVNPBookingDetailId)
                 .vnpAmount(vnpAmount)
+                .amountPaidWallet(walletAmount)
                 .build();
     }
 
