@@ -176,9 +176,9 @@ public class AccountServiceImp implements AccountService {
         LocalDate weddingDate = Utils.convertStringToLocalDate(updateCoupleDTO.getWeddingDate());
         LocalDate currentDate = Utils.getCurrentDate();
 
-        if (!(currentDate.isBefore(weddingDate))) {
-            throw new ErrorException(ValidationMessage.NOT_BEFORE_CURRENT_DATE);
-        }
+        // if (!(currentDate.isBefore(weddingDate))) {
+        //     throw new ErrorException(ValidationMessage.NOT_BEFORE_CURRENT_DATE);
+        // }
 
         couple.setPartnerName1(updateCoupleDTO.getPartnerName1());
         couple.setPartnerName2(updateCoupleDTO.getPartnerName2());
