@@ -18,15 +18,18 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.booking.BookingErrorMessage;
+import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
 import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
+import com.fu.weddingplatform.constant.payment.PaymentTypeValue;
+import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
 import com.fu.weddingplatform.constant.transaction.TransactionErrorMessage;
-import com.fu.weddingplatform.entity.Booking;
-import com.fu.weddingplatform.entity.Couple;
-import com.fu.weddingplatform.entity.Transaction;
+
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
+import com.fu.weddingplatform.repository.SupplierRepository;
 import com.fu.weddingplatform.repository.TransactionRepository;
+import com.fu.weddingplatform.response.statistic.DashboardStatistic;
 import com.fu.weddingplatform.response.transaction.TransactionResponse;
 import com.fu.weddingplatform.service.TransactionService;
 
@@ -44,6 +47,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Autowired
     CoupleRepository coupleRepository;
+    @Autowired
+    private SupplierRepository supplierRepository;
 
     @Override
     public List<TransactionResponse> getCoupleTransactionsHistoryByFilter(String coupleId, int pageNo, int pageSize, String sortBy,
@@ -109,13 +114,13 @@ public class TransactionServiceImpl implements TransactionService {
                     (root, query, criteriaBuilder) -> root.get("invoiceDetail").get("bookingDetail").get("booking").get("id").in(listBookingId));
         }
 
-        if(isDeposit != null){
+        if (isDeposit != null) {
             specification = specification.and(
                     (root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("invoiceDetail").get("isDeposit"), Boolean.parseBoolean(isDeposit)));
         }
 
         Specification<Transaction> dateSpecification = dateCompare(timeFrom, timeTo);
-        if(dateSpecification != null){
+        if (dateSpecification != null) {
             specification = specification.and(dateSpecification);
         }
         return specification;
@@ -133,15 +138,74 @@ public class TransactionServiceImpl implements TransactionService {
                 String formattedTimeFrom = timeFrom.format(formatter);
                 String formattedTimeTo = timeTo.format(formatter);
                 return builder.between(dateCreatedAsDate, java.sql.Date.valueOf(formattedTimeFrom), java.sql.Date.valueOf(formattedTimeTo));
-            }else if(timeFrom != null){
+            } else if (timeFrom != null) {
                 String formattedTimeFrom = timeFrom.format(formatter);
                 return builder.greaterThanOrEqualTo(dateCreatedAsDate, java.sql.Date.valueOf(formattedTimeFrom));
-            }else if (timeTo != null) {
+            } else if (timeTo != null) {
                 String formattedTimeTo = timeTo.format(formatter);
                 return builder.lessThanOrEqualTo(dateCreatedAsDate, java.sql.Date.valueOf(formattedTimeTo));
             }
             return null;
         };
+    }
+
+    @Override
+    public DashboardStatistic getSupplierDashboardStatistic(int month, int quarter, int year, String supplierId) {
+        Supplier supplier = supplierRepository.findById(supplierId)
+                .orElseThrow(() -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+        Specification<Transaction> specification = buildSpecificationToSuppStatistic(month, quarter, year, supplier.getId());
+        List<Transaction> transactionList = transactionRepository.findAll(specification);
+        int totalAmountCouplePaid = transactionList.stream().mapToInt(Transaction::getAmount).sum();
+        int totalAmountSupplierEarn = (int)(totalAmountCouplePaid * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
+        int totalAmountPlatformEarn = (int)(totalAmountCouplePaid * PaymentTypeValue.PLATFORM_FEE_VALUE);
+        return DashboardStatistic.builder()
+                .totalAmountSupplierEarn(totalAmountSupplierEarn)
+                .totalAmountPlatformFee(totalAmountPlatformEarn)
+                .totalAmountCouplePaid(totalAmountCouplePaid)
+                .build();
+    }
+
+    private Specification<Transaction> buildSpecificationToSuppStatistic(int month, int quarter, int year, String supplierId) {
+        Specification<Transaction> specification = Specification.where(null);
+
+        specification = specification.and((root, query, builder) ->
+                builder.equal(root.get("invoiceDetail")
+                        .get("bookingDetail")
+                        .get("serviceSupplier")
+                        .get("supplier")
+                        .get("id"), supplierId));
+        specification = specification.and((root, query, builder) -> builder.equal(root.get("status"), TransactionStatus.COMPLETED));
+
+        specification = specification.and((root, query, builder) ->
+                builder.equal(root.get("invoiceDetail")
+                        .get("bookingDetail")
+                        .get("status"), BookingDetailStatus.COMPLETED));
+
+        specification = specification.and((root, query, builder) -> {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            Expression<Date> dateCreatedAsDate = builder.function(
+                    "STR_TO_DATE", Date.class,
+                    root.get("dateCreated"),
+                    builder.literal("%Y-%m-%d")
+            );
+            Predicate predicate = builder.conjunction();
+            if (year != 0) {
+                Expression<Integer> yearExpression = builder.function("YEAR", Integer.class, dateCreatedAsDate);
+                predicate = builder.and(builder.equal(yearExpression, year));
+            }
+            if (month != 0) {
+                Expression<Integer> monthExpression = builder.function("MONTH", Integer.class, dateCreatedAsDate);
+                predicate = builder.and(builder.equal(monthExpression, month));
+            }
+            if (quarter != 0) {
+                Expression<Integer> monthExpression = builder.function("MONTH", Integer.class, dateCreatedAsDate);
+                List<Integer> monthList = Arrays.asList(1, 2, 3);
+                monthList = monthList.stream().map(element -> (quarter - 1) * 3 + element).toList();
+                predicate = builder.and(predicate, monthExpression.in(monthList));
+            }
+            return predicate;
+        });
+        return specification;
     }
 
 }
