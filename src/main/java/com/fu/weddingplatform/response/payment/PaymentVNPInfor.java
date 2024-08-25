@@ -12,4 +12,5 @@ import java.util.List;
 public class PaymentVNPInfor {
     List<String> listVNPBookingDetailId;
     int vnpAmount;
+    int amountPaidWallet;
 }

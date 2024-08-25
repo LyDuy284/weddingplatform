@@ -5,6 +5,7 @@ import com.fu.weddingplatform.constant.payment.PaymentSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.request.payment.CreatePaymentDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
+import com.fu.weddingplatform.response.payment.PaymentResponse;
 import com.fu.weddingplatform.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,11 @@ public class PaymentController {
     public ResponseEntity<?> requestPayment(HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody CreatePaymentDTO paymentRequest) throws JsonProcessingException {
-        String paymentURL = paymentService.requestPaymentVNP(request, response, paymentRequest);
-        ResponseDTO<String> responseDTO = new ResponseDTO<>();
+        PaymentResponse paymentResponse = paymentService.requestPaymentVNP(request, response, paymentRequest);
+        ResponseDTO<PaymentResponse> responseDTO = new ResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(PaymentSuccessMessage.GET_PAYMENT_URL);
-        responseDTO.setData(paymentURL);
+        responseDTO.setData(paymentResponse);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
     }
