@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.serviceImp;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,23 +14,30 @@ import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.account.AccountErrorMessage;
+import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleErrorMessage;
 import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
+import com.fu.weddingplatform.constant.validation.ValidationMessage;
 import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.entity.Area;
+import com.fu.weddingplatform.entity.Couple;
 import com.fu.weddingplatform.entity.Role;
 import com.fu.weddingplatform.entity.Supplier;
 import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.AccountRepository;
 import com.fu.weddingplatform.repository.AreaRepository;
+import com.fu.weddingplatform.repository.CoupleRepository;
 import com.fu.weddingplatform.repository.RoleRepository;
 import com.fu.weddingplatform.repository.SupplierRepository;
 import com.fu.weddingplatform.request.account.UpdateCoupleDTO;
 import com.fu.weddingplatform.request.account.UpdateSupplierDTO;
 import com.fu.weddingplatform.response.Account.AccountResponse;
 import com.fu.weddingplatform.response.Account.SupplierResponse;
+import com.fu.weddingplatform.response.couple.CoupleResponse;
 import com.fu.weddingplatform.service.AccountService;
+import com.fu.weddingplatform.service.SupplierService;
+import com.fu.weddingplatform.utils.Utils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,10 +47,11 @@ public class AccountServiceImp implements AccountService {
 
     private final AccountRepository accountRepository;
     private final SupplierRepository supplierRepository;
-    // private final CoupleRepository coupleRepository;
+    private final CoupleRepository coupleRepository;
     private final AreaRepository areaRepository;
     private final RoleRepository roleRepository;
     private final ModelMapper modelMapper;
+    private final SupplierService supplierService;
 
     @Override
     public List<AccountResponse> getAllUsersByAdmin(int pageNo, int pageSize) {
@@ -121,7 +131,6 @@ public class AccountServiceImp implements AccountService {
         Account account = supplier.getAccount();
         account.setName(updateDTO.getName());
         account.setImage(updateDTO.getImage());
-        account.setPhoneNumber(updateDTO.getPhoneNumber());
 
         accountRepository.save(account);
 
@@ -136,7 +145,7 @@ public class AccountServiceImp implements AccountService {
                     .district(updateDTO.getDistrict())
                     .ward(updateDTO.getWard())
                     .apartmentNumber(updateDTO.getApartmentNumber())
-                    // .supplier(supplier)
+                    .supplier(supplier)
                     .status(Status.ACTIVATED)
                     .build();
         } else {
@@ -160,8 +169,47 @@ public class AccountServiceImp implements AccountService {
     }
 
     @Override
-    public AccountResponse updateCoupleProfile(UpdateCoupleDTO updateCoupleDTO) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateCoupleProfile'");
+    public CoupleResponse updateCoupleProfile(UpdateCoupleDTO updateCoupleDTO) {
+        Couple couple = coupleRepository.findById(updateCoupleDTO.getCoupleId()).orElseThrow(
+                () -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
+
+        LocalDate weddingDate = Utils.convertStringToLocalDate(updateCoupleDTO.getWeddingDate());
+        LocalDate currentDate = Utils.getCurrentDate();
+
+        // if (!(currentDate.isBefore(weddingDate))) {
+        //     throw new ErrorException(ValidationMessage.NOT_BEFORE_CURRENT_DATE);
+        // }
+
+        couple.setPartnerName1(updateCoupleDTO.getPartnerName1());
+        couple.setPartnerName2(updateCoupleDTO.getPartnerName2());
+        couple.setWeddingDate(Date.valueOf(Utils.convertStringToLocalDate(updateCoupleDTO.getWeddingDate())));
+        couple.getAccount().setAddress(updateCoupleDTO.getAddress());
+        couple.getAccount().setPhoneNumber(updateCoupleDTO.getPhoneNumber());
+        couple.getAccount().setImage(updateCoupleDTO.getImage());
+        couple.getAccount().setName(updateCoupleDTO.getName());
+
+        coupleRepository.saveAndFlush(couple);
+
+        CoupleResponse response = modelMapper.map(couple, CoupleResponse.class);
+        return response;
+
+    }
+
+    @Override
+    public CoupleResponse getCoupleProfile(String id) {
+        Couple couple = coupleRepository.findById(id).orElseThrow(
+                () -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
+
+        CoupleResponse response = modelMapper.map(couple, CoupleResponse.class);
+        return response;
+    }
+
+    @Override
+    public SupplierResponse getSupplierProfile(String id) {
+        Supplier supplier = supplierRepository.findById(id).orElseThrow(
+                () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+
+        SupplierResponse response = supplierService.convertSupplierToSupplierResponse(supplier);
+        return response;
     }
 }

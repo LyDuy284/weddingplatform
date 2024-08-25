@@ -19,4 +19,7 @@ public class UpdateCoupleDTO {
   private String image;
   private String phoneNumber;
   private String address;
+  private String weddingDate;
+  private String partnerName1;
+  private String partnerName2;
 }

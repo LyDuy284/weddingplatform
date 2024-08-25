@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.promotion.PromotionErrorMessage;
+import com.fu.weddingplatform.constant.promotion.PromotionType;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
 import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
 import com.fu.weddingplatform.constant.validation.ValidationMessage;
@@ -79,6 +80,12 @@ public class PromotionServiceImp implements PromotionService {
       throw new ErrorException(ValidationMessage.GREATER_THAN_ZERO);
     }
 
+    if (createDTO.getType().equalsIgnoreCase(PromotionType.PERCENT)){
+      if (createDTO.getValue() >= 100){
+        throw new ErrorException(ValidationMessage.PROMOTION_LESS_THEN_100);
+      }
+    }
+
     Promotion promotion = Promotion.builder()
         .value(createDTO.getValue())
         .type(createDTO.getType())
@@ -90,27 +97,27 @@ public class PromotionServiceImp implements PromotionService {
         .build();
     Promotion promotionSaved = promotionRepository.save(promotion);
 
-    for (String serviceSupplierId : createDTO.getListServiceSupplierId()) {
-      ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
-          () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+    // for (String serviceSupplierId : createDTO.getListServiceSupplierId()) {
+    //   ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
+    //       () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
-      PromotionServiceSupplier existPromotionServiceSupplier = promotionServiceSupplierRepository
-          .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
+    //   PromotionServiceSupplier existPromotionServiceSupplier = promotionServiceSupplierRepository
+    //       .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
 
-      if (existPromotionServiceSupplier != null) {
-        existPromotionServiceSupplier.setStatus(Status.DISABLED);
-        promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
-      }
+    //   if (existPromotionServiceSupplier != null) {
+    //     existPromotionServiceSupplier.setStatus(Status.DISABLED);
+    //     promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
+    //   }
 
-      PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier.builder()
-          .promotion(promotionSaved)
-          .serviceSupplier(serviceSupplier)
-          .status(Status.ACTIVATED)
-          .build();
+    //   PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier.builder()
+    //       .promotion(promotionSaved)
+    //       .serviceSupplier(serviceSupplier)
+    //       .status(Status.ACTIVATED)
+    //       .build();
 
-      promotionServiceSupplierRepository.save(promotionServiceSupplier);
+    //   promotionServiceSupplierRepository.save(promotionServiceSupplier);
 
-    }
+    // }
 
     PromotionResponse promotionResponse = modelMapper.map(promotionSaved, PromotionResponse.class);
     return promotionResponse;

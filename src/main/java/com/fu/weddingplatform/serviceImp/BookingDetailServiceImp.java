@@ -276,7 +276,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     LocalDate currentDate = Utils.getCurrentDate();
 
-    LocalDate completedDate = Utils.convertStringToLocalDate(bookingDetail.getCompletedDate());
+    LocalDate completedDate = Utils.convertStringToLocalDateTime(bookingDetail.getCompletedDate()).toLocalDate();
 
     int daysBetween = (int) ChronoUnit.DAYS.between(completedDate, currentDate);
 
@@ -399,6 +399,8 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     List<BookingDetail> listCurrentBookings = bookingDetailRepository.findValidBookingDetailByBooking(booking.getId());
 
+    Optional<TransactionSummary> transactionSummary = transactionSummaryRepository.findFirstByBooking(booking);
+
     CancelBookingDetailMailForCouple cancelBookingDetailMailForCouple = CancelBookingDetailMailForCouple.builder()
         .coupleName(booking.getCouple().getAccount().getName())
         .coupleMail(booking.getCouple().getAccount().getEmail())
@@ -410,6 +412,13 @@ public class BookingDetailServiceImp implements BookingDetailService {
         .remaining(Utils.formatAmountToVND(0))
         .reason(cancelBookingDTO.getReason())
         .build();
+
+    if (transactionSummary.isPresent()) {
+      cancelBookingDetailMailForCouple
+          .setPaymentAmount(Utils.formatAmountToVND(transactionSummary.get().getTotalAmount()));
+      cancelBookingDetailMailForCouple
+          .setRemaining(Utils.formatAmountToVND(booking.getTotalPrice() - transactionSummary.get().getTotalAmount()));
+    }
 
     sentEmailService.sentCancelBookingDetailForCouple(cancelBookingDetailMailForCouple);
 

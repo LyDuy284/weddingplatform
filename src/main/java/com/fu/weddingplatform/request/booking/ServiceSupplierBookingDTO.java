@@ -1,7 +1,8 @@
 package com.fu.weddingplatform.request.booking;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +19,7 @@ import lombok.ToString;
 public class ServiceSupplierBookingDTO {
   private String serviceSupplierId;
   private int quantity;
-  private Date dateCompleted;
+  @Schema(type = "string", example = "yyyy-MM-ddTHH:mm:ss")
+  private LocalDateTime dateCompleted;
   private String note;
 }

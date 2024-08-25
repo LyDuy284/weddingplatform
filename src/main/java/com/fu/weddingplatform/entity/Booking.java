@@ -42,6 +42,7 @@ public class Booking {
     private String id;
     @Column(columnDefinition = "text")
     private String note;
+    private String weddingDate;
     private int totalPrice;
     private String createdAt;
     private String status;

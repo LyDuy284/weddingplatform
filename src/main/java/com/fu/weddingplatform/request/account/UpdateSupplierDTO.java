@@ -25,9 +25,6 @@ public class UpdateSupplierDTO {
   private String image;
   @NotNull(message = ValidationMessage.PHONE_NUMBER_NOT_NULL)
   @ValidPhoneNumber
-  private String phoneNumber;
-  @NotNull(message = ValidationMessage.PHONE_NUMBER_NOT_NULL)
-  @ValidPhoneNumber
   private String contactNumber;
   @Email(message = ValidationMessage.EMAIL_INVALID_MESSAGE)
   private String contactEmail;

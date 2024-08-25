@@ -19,6 +19,7 @@ import lombok.ToString;
 @Builder
 public class BookingResponse {
   private String id;
+  private String weddingDate;
   private CoupleResponse couple;
   private List<BookingDetailResponse> listBookingDetail;
   private String note;

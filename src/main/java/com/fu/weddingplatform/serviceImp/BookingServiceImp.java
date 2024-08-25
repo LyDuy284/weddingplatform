@@ -1,6 +1,7 @@
 package com.fu.weddingplatform.serviceImp;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -120,6 +121,7 @@ public class BookingServiceImp implements BookingService {
     Booking booking = Booking.builder()
         .couple(couple)
         .createdAt(Utils.formatVNDatetimeNow())
+        .weddingDate(createDTO.getWeddingDate().toString())
         .status(BookingStatus.PENDING)
         .build();
 
@@ -127,6 +129,7 @@ public class BookingServiceImp implements BookingService {
 
     List<BookingDetailResponse> listBookingDetailResponse = new ArrayList<>();
     List<BookingDetail> listBookingDetailSaved = new ArrayList<>();
+    LocalDate weddingDate = createDTO.getWeddingDate().toLocalDate();
 
     List<BookingDetail> listBookingDetails = new ArrayList<>();
     int totalPrice = 0;
@@ -139,10 +142,16 @@ public class BookingServiceImp implements BookingService {
         throw new ErrorException(ServiceErrorMessage.NOT_FOUND);
       }
 
+      DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+      String localDateTime = serviceSupplierBookingDTO.getDateCompleted().format(dateTimeFormatter);
       LocalDate completeDate = serviceSupplierBookingDTO.getDateCompleted().toLocalDate();
 
       if (currentDate.isEqual(completeDate) || currentDate.isAfter(completeDate)) {
         throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_GREATER_THAN_CURRENT_DATE);
+      }
+
+      if (completeDate.isAfter(weddingDate)) {
+        throw new ErrorException(BookingErrorMessage.COMPLETE_DATE_LESS_THAN_WEDDING_DATE);
       }
 
       PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository
@@ -177,7 +186,7 @@ public class BookingServiceImp implements BookingService {
       BookingDetail bookingDetail = BookingDetail.builder()
           .booking(bookingSaved)
           .serviceSupplier(serviceSupplier.get())
-          .completedDate(completeDate.toString())
+          .completedDate(localDateTime)
           .note(serviceSupplierBookingDTO.getNote())
           .price(price)
           .quantity(serviceSupplierBookingDTO.getQuantity())
