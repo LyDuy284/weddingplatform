@@ -25,6 +25,7 @@ public class BookingDetailBySupplierResponse {
     private int quantity;
     private String note;
     private String createAt;
+    private String weddingDate;
     private String completedDate;
     private String status;
     private PromotionResponse promotionResponse;

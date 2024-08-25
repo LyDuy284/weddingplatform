@@ -19,6 +19,7 @@ public class BookingGroupBySupplierResponse {
   private String id;
   private String note;
   private int totalPrice;
+  private String weddingDate;
   private String createdAt;
   private String status;
   private CoupleResponse coupleResponse;

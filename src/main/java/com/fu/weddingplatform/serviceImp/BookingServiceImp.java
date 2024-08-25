@@ -360,6 +360,7 @@ public class BookingServiceImp implements BookingService {
       bookingDetailBySupplierResponse.setCouple(coupleResponse);
       bookingDetailBySupplierResponse.setPromotionResponse(promotionResponse);
       bookingDetailBySupplierResponse.setServiceSupplierResponse(serviceSupplierBySupplierBooking);
+      bookingDetailBySupplierResponse.setWeddingDate(bookingDetail.getBooking().getWeddingDate());
 
       response.add(bookingDetailBySupplierResponse);
     }
