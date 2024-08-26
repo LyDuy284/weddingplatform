@@ -5,6 +5,7 @@ import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.constant.transactionSummary.TransactionSummarySuccessMessage;
 import com.fu.weddingplatform.entity.TransactionSummary;
+import com.fu.weddingplatform.request.transactionSummary.TransactionSummaryResponse;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
 import com.fu.weddingplatform.response.statistic.DashboardStatistic;
@@ -54,6 +55,16 @@ public class TransactionSummaryController {
         responseDTO.setData(dashboardStatistic);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(TransactionSummarySuccessMessage.GET_STATISTIC);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
+    @GetMapping("detail")
+    public ResponseEntity<?> getSuppDashboardStatistic(@RequestParam String bookingId) {
+        TransactionSummaryResponse transactionSummaryResponse = transactionSummaryService.gettransactionSummary(bookingId);
+        ResponseDTO<TransactionSummaryResponse> responseDTO = new ResponseDTO<>();
+        responseDTO.setData(transactionSummaryResponse);
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(TransactionSummarySuccessMessage.GET);
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 }
