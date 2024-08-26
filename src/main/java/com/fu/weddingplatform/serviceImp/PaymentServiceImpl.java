@@ -185,12 +185,12 @@ public class PaymentServiceImpl implements PaymentService {
                         .findCompletedTransaction(optionalInvoiceDetail.get().getId());
                 if (optionalTransaction.isPresent()) {
                     InvoiceDetail invoiceDetail = optionalInvoiceDetail.get();
-
+                    //change transaction status
                     Transaction transaction = optionalTransaction.get();
                     transaction.setStatus(TransactionStatus.REFUNDED);
                     transactionRepository.saveAndFlush(transaction);
 
-                    int refundPrice = (int) (transaction.getAmount() * PaymentTypeValue.REFUND_VALUE);
+                    int refundPrice = transaction.getAmount();
                     Payment payment = transaction.getPayment();
                     payment.setAmount(payment.getAmount() - refundPrice);
                     paymentRepository.saveAndFlush(payment);
@@ -200,17 +200,20 @@ public class PaymentServiceImpl implements PaymentService {
 
                     Invoice invoice = payment.getInvoice();
                     invoice.setTotalPrice(invoice.getTotalPrice() - refundPrice);
+                    if(invoice.getTotalPrice() == 0){
+                        invoice.setStatus(InvoiceStatus.REFUNDED);
+                    }
                     invoiceRepository.saveAndFlush(invoice);
 
-                    InvoiceDetail newInvoiceDetail = InvoiceDetail.builder()
-                            .isDeposit(true)
-                            .invoice(invoice)
-                            .price(transaction.getAmount() - refundPrice)
-                            .status(InvoiceDetailStatus.COMPLETED)
-                            .bookingDetail(optionalBookingDetail.get())
-                            .createAt(Utils.formatVNDatetimeNow())
-                            .build();
-                    InvoiceDetail invoiceDetailSaved = invoiceDetailRepository.saveAndFlush(newInvoiceDetail);
+//                    InvoiceDetail newInvoiceDetail = InvoiceDetail.builder()
+//                            .isDeposit(true)
+//                            .invoice(invoice)
+//                            .price(transaction.getAmount() - refundPrice)
+//                            .status(InvoiceDetailStatus.COMPLETED)
+//                            .bookingDetail(optionalBookingDetail.get())
+//                            .createAt(Utils.formatVNDatetimeNow())
+//                            .build();
+//                    InvoiceDetail invoiceDetailSaved = invoiceDetailRepository.saveAndFlush(newInvoiceDetail);
 
                     Transaction transactionRefund = Transaction.builder()
                             .payment(payment)
@@ -222,15 +225,15 @@ public class PaymentServiceImpl implements PaymentService {
                             .build();
                     transactionRepository.saveAndFlush(transactionRefund);
 
-                    Transaction newTransaction = Transaction.builder()
-                            .payment(payment)
-                            .invoiceDetail(invoiceDetailSaved)
-                            .amount(newInvoiceDetail.getPrice())
-                            .transactionType(TransactionType.PAYMENT)
-                            .status(TransactionStatus.COMPLETED)
-                            .dateCreated(Utils.formatVNDatetimeNow())
-                            .build();
-                    transactionRepository.saveAndFlush(newTransaction);
+//                    Transaction newTransaction = Transaction.builder()
+//                            .payment(payment)
+//                            .invoiceDetail(invoiceDetailSaved)
+//                            .amount(newInvoiceDetail.getPrice())
+//                            .transactionType(TransactionType.PAYMENT)
+//                            .status(TransactionStatus.COMPLETED)
+//                            .dateCreated(Utils.formatVNDatetimeNow())
+//                            .build();
+//                    transactionRepository.saveAndFlush(newTransaction);
 
                     Couple couple = coupleRepository.findById(coupleId)
                             .orElseThrow(() -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
