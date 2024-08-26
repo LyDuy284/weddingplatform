@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.serviceImp;
 
+import com.fu.weddingplatform.constant.account.AccountErrorMessage;
+import com.fu.weddingplatform.entity.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,10 +11,6 @@ import com.fu.weddingplatform.constant.staff.StaffErrorMessage;
 import com.fu.weddingplatform.constant.wallet.WalletErrorMessage;
 import com.fu.weddingplatform.constant.walletHistory.WalletHistoryConstant;
 import com.fu.weddingplatform.constant.walletHistory.WalletHistoryType;
-import com.fu.weddingplatform.entity.Couple;
-import com.fu.weddingplatform.entity.Staff;
-import com.fu.weddingplatform.entity.Wallet;
-import com.fu.weddingplatform.entity.WalletHistory;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.AccountRepository;
 import com.fu.weddingplatform.repository.CoupleRepository;
@@ -81,13 +79,11 @@ public class WalletServiceImpl implements WalletService {
     public WalletResponse topUpByStaff(TopUpWallet request) {
         Couple couple = coupleRepository.findById(request.getCoupleId())
                 .orElseThrow(() ->  new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
-        Staff staff = staffRepository.findById(request.getStaffId())
-                .orElseThrow(() -> new ErrorException(StaffErrorMessage.NOT_FOUND));
         UpdateBalanceWallet updateBalanceWallet = UpdateBalanceWallet.builder()
                 .type(WalletHistoryType.PlUS)
                 .accountId(couple.getAccount().getId())
                 .amount(request.getAmount())
-                .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY, request.getAmount(), staff.getId()))
+                .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY, request.getAmount(), "ADMIN"))
                 .build();
         Wallet wallet = updateBalanceWallet(updateBalanceWallet);
         return modelMapper.map(wallet, WalletResponse.class);

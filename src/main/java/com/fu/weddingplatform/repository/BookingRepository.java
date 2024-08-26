@@ -1,6 +1,7 @@
 package com.fu.weddingplatform.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,4 +28,6 @@ public interface BookingRepository extends JpaRepository<Booking, String> {
       "where s.id = ?1")
   List<Booking> findBookingBySupplierId(String supplierId);
 
+  @Query("select  b from Booking b where b.id = ?1 and b.status = ?2")
+  Optional<Booking> findByIdAndStatus(String bookingId, String status);
 }

@@ -8,4 +8,5 @@ public class BookingErrorMessage {
     public static final String EMPTY_LIST_SERVICE = "Booking must have at least one service";
     public static final String SERVICE_MUST_BE_QUOTED = "Service must be quoted. Please Quote this service to get price";
     public static final String EMPTY_LIST = "List of bookings is empty";
+    public static final String BOOKING_NOT_COMPLETED = "Booking not completed";
 }

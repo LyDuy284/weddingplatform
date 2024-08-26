@@ -11,6 +11,5 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TopUpWallet {
     String coupleId;
-    String staffId;
     int amount;
 }
