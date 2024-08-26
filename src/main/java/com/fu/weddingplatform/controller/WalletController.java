@@ -34,7 +34,7 @@ public class WalletController {
     }
 
     @PostMapping("topUpByStaff")
-    @PreAuthorize(RolePreAuthorize.ROLE_STAFF)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
     public ResponseEntity<?> topUpWalletByStaff(@RequestBody TopUpWallet request){
         WalletResponse walletResponse = walletService.topUpByStaff(request);
         ResponseDTO<WalletResponse>  responseDTO = new ResponseDTO<>();
