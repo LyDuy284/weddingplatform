@@ -34,7 +34,7 @@ public class ServiceController {
     ServiceService service;
 
     @PostMapping("create")
-    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_STAFF)
     public ResponseEntity<?> createService(@Validated @RequestBody CreateServiceDTO createDTO) {
         ResponseDTO<ServiceResponse> responseDTO = new ResponseDTO<>();
         ServiceResponse data = service.createService(createDTO);
@@ -45,7 +45,7 @@ public class ServiceController {
     }
 
     @PutMapping("update")
-    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_STAFF)
     public ResponseEntity<?> updateService(@Validated @RequestBody UpdateServiceDTO updateDTO) {
         ResponseDTO<ServiceResponse> responseDTO = new ResponseDTO<>();
         ServiceResponse data = service.updateService(updateDTO);
