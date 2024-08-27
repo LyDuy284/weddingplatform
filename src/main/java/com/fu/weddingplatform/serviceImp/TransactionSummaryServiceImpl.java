@@ -2,10 +2,7 @@ package com.fu.weddingplatform.serviceImp;
 
 import java.sql.Date;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
@@ -116,8 +113,11 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         if (allInvoices.isEmpty()) {
             return transactionSummaryResponse;
         }
-        Map<String, Integer> hasMap = new HashMap<>();
+
+        List<SupplierAmountDetails> listSupplierAmountDetails = new ArrayList<>();
+
         for (BookingDetail bookingDetail : transactionSummary.getBooking().getBookingDetails()) {
+            Map<String, Integer> hasMap = new HashMap<>();
             int amountPaid = bookingDetail.getInvoiceDetails().stream()
                     .filter(element -> element.getStatus().equals(InvoiceDetailStatus.COMPLETED))
                     .mapToInt(InvoiceDetail::getPrice).sum();
@@ -127,17 +127,17 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 SupplierResponse supplierResponse = mapper.map(supplier, SupplierResponse.class);
                 String supplierJsonStr = objectMapper.writeValueAsString(supplierResponse);
                 hasMap.merge(supplierJsonStr, amountEarn, Integer::sum);
+                String json = hasMap.keySet().iterator().next();
+                Integer price = hasMap.values().iterator().next();
 
+                JsonNode jsonNode = objectMapper.readTree(json);
+                SupplierAmountDetails details = objectMapper.treeToValue(jsonNode, SupplierAmountDetails.class);
+                details.setPrice(price);
+                listSupplierAmountDetails.add(details);
             }
         }
-        String json = hasMap.keySet().iterator().next();
-        Integer price = hasMap.values().iterator().next();
 
-        JsonNode jsonNode = objectMapper.readTree(json);
-        SupplierAmountDetails details = objectMapper.treeToValue(jsonNode, SupplierAmountDetails.class);
-        details.setPrice(price);
-
-        transactionSummaryResponse.setSupplierAmountDetails(details);
+        transactionSummaryResponse.setSupplierAmountDetails(listSupplierAmountDetails);
         return transactionSummaryResponse;
     }
 

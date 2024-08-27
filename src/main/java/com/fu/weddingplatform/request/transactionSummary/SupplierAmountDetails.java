@@ -1,7 +1,5 @@
 package com.fu.weddingplatform.request.transactionSummary;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,7 +13,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @Builder
 @ToString
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class SupplierAmountDetails {
   private String supplierId;
   private String image;

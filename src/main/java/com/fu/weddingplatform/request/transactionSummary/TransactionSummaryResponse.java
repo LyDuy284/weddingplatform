@@ -19,6 +19,6 @@ public class TransactionSummaryResponse {
      int platformFee;
      int supplierTotalEarn;
      String bookingId;
-     SupplierAmountDetails supplierAmountDetails;
+     List<SupplierAmountDetails> supplierAmountDetails;
 
 }
