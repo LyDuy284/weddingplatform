@@ -67,6 +67,7 @@ import com.fu.weddingplatform.repository.WalletHistoryRepository;
 import com.fu.weddingplatform.repository.WalletRepository;
 import com.fu.weddingplatform.request.email.DepositedEmailForCouple;
 import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
+import com.fu.weddingplatform.request.email.MailRefundForSupplierDTO;
 import com.fu.weddingplatform.request.payment.CreatePaymentDTO;
 import com.fu.weddingplatform.request.payment.UpdatePaymentStatusDTO;
 import com.fu.weddingplatform.request.wallet.UpdateBalanceWallet;
@@ -125,10 +126,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentResponse requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp, CreatePaymentDTO paymentRequest)
+    public PaymentResponse requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp,
+            CreatePaymentDTO paymentRequest)
             throws JsonProcessingException {
-        PaymentRequestVNP  paymentRequestVNP = createPaymentRequest(req, paymentRequest);
-        if(paymentRequestVNP.getAmountVNPay() == 0){
+        PaymentRequestVNP paymentRequestVNP = createPaymentRequest(req, paymentRequest);
+        if (paymentRequestVNP.getAmountVNPay() == 0) {
             return PaymentResponse.builder()
                     .urlPaymentVNPay(null)
                     .amountPaymentVNPay(paymentRequestVNP.getAmountVNPay())
@@ -185,7 +187,7 @@ public class PaymentServiceImpl implements PaymentService {
                         .findCompletedTransaction(optionalInvoiceDetail.get().getId());
                 if (optionalTransaction.isPresent()) {
                     InvoiceDetail invoiceDetail = optionalInvoiceDetail.get();
-                    //change transaction status
+                    // change transaction status
                     Transaction transaction = optionalTransaction.get();
                     transaction.setStatus(TransactionStatus.REFUNDED);
                     transactionRepository.saveAndFlush(transaction);
@@ -200,20 +202,21 @@ public class PaymentServiceImpl implements PaymentService {
 
                     Invoice invoice = payment.getInvoice();
                     invoice.setTotalPrice(invoice.getTotalPrice() - refundPrice);
-                    if(invoice.getTotalPrice() == 0){
+                    if (invoice.getTotalPrice() == 0) {
                         invoice.setStatus(InvoiceStatus.REFUNDED);
                     }
                     invoiceRepository.saveAndFlush(invoice);
 
-//                    InvoiceDetail newInvoiceDetail = InvoiceDetail.builder()
-//                            .isDeposit(true)
-//                            .invoice(invoice)
-//                            .price(transaction.getAmount() - refundPrice)
-//                            .status(InvoiceDetailStatus.COMPLETED)
-//                            .bookingDetail(optionalBookingDetail.get())
-//                            .createAt(Utils.formatVNDatetimeNow())
-//                            .build();
-//                    InvoiceDetail invoiceDetailSaved = invoiceDetailRepository.saveAndFlush(newInvoiceDetail);
+                    // InvoiceDetail newInvoiceDetail = InvoiceDetail.builder()
+                    // .isDeposit(true)
+                    // .invoice(invoice)
+                    // .price(transaction.getAmount() - refundPrice)
+                    // .status(InvoiceDetailStatus.COMPLETED)
+                    // .bookingDetail(optionalBookingDetail.get())
+                    // .createAt(Utils.formatVNDatetimeNow())
+                    // .build();
+                    // InvoiceDetail invoiceDetailSaved =
+                    // invoiceDetailRepository.saveAndFlush(newInvoiceDetail);
 
                     Transaction transactionRefund = Transaction.builder()
                             .payment(payment)
@@ -225,15 +228,15 @@ public class PaymentServiceImpl implements PaymentService {
                             .build();
                     transactionRepository.saveAndFlush(transactionRefund);
 
-//                    Transaction newTransaction = Transaction.builder()
-//                            .payment(payment)
-//                            .invoiceDetail(invoiceDetailSaved)
-//                            .amount(newInvoiceDetail.getPrice())
-//                            .transactionType(TransactionType.PAYMENT)
-//                            .status(TransactionStatus.COMPLETED)
-//                            .dateCreated(Utils.formatVNDatetimeNow())
-//                            .build();
-//                    transactionRepository.saveAndFlush(newTransaction);
+                    // Transaction newTransaction = Transaction.builder()
+                    // .payment(payment)
+                    // .invoiceDetail(invoiceDetailSaved)
+                    // .amount(newInvoiceDetail.getPrice())
+                    // .transactionType(TransactionType.PAYMENT)
+                    // .status(TransactionStatus.COMPLETED)
+                    // .dateCreated(Utils.formatVNDatetimeNow())
+                    // .build();
+                    // transactionRepository.saveAndFlush(newTransaction);
 
                     Couple couple = coupleRepository.findById(coupleId)
                             .orElseThrow(() -> new ErrorException(CoupleErrorMessage.COUPLE_NOT_FOUND));
@@ -312,7 +315,8 @@ public class PaymentServiceImpl implements PaymentService {
                     isDeposit);
             paymentVNPInfor.setVnpAmount(paymentVNPInfor.getVnpAmount() + paymentInfor.getVnpAmount());
             paymentVNPInfor.getListVNPBookingDetailId().addAll(paymentInfor.getListVNPBookingDetailId());
-            paymentVNPInfor.setAmountPaidWallet(paymentVNPInfor.getAmountPaidWallet() + paymentInfor.getAmountPaidWallet());
+            paymentVNPInfor
+                    .setAmountPaidWallet(paymentVNPInfor.getAmountPaidWallet() + paymentInfor.getAmountPaidWallet());
         }
         return paymentVNPInfor;
     }
@@ -619,6 +623,21 @@ public class PaymentServiceImpl implements PaymentService {
             Wallet supplierWallet = supplier.getAccount().getWallet();
             supplierWallet.setBalance(supplierWallet.getBalance() + supplierAmount);
             Wallet walletSaved = walletRepository.saveAndFlush(supplierWallet);
+
+            for (BookingDetail bookingDetail : listBookingDetailBySupplier) {
+                MailRefundForSupplierDTO mailRefundForSupplierDTO = MailRefundForSupplierDTO.builder()
+                        .bookingDetail(bookingDetail)
+                        .couple(bookingDetail.getBooking().getCouple())
+                        .totalAmount(Utils.formatAmountToVND(bookingDetail.getPrice()))
+                        .platformAmount(Utils.formatAmountToVND(
+                                (int) (bookingDetail.getPrice() * PaymentTypeValue.PLATFORM_FEE_VALUE)))
+                        .receivedAmount(Utils.formatAmountToVND(
+                                (int) (bookingDetail.getPrice() * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE)))
+                        .build();
+
+                sentEmailService.sentRefundEmailForSupplier(mailRefundForSupplierDTO);
+            }
+
             WalletHistory walletHistory = WalletHistory.builder()
                     .wallet(walletSaved)
                     .type(WalletHistoryType.PlUS)
