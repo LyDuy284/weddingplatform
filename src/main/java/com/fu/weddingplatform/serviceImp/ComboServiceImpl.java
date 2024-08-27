@@ -12,6 +12,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.comboService.ComboErrorMessage;
 import com.fu.weddingplatform.constant.comboService.ComboServiceStatus;
 import com.fu.weddingplatform.constant.rating.RatingErrorMessage;
@@ -19,18 +20,26 @@ import com.fu.weddingplatform.constant.staff.StaffErrorMessage;
 import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
 import com.fu.weddingplatform.entity.Combo;
 import com.fu.weddingplatform.entity.ComboServices;
+import com.fu.weddingplatform.entity.PromotionServiceSupplier;
 import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.entity.Staff;
 import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.ComboRepository;
 import com.fu.weddingplatform.repository.ComboServiceRepository;
+import com.fu.weddingplatform.repository.PromotionServiceSupplierRepository;
 import com.fu.weddingplatform.repository.ServiceSupplierRepository;
 import com.fu.weddingplatform.repository.StaffRepository;
 import com.fu.weddingplatform.request.combo.CreateComboService;
 import com.fu.weddingplatform.request.combo.UpdateComboInfor;
 import com.fu.weddingplatform.response.combo.ComboResponse;
+import com.fu.weddingplatform.response.promotion.PromotionResponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierFilterResponse;
 import com.fu.weddingplatform.service.ComboService;
+import com.fu.weddingplatform.service.PromotionService;
+import com.fu.weddingplatform.service.RatingService;
+import com.fu.weddingplatform.service.ServiceSupplierService;
+import com.fu.weddingplatform.utils.Utils;
 
 @Service
 public class ComboServiceImpl implements ComboService {
@@ -43,6 +52,18 @@ public class ComboServiceImpl implements ComboService {
 
     @Autowired
     ServiceSupplierRepository serviceSupplierRepository;
+
+    @Autowired
+    RatingService ratingService;
+
+    @Autowired
+    ServiceSupplierService serviceSupplierService;
+
+    @Autowired
+    PromotionServiceSupplierRepository promotionServiceSupplierRepository;
+
+    @Autowired
+    PromotionService promotionService;
 
     @Autowired
     StaffRepository staffRepository;
@@ -140,6 +161,39 @@ public class ComboServiceImpl implements ComboService {
         Combo combo = comboRepository.findById(comboId)
                 .orElseThrow(() -> new ErrorException(ComboErrorMessage.NOT_FOUND_BY_ID));
         return modelMapper.map(combo, ComboResponse.class);
+    }
+
+    @Override
+    public List<ServiceSupplierFilterResponse> getByComboServiceId(String comboId) {
+        List<ServiceSupplier> listServiceSuppliers = serviceSupplierRepository.getServiceSupplierByCombo(comboId);
+
+        if (listServiceSuppliers.size() == 0) {
+            throw new EmptyException(SupplierErrorMessage.EMPTY);
+        }
+
+        List<ServiceSupplierFilterResponse> response = new ArrayList<>();
+
+        for (ServiceSupplier serviceSupplier : listServiceSuppliers) {
+            ServiceSupplierFilterResponse filterResponse = modelMapper.map(serviceSupplier,
+                    ServiceSupplierFilterResponse.class);
+            filterResponse.setRating(ratingService.getRatingByServiceSupplier(serviceSupplier));
+
+            PromotionServiceSupplier promotionServiceSupplier = promotionServiceSupplierRepository
+                    .findFirstByServiceSupplierAndStatus(serviceSupplier,
+                            Status.ACTIVATED);
+
+            if (promotionServiceSupplier != null) {
+                PromotionResponse promotionResponse = promotionService
+                        .convertPromotionToResponse(promotionServiceSupplier.getPromotion());
+                filterResponse.setPromotion(promotionResponse);
+            }
+
+            List<String> images = Utils.parseStringToListImages(serviceSupplier.getImages());
+            filterResponse.setListImages(images);
+            response.add(filterResponse);
+        }
+
+        return response;
     }
 
 }

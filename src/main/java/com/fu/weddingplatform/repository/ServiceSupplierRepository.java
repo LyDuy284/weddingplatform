@@ -34,4 +34,10 @@ public interface ServiceSupplierRepository extends JpaRepository<ServiceSupplier
         public List<ServiceSupplier> filterServiceSupplier(String category, String service, String type, int minPrice,
                         int maxPrice, String supplierId);
 
+        @Query(nativeQuery = true, value = "SELECT ss.* FROM combo_service cs \n" +
+                        "    join combo c on c.id = cs.combo_id \n" +
+                        "    join service_supplier ss on ss.id = cs.service_supplier_id \n" +
+                        "where cs.combo_id = ?1")
+        List<ServiceSupplier> getServiceSupplierByCombo(String comboId);
+
 }
