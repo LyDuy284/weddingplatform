@@ -298,14 +298,15 @@ public class BookingDetailServiceImp implements BookingDetailService {
       if (optionalTransaction.isPresent()) {
         if (Math.abs(daysBetween) > 10) {
           // refund 40%
-          int refundPrice = paymentService.refundDepositedTransaction(booking.getCouple().getId(),
-              cancelBookingDTO.getBookingDetailId());
-          int depositedPrice = optionalTransaction.get().getAmount();
-          booking.setTotalPrice(booking.getTotalPrice() + (depositedPrice - refundPrice));
-        } else {
-          booking.setTotalPrice(booking.getTotalPrice() + optionalTransaction.get().getAmount());
+          paymentService.refundDepositedTransaction(booking.getCouple().getId(),
+                  cancelBookingDTO.getBookingDetailId());
+//          int depositedPrice = optionalTransaction.get().getAmount();
+//          booking.setTotalPrice(booking.getTotalPrice() + (depositedPrice - refundPrice));
+//        } else {
+//          booking.setTotalPrice(booking.getTotalPrice() + optionalTransaction.get().getAmount());
+//        }
+//        bookingRepository.saveAndFlush(booking);
         }
-        bookingRepository.saveAndFlush(booking);
       }
     }
 

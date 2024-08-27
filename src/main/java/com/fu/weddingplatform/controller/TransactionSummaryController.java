@@ -1,5 +1,6 @@
 package com.fu.weddingplatform.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.constant.transactionSummary.TransactionSummarySuccessMessage;
@@ -53,7 +54,7 @@ public class TransactionSummaryController {
     }
 
     @GetMapping("detail")
-    public ResponseEntity<?> getTransactionSummaryDetail(@RequestParam String bookingId) {
+    public ResponseEntity<?> getTransactionSummaryDetail(@RequestParam String bookingId) throws JsonProcessingException {
         TransactionSummaryResponse transactionSummaryResponse = transactionSummaryService.getransactionSummary(bookingId);
         ResponseDTO<TransactionSummaryResponse> responseDTO = new ResponseDTO<>();
         responseDTO.setData(transactionSummaryResponse);
