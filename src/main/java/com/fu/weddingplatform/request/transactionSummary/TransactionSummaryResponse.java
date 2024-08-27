@@ -20,6 +20,6 @@ public class TransactionSummaryResponse {
      int platformFee;
      int supplierTotalEarn;
      String bookingId;
-     Map<SupplierResponse, Integer> supplierAmountDetails;
+     Map<String, Integer> supplierAmountDetails;
 
 }

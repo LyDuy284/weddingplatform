@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.serviceImp;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fu.weddingplatform.constant.booking.BookingErrorMessage;
 import com.fu.weddingplatform.constant.booking.BookingStatus;
 import com.fu.weddingplatform.constant.invoice.InvoiceStatus;
@@ -44,6 +46,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     ModelMapper mapper;
     @Autowired
     private BookingRepository bookingRepository;
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Override
     public DashboardStatistic getStaffDashboardStatistic(int year) {
@@ -80,7 +84,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     }
 
     @Override
-    public TransactionSummaryResponse getransactionSummary(String bookingId) {
+    public TransactionSummaryResponse getransactionSummary(String bookingId) throws JsonProcessingException {
         bookingRepository.findByIdAndStatus(bookingId, BookingStatus.COMPLETED)
                 .orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_COMPLETED));
         TransactionSummary transactionSummary = transactionSummaryRepository.findByBookingId(bookingId)
@@ -88,7 +92,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         return mapTransactionSummaryResponse(transactionSummary);
     }
 
-    private TransactionSummaryResponse mapTransactionSummaryResponse(TransactionSummary transactionSummary){
+    private TransactionSummaryResponse mapTransactionSummaryResponse(TransactionSummary transactionSummary) throws JsonProcessingException {
         TransactionSummaryResponse transactionSummaryResponse = TransactionSummaryResponse.builder()
                 .id(transactionSummary.getId())
                 .platformFee(transactionSummary.getPlatformFee())
@@ -96,12 +100,13 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 .supplierTotalEarn(transactionSummary.getSupplierAmount())
                 .dateCreated(transactionSummary.getDateCreated())
                 .dateModified(transactionSummary.getDateModified())
+                .bookingId(transactionSummary.getBooking().getId())
                 .build();
         List<Invoice> allInvoices = invoiceRepository.findByBookingIdAndStatus(transactionSummary.getBooking().getId(), InvoiceStatus.PAID);
         if(allInvoices.isEmpty()){
             return transactionSummaryResponse;
         }
-        Map<SupplierResponse, Integer> supplierAmountDetails = new HashMap<>();
+        Map<String, Integer> supplierAmountDetails = new HashMap<>();
         for(BookingDetail bookingDetail : transactionSummary.getBooking().getBookingDetails()){
             int amountPaid = bookingDetail.getInvoiceDetails().stream()
                     .filter(element -> element.getStatus().equals(InvoiceDetailStatus.COMPLETED))
@@ -110,7 +115,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 int amountEarn = (int)(amountPaid * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
                 Supplier supplier = bookingDetail.getServiceSupplier().getSupplier();
                 SupplierResponse supplierResponse = mapper.map(supplier, SupplierResponse.class);
-                supplierAmountDetails.merge(supplierResponse, amountEarn, Integer::sum);
+                String supplierJsonStr = objectMapper.writeValueAsString(supplierResponse);
+                supplierAmountDetails.merge(supplierJsonStr, amountEarn, Integer::sum);
             }
         }
         transactionSummaryResponse.setSupplierAmountDetails(supplierAmountDetails);
