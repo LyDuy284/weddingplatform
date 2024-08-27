@@ -565,6 +565,7 @@ public class PaymentServiceImpl implements PaymentService {
                 bookingDetailList.forEach(bd -> bookingDetailService.completeBookingDetail(bd.getId()));
                 totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
                         * PaymentTypeValue.FINAL_PAYMENT_VALUE);
+                transferAmountToSupplier(bookingDetailList, booking.getId());
             }
             // bookingDetailRepository.saveAll(bookingDetailList);
             setTransactionSummary(booking, totalAmount);
@@ -573,7 +574,7 @@ public class PaymentServiceImpl implements PaymentService {
                 booking.setStatus(BookingStatus.COMPLETED);
                 bookingRepository.save(booking);
                 // transfer amount to wallet supplier
-                transferAmountToSupplier(booking);
+//                transferAmountToSupplier(booking);
             }
         }
         response.sendRedirect(VNPayConstant.VNP_REDIRECT_CLIENT);
@@ -605,9 +606,9 @@ public class PaymentServiceImpl implements PaymentService {
         invoiceRepository.saveAll(listInvoice);
     }
 
-    private void transferAmountToSupplier(Booking booking) {
-        List<BookingDetail> allBookingDetail = bookingDetailRepository.findByBookingAndStatus(booking,
-                BookingDetailStatus.COMPLETED);
+    private void transferAmountToSupplier(List<BookingDetail> allBookingDetail, String BookingId) {
+//        List<BookingDetail> allBookingDetail = bookingDetailRepository.findByBookingAndStatus(booking,
+//                BookingDetailStatus.COMPLETED);
         Set<Supplier> setSupplier = new HashSet<>();
         allBookingDetail.forEach(bd -> setSupplier.add(bd.getServiceSupplier().getSupplier()));
         Map<Supplier, List<BookingDetail>> mapSupplierBookingDetail = mapBookingDetailBySupplier(setSupplier,
@@ -625,7 +626,7 @@ public class PaymentServiceImpl implements PaymentService {
                     .createDate(Utils.formatVNDatetimeNow())
                     .amount(supplierAmount)
                     .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY,
-                            supplierAmount, booking.getId()))
+                            supplierAmount, BookingId))
                     .build();
             walletHistoryRepository.save(walletHistory);
         }
