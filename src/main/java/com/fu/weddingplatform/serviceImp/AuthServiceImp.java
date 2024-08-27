@@ -1,7 +1,6 @@
 package com.fu.weddingplatform.serviceImp;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -25,7 +24,6 @@ import com.fu.weddingplatform.constant.account.AccountErrorMessage;
 import com.fu.weddingplatform.constant.account.AccountProvider;
 import com.fu.weddingplatform.constant.role.RoleErrorMessage;
 import com.fu.weddingplatform.constant.role.RoleName;
-import com.fu.weddingplatform.constant.validation.ValidationMessage;
 import com.fu.weddingplatform.entity.Account;
 import com.fu.weddingplatform.entity.Area;
 import com.fu.weddingplatform.entity.Couple;
@@ -201,18 +199,9 @@ public class AuthServiceImp implements AuthService {
             accountSaved = accountRepository.save(account);
         }
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate weddingDate = null;
-        try {
-            weddingDate = LocalDate.parse(registerDTO.getWeddingDate().toString(), dateFormatter);
-        } catch (Exception e) {
-            throw new ErrorException("Wedding" + ValidationMessage.INVALID_DATE);
-        }
-
         Couple couple = Couple.builder()
                 .partnerName1(registerDTO.getPartnerName1())
                 .partnerName2(registerDTO.getPartnerName2())
-                .weddingDate(java.sql.Date.valueOf(weddingDate))
                 .status(Status.ACTIVATED)
                 .account(accountSaved)
                 .build();
