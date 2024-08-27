@@ -64,7 +64,7 @@ public class AccountController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @DeleteMapping("disableAccountByAdmin/{id}")
+    @DeleteMapping("disableAccountByAdmin")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
     public ResponseEntity<?> disableAccountByAdmin(@RequestParam int id) {
         ResponseDTO<AccountResponse> responseDTO = new ResponseDTO<>();
@@ -75,7 +75,7 @@ public class AccountController {
         return ResponseEntity.ok().body(responseDTO);
     }
 
-    @PutMapping("activateAccountByAdmin/{id}")
+    @PutMapping("activateAccountByAdmin")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
     public ResponseEntity<?> activateAccountByAdmin(@RequestParam int id) {
         ResponseDTO<AccountResponse> responseDTO = new ResponseDTO<>();
