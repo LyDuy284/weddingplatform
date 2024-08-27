@@ -29,10 +29,8 @@ public class TransactionSummaryController {
 
     @GetMapping("statistic")
     @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_STAFF)
-    public ResponseEntity<?> getDashboardStatistic(@RequestParam(required = false, defaultValue = "0") Integer month,
-                                                        @RequestParam(required = false, defaultValue = "0") Integer quarter,
-                                                        @RequestParam(required = false, defaultValue = "0") Integer year) {
-        DashboardStatistic dashboardStatistic = transactionSummaryService.getStaffDashboardStatistic(month, quarter, year);
+    public ResponseEntity<?> getDashboardStatistic(@RequestParam(required = false, defaultValue = "0") Integer year) {
+        DashboardStatistic dashboardStatistic = transactionSummaryService.getStaffDashboardStatistic(year);
         ResponseDTO<DashboardStatistic> responseDTO = new ResponseDTO<>();
         responseDTO.setData(dashboardStatistic);
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);

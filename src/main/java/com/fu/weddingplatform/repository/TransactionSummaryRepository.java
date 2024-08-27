@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface TransactionSummaryRepository extends JpaRepository<TransactionSummary, String>, JpaSpecificationExecutor<TransactionSummary> {
@@ -14,4 +15,7 @@ public interface TransactionSummaryRepository extends JpaRepository<TransactionS
     Optional<TransactionSummary> findByBookingId(String bookingId);
 
     Optional<TransactionSummary> findFirstByBooking(Booking booking);
+
+    @Query("select ts from TransactionSummary ts where year(cast(ts.dateModified as date)) = ?1 and month(cast(ts.dateModified as date)) =?2")
+    List<TransactionSummary> findAllByMonthAndYear(int year, int month);
 }
