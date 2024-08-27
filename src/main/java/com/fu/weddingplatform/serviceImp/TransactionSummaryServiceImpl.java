@@ -65,7 +65,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     }
 
     @Override
-    public TransactionSummaryResponse gettransactionSummary(String bookingId) {
+    public TransactionSummaryResponse getransactionSummary(String bookingId) {
         bookingRepository.findByIdAndStatus(bookingId, BookingStatus.COMPLETED)
                 .orElseThrow(() -> new ErrorException(BookingErrorMessage.BOOKING_NOT_COMPLETED));
         TransactionSummary transactionSummary = transactionSummaryRepository.findByBookingId(bookingId)
@@ -79,6 +79,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 .platformFee(transactionSummary.getPlatformFee())
                 .totalAmount(transactionSummary.getTotalAmount())
                 .supplierTotalEarn(transactionSummary.getSupplierAmount())
+                .dateCreated(transactionSummary.getDateCreated())
+                .dateModified(transactionSummary.getDateModified())
                 .build();
         List<Invoice> allInvoices = invoiceRepository.findByBookingIdAndStatus(transactionSummary.getBooking().getId(), InvoiceStatus.PAID);
         if(allInvoices.isEmpty()){

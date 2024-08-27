@@ -15,6 +15,8 @@ import java.util.Map;
 public class TransactionSummaryResponse {
      String id;
      int totalAmount;
+     String dateCreated;
+     String dateModified;
      int platformFee;
      int supplierTotalEarn;
      String bookingId;
