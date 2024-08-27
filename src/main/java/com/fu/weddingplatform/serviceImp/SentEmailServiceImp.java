@@ -17,6 +17,7 @@ import com.fu.weddingplatform.constant.email.CancelBookingForSupplier;
 import com.fu.weddingplatform.constant.email.DepositBookingForSupplier;
 import com.fu.weddingplatform.constant.email.DepositBookingMailForCouple;
 import com.fu.weddingplatform.constant.email.EmailBookingForCouple;
+import com.fu.weddingplatform.constant.email.ProccessingMailForCouple;
 import com.fu.weddingplatform.constant.email.RejectBookingDetail;
 import com.fu.weddingplatform.constant.email.SentEmailBookingToSupplier;
 import com.fu.weddingplatform.entity.SentEmail;
@@ -28,6 +29,7 @@ import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
 import com.fu.weddingplatform.request.email.MailApproveForCoupleDTO;
+import com.fu.weddingplatform.request.email.ProcessingMailForCoupleDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.service.SentEmailService;
 
@@ -194,6 +196,20 @@ public class SentEmailServiceImp implements SentEmailService {
         .status(Status.PENDING)
         .build();
 
+    sentEmailRepository.save(sentEmail);
+  }
+
+  @Override
+  public void sentProcessingEmailForCouple(ProcessingMailForCoupleDTO processingMailForCoupleDTO) {
+    String content = ProccessingMailForCouple.content(processingMailForCoupleDTO);
+
+    String title = "Đơn hàng của bạn đang được thực hiện";
+    SentEmail sentEmail = SentEmail.builder()
+        .email(processingMailForCoupleDTO.getCouple().getAccount().getEmail())
+        .content(content)
+        .title(title)
+        .status(Status.PENDING)
+        .build();
     sentEmailRepository.save(sentEmail);
   }
 
