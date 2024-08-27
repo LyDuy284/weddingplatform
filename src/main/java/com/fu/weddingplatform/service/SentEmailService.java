@@ -10,6 +10,7 @@ import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
 import com.fu.weddingplatform.request.email.MailApproveForCoupleDTO;
+import com.fu.weddingplatform.request.email.ProcessingMailForCoupleDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 
 public interface SentEmailService {
@@ -31,5 +32,7 @@ public interface SentEmailService {
   public void sentDepositedEmailForCouple(DepositedEmailForCouple depositedEmailForCouple);
 
   public void sentApprovedEmailForCouple(MailApproveForCoupleDTO mailApproveForCoupleDTO);
+
+  public void sentProcessingEmailForCouple(ProcessingMailForCoupleDTO processingMailForCoupleDTO);
 
 }
