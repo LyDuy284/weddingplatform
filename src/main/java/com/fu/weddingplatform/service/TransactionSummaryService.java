@@ -4,7 +4,7 @@ import com.fu.weddingplatform.request.transactionSummary.TransactionSummaryRespo
 import com.fu.weddingplatform.response.statistic.DashboardStatistic;
 
 public interface TransactionSummaryService {
-    DashboardStatistic getStaffDashboardStatistic(int month, int quarter, int year);
+    DashboardStatistic getStaffDashboardStatistic(int year);
 
     TransactionSummaryResponse getransactionSummary(String bookingId);
 }

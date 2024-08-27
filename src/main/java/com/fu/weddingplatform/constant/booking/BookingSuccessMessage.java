@@ -13,4 +13,5 @@ public class BookingSuccessMessage {
   public static final String DONE = "Booking is done";
   public static final String CANCLE = "Cancle booking successfully";
   public static final String COMPLETED = "Complete booking successfully";
+  public static final String GET_ALL_BY_ADMIN = "Get all bookings by admin successfully";
 }

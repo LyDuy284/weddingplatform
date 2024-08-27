@@ -46,21 +46,36 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     private BookingRepository bookingRepository;
 
     @Override
-    public DashboardStatistic getStaffDashboardStatistic(int month, int quarter, int year) {
-        Specification<TransactionSummary> specification = buildSpecificationToStaffStatistic(month, quarter, year);
-        List<TransactionSummary> transactionSummaryList = transactionSummaryRepository.findAll(specification);
-        if (transactionSummaryList.isEmpty()) {
-            return null;
+    public DashboardStatistic getStaffDashboardStatistic(int year) {
+        int totalAmountCouplePaid = 0;
+        int totalAmountSupplierEarn = 0;
+        int totalAmountPlatformEarn = 0;
+        Map<Integer, DashboardStatistic> amountEachMonths = new HashMap<>();
+        for(int i = 1; i <= 12; i++){
+            List<TransactionSummary> transactionSummaryList = transactionSummaryRepository.findAllByMonthAndYear(year, i);
+            if (transactionSummaryList.isEmpty()) {
+                continue;
+            }
+            int totalAmountCouplePaidEachMonth = transactionSummaryList.stream()
+                    .mapToInt(TransactionSummary::getTotalAmount)
+                    .sum();
+            int totalAmountPlatformEarnEachMonth = (int) (totalAmountCouplePaidEachMonth * PaymentTypeValue.PLATFORM_FEE_VALUE);
+            int totalAmountSupplierEarnEachMonth = (int) (totalAmountCouplePaidEachMonth * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
+            DashboardStatistic dashboardStatisticEachMonth  = DashboardStatistic.builder()
+                                .totalAmountSupplierEarn(totalAmountSupplierEarnEachMonth)
+                                .totalAmountPlatformFee(totalAmountPlatformEarnEachMonth)
+                                .totalAmountCouplePaid(totalAmountCouplePaidEachMonth)
+                                .build();
+            amountEachMonths.put(i, dashboardStatisticEachMonth);
+            totalAmountCouplePaid += totalAmountCouplePaidEachMonth;
+            totalAmountSupplierEarn += totalAmountSupplierEarnEachMonth;
+            totalAmountPlatformEarn += totalAmountPlatformEarnEachMonth;
         }
-        int totalAmountCouplePaid = transactionSummaryList.stream()
-                .mapToInt(TransactionSummary::getTotalAmount)
-                .sum();
-        int totalAmountPlatformEarn = (int) (totalAmountCouplePaid * PaymentTypeValue.PLATFORM_FEE_VALUE);
-        int totalAmountSupplierEarn = (int) (totalAmountCouplePaid * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
         return DashboardStatistic.builder()
                 .totalAmountSupplierEarn(totalAmountSupplierEarn)
                 .totalAmountPlatformFee(totalAmountPlatformEarn)
                 .totalAmountCouplePaid(totalAmountCouplePaid)
+                .amountEachMonths(amountEachMonths)
                 .build();
     }
 

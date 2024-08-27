@@ -30,4 +30,6 @@ public interface BookingService {
 
   public List<BookingHistoryResponse> getBookingHistoryById(String bookingId);
 
+  List<BookingResponse> getAllByAdmin(int pageNo, int pageSize, String sortBy, boolean isAscending);
+
 }

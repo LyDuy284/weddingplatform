@@ -117,4 +117,18 @@ public class BookingController {
     response.setMessage(BookingSuccessMessage.CANCLE);
     return new ResponseEntity<>(response, HttpStatus.OK);
   }
+
+  @GetMapping("getByAdmin")
+  @PreAuthorize(RolePreAuthorize.ROLE_ADMIN)
+  public ResponseEntity<?> getComboByFilter(@RequestParam(defaultValue = "0") int pageNo,
+                                            @RequestParam(defaultValue = "10") int pageSize,
+                                            @RequestParam(defaultValue = "id") String sortBy,
+                                            @RequestParam(defaultValue = "true") boolean isAscending){
+    List<BookingResponse> responseList = bookingService.getAllByAdmin(pageNo, pageSize, sortBy, isAscending);
+    ListResponseDTO<BookingResponse> response = new ListResponseDTO<>();
+    response.setData(responseList);
+    response.setStatus(ResponseStatusDTO.SUCCESS);
+    response.setMessage(BookingSuccessMessage.GET_ALL_BY_ADMIN);
+    return new ResponseEntity<>(response, HttpStatus.OK);
+  }
 }

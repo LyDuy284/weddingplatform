@@ -9,8 +9,12 @@ import java.util.stream.Collectors;
 
 import javax.mail.MessagingException;
 
+import com.fu.weddingplatform.entity.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
@@ -21,14 +25,6 @@ import com.fu.weddingplatform.constant.couple.CoupleErrorMessage;
 import com.fu.weddingplatform.constant.promotion.PromotionType;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
 import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
-import com.fu.weddingplatform.entity.Booking;
-import com.fu.weddingplatform.entity.BookingDetail;
-import com.fu.weddingplatform.entity.BookingDetailHistory;
-import com.fu.weddingplatform.entity.BookingHistory;
-import com.fu.weddingplatform.entity.Couple;
-import com.fu.weddingplatform.entity.Promotion;
-import com.fu.weddingplatform.entity.PromotionServiceSupplier;
-import com.fu.weddingplatform.entity.ServiceSupplier;
 import com.fu.weddingplatform.exception.EmptyException;
 import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
@@ -431,6 +427,18 @@ public class BookingServiceImp implements BookingService {
     }
     return response;
   }
+
+  @Override
+  public List<BookingResponse> getAllByAdmin(int pageNo, int pageSize, String sortBy, boolean isAscending) {
+    Page<Booking> bookingPage;
+    if (isAscending) {
+      bookingPage = bookingRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).ascending()));
+    } else {
+      bookingPage = bookingRepository.findAll(PageRequest.of(pageNo, pageSize, Sort.by(sortBy).descending()));
+    }
+    return bookingPage.stream().map(element -> modelMapper.map(element, BookingResponse.class)).collect(Collectors.toList());
+  }
+
 
   @Override
   public List<BookingGroupBySupplierResponse> getBookingBySupplier(String supplierId) {
