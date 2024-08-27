@@ -29,7 +29,6 @@ import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.BookingHistoryRepository;
-import com.fu.weddingplatform.repository.BookingRepository;
 import com.fu.weddingplatform.repository.InvoiceDetailRepository;
 import com.fu.weddingplatform.repository.TransactionRepository;
 import com.fu.weddingplatform.repository.TransactionSummaryRepository;
@@ -37,6 +36,7 @@ import com.fu.weddingplatform.request.booking.CancelBookingDTO;
 import com.fu.weddingplatform.request.email.CancelBookingDetailMailForCouple;
 import com.fu.weddingplatform.request.email.CancelBookingMailForSupplierDTO;
 import com.fu.weddingplatform.request.email.MailApproveForCoupleDTO;
+import com.fu.weddingplatform.request.email.MailDoneForCoupleDTO;
 import com.fu.weddingplatform.request.email.ProcessingMailForCoupleDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.response.booking.BookingDetailResponse;
@@ -78,8 +78,6 @@ public class BookingDetailServiceImp implements BookingDetailService {
   private InvoiceDetailRepository invoiceDetailRepository;
   @Autowired
   private TransactionRepository transactionRepository;
-  @Autowired
-  private BookingRepository bookingRepository;
 
   @Override
   public BookingDetailResponse confirmBookingDetail(String bookingDetailId) {
@@ -299,13 +297,15 @@ public class BookingDetailServiceImp implements BookingDetailService {
         if (Math.abs(daysBetween) > 10) {
           // refund 40%
           paymentService.refundDepositedTransaction(booking.getCouple().getId(),
-                  cancelBookingDTO.getBookingDetailId());
-//          int depositedPrice = optionalTransaction.get().getAmount();
-//          booking.setTotalPrice(booking.getTotalPrice() + (depositedPrice - refundPrice));
-//        } else {
-//          booking.setTotalPrice(booking.getTotalPrice() + optionalTransaction.get().getAmount());
-//        }
-//        bookingRepository.saveAndFlush(booking);
+              cancelBookingDTO.getBookingDetailId());
+          // int depositedPrice = optionalTransaction.get().getAmount();
+          // booking.setTotalPrice(booking.getTotalPrice() + (depositedPrice -
+          // refundPrice));
+          // } else {
+          // booking.setTotalPrice(booking.getTotalPrice() +
+          // optionalTransaction.get().getAmount());
+          // }
+          // bookingRepository.saveAndFlush(booking);
         }
       }
     }
@@ -624,6 +624,35 @@ public class BookingDetailServiceImp implements BookingDetailService {
         .build();
 
     bookingDetailHistoryRepository.save(bookingDetailHistory);
+
+    Booking booking = bookingDetail.getBooking();
+
+    List<BookingDetail> listCurrentBookings = bookingDetailRepository
+        .findValidBookingDetailByBooking(booking.getId());
+
+    Optional<TransactionSummary> transactionSummary = transactionSummaryRepository
+        .findFirstByBooking(booking);
+
+    int paymentAmount = invoiceDetailRepository.getPayMentPriceByBooking(booking.getId());
+    int paymentBookingDetailAmount = invoiceDetailRepository.getPayMentPriceByBookingDetail(bookingDetailId);
+
+    MailDoneForCoupleDTO mail = MailDoneForCoupleDTO.builder()
+        .bookingDetail(bookingDetail)
+        .currentBooking(listCurrentBookings)
+        .totalAmount(Utils.formatAmountToVND(booking.getTotalPrice()))
+        .paymentAmount(Utils.formatAmountToVND(paymentAmount))
+        .remaining(Utils.formatAmountToVND(booking.getTotalPrice() - paymentAmount))
+        .bookingDetailAmount(Utils.formatAmountToVND(bookingDetail.getPrice()))
+        .paymentBookingDetailAmount(Utils.formatAmountToVND(paymentBookingDetailAmount))
+        .remainingookingDetailAmount(Utils.formatAmountToVND(bookingDetail.getPrice() - paymentBookingDetailAmount))
+        .build();
+
+    sentEmailService.sentDoneEmailForCouple(mail);
+
+    if (transactionSummary.isPresent()) {
+      mail.setPaymentAmount(Utils.formatAmountToVND(transactionSummary.get().getTotalAmount()));
+      mail.setRemaining(Utils.formatAmountToVND(booking.getTotalPrice() - transactionSummary.get().getTotalAmount()));
+    }
 
     if (checkDoneBooking(bookingDetail.getBooking())) {
       bookingDetail.getBooking().setStatus(BookingStatus.DONE);

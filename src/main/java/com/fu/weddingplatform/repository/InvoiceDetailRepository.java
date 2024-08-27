@@ -17,4 +17,10 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, St
 
     @Query(value = "SELECT COALESCE(SUM(price), 0) as price FROM the_day.invoice_detail where booking_detail_id = ?1 and status = 'COMPLETED'", nativeQuery = true)
     int getPayMentPriceByBookingDetail(String id);
+
+    @Query(value = "SELECT COALESCE(SUM(price), 0) as price \n" + //
+            "FROM invoice_detail ivd \n" + //
+            "    join invoice i on i.id = ivd.invoice_id \n" + //
+            "    where i.booking_id = ?1 and ivd.status = 'COMPLETED';", nativeQuery = true)
+    int getPayMentPriceByBooking(String id);
 }

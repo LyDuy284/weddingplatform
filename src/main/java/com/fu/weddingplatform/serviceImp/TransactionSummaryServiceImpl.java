@@ -1,38 +1,44 @@
 package com.fu.weddingplatform.serviceImp;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fu.weddingplatform.constant.booking.BookingErrorMessage;
-import com.fu.weddingplatform.constant.booking.BookingStatus;
-import com.fu.weddingplatform.constant.invoice.InvoiceStatus;
-import com.fu.weddingplatform.constant.invoiceDetail.InvoiceDetailStatus;
-import com.fu.weddingplatform.constant.payment.PaymentTypeValue;
-import com.fu.weddingplatform.constant.transaction.TransactionErrorMessage;
-import com.fu.weddingplatform.constant.transactionSummary.TransactionSummaryErrorMessage;
-import com.fu.weddingplatform.entity.*;
-import com.fu.weddingplatform.exception.ErrorException;
-import com.fu.weddingplatform.repository.BookingRepository;
-import com.fu.weddingplatform.repository.InvoiceRepository;
-import com.fu.weddingplatform.repository.SupplierRepository;
-import com.fu.weddingplatform.repository.TransactionSummaryRepository;
-import com.fu.weddingplatform.request.transactionSummary.TransactionSummaryResponse;
-import com.fu.weddingplatform.response.Account.SupplierResponse;
-import com.fu.weddingplatform.response.statistic.DashboardStatistic;
-import com.fu.weddingplatform.service.TransactionSummaryService;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
 import java.sql.Date;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.criteria.Expression;
+import javax.persistence.criteria.Predicate;
+
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fu.weddingplatform.constant.booking.BookingErrorMessage;
+import com.fu.weddingplatform.constant.booking.BookingStatus;
+import com.fu.weddingplatform.constant.invoice.InvoiceStatus;
+import com.fu.weddingplatform.constant.invoiceDetail.InvoiceDetailStatus;
+import com.fu.weddingplatform.constant.payment.PaymentTypeValue;
+import com.fu.weddingplatform.constant.transactionSummary.TransactionSummaryErrorMessage;
+import com.fu.weddingplatform.entity.BookingDetail;
+import com.fu.weddingplatform.entity.Invoice;
+import com.fu.weddingplatform.entity.InvoiceDetail;
+import com.fu.weddingplatform.entity.Supplier;
+import com.fu.weddingplatform.entity.TransactionSummary;
+import com.fu.weddingplatform.exception.ErrorException;
+import com.fu.weddingplatform.repository.BookingRepository;
+import com.fu.weddingplatform.repository.InvoiceRepository;
+import com.fu.weddingplatform.repository.SupplierRepository;
+import com.fu.weddingplatform.repository.TransactionSummaryRepository;
+import com.fu.weddingplatform.request.transactionSummary.SupplierAmountDetails;
+import com.fu.weddingplatform.request.transactionSummary.TransactionSummaryResponse;
+import com.fu.weddingplatform.response.Account.SupplierResponse;
+import com.fu.weddingplatform.response.statistic.DashboardStatistic;
+import com.fu.weddingplatform.service.TransactionSummaryService;
 
 @Service
 public class TransactionSummaryServiceImpl implements TransactionSummaryService {
@@ -46,8 +52,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
     ModelMapper mapper;
     @Autowired
     private BookingRepository bookingRepository;
-    @Autowired
-    ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public DashboardStatistic getStaffDashboardStatistic(int year) {
@@ -55,21 +60,24 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         int totalAmountSupplierEarn = 0;
         int totalAmountPlatformEarn = 0;
         Map<Integer, DashboardStatistic> amountEachMonths = new HashMap<>();
-        for(int i = 1; i <= 12; i++){
-            List<TransactionSummary> transactionSummaryList = transactionSummaryRepository.findAllByMonthAndYear(year, i);
+        for (int i = 1; i <= 12; i++) {
+            List<TransactionSummary> transactionSummaryList = transactionSummaryRepository.findAllByMonthAndYear(year,
+                    i);
             if (transactionSummaryList.isEmpty()) {
                 continue;
             }
             int totalAmountCouplePaidEachMonth = transactionSummaryList.stream()
                     .mapToInt(TransactionSummary::getTotalAmount)
                     .sum();
-            int totalAmountPlatformEarnEachMonth = (int) (totalAmountCouplePaidEachMonth * PaymentTypeValue.PLATFORM_FEE_VALUE);
-            int totalAmountSupplierEarnEachMonth = (int) (totalAmountCouplePaidEachMonth * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
-            DashboardStatistic dashboardStatisticEachMonth  = DashboardStatistic.builder()
-                                .totalAmountSupplierEarn(totalAmountSupplierEarnEachMonth)
-                                .totalAmountPlatformFee(totalAmountPlatformEarnEachMonth)
-                                .totalAmountCouplePaid(totalAmountCouplePaidEachMonth)
-                                .build();
+            int totalAmountPlatformEarnEachMonth = (int) (totalAmountCouplePaidEachMonth
+                    * PaymentTypeValue.PLATFORM_FEE_VALUE);
+            int totalAmountSupplierEarnEachMonth = (int) (totalAmountCouplePaidEachMonth
+                    * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
+            DashboardStatistic dashboardStatisticEachMonth = DashboardStatistic.builder()
+                    .totalAmountSupplierEarn(totalAmountSupplierEarnEachMonth)
+                    .totalAmountPlatformFee(totalAmountPlatformEarnEachMonth)
+                    .totalAmountCouplePaid(totalAmountCouplePaidEachMonth)
+                    .build();
             amountEachMonths.put(i, dashboardStatisticEachMonth);
             totalAmountCouplePaid += totalAmountCouplePaidEachMonth;
             totalAmountSupplierEarn += totalAmountSupplierEarnEachMonth;
@@ -92,7 +100,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         return mapTransactionSummaryResponse(transactionSummary);
     }
 
-    private TransactionSummaryResponse mapTransactionSummaryResponse(TransactionSummary transactionSummary) throws JsonProcessingException {
+    private TransactionSummaryResponse mapTransactionSummaryResponse(TransactionSummary transactionSummary)
+            throws JsonProcessingException {
         TransactionSummaryResponse transactionSummaryResponse = TransactionSummaryResponse.builder()
                 .id(transactionSummary.getId())
                 .platformFee(transactionSummary.getPlatformFee())
@@ -102,24 +111,33 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 .dateModified(transactionSummary.getDateModified())
                 .bookingId(transactionSummary.getBooking().getId())
                 .build();
-        List<Invoice> allInvoices = invoiceRepository.findByBookingIdAndStatus(transactionSummary.getBooking().getId(), InvoiceStatus.PAID);
-        if(allInvoices.isEmpty()){
+        List<Invoice> allInvoices = invoiceRepository.findByBookingIdAndStatus(transactionSummary.getBooking().getId(),
+                InvoiceStatus.PAID);
+        if (allInvoices.isEmpty()) {
             return transactionSummaryResponse;
         }
-        Map<String, Integer> supplierAmountDetails = new HashMap<>();
-        for(BookingDetail bookingDetail : transactionSummary.getBooking().getBookingDetails()){
+        Map<String, Integer> hasMap = new HashMap<>();
+        for (BookingDetail bookingDetail : transactionSummary.getBooking().getBookingDetails()) {
             int amountPaid = bookingDetail.getInvoiceDetails().stream()
                     .filter(element -> element.getStatus().equals(InvoiceDetailStatus.COMPLETED))
                     .mapToInt(InvoiceDetail::getPrice).sum();
-            if(amountPaid > 0){
-                int amountEarn = (int)(amountPaid * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
+            if (amountPaid > 0) {
+                int amountEarn = (int) (amountPaid * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
                 Supplier supplier = bookingDetail.getServiceSupplier().getSupplier();
                 SupplierResponse supplierResponse = mapper.map(supplier, SupplierResponse.class);
                 String supplierJsonStr = objectMapper.writeValueAsString(supplierResponse);
-                supplierAmountDetails.merge(supplierJsonStr, amountEarn, Integer::sum);
+                hasMap.merge(supplierJsonStr, amountEarn, Integer::sum);
+
             }
         }
-        transactionSummaryResponse.setSupplierAmountDetails(supplierAmountDetails);
+        String json = hasMap.keySet().iterator().next();
+        Integer price = hasMap.values().iterator().next();
+
+        JsonNode jsonNode = objectMapper.readTree(json);
+        SupplierAmountDetails details = objectMapper.treeToValue(jsonNode, SupplierAmountDetails.class);
+        details.setPrice(price);
+
+        transactionSummaryResponse.setSupplierAmountDetails(details);
         return transactionSummaryResponse;
     }
 
@@ -130,8 +148,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
             Expression<Date> dateCreatedAsDate = builder.function(
                     "STR_TO_DATE", Date.class,
                     root.get("dateModified"),
-                    builder.literal("%Y-%m-%d")
-            );
+                    builder.literal("%Y-%m-%d"));
             Predicate predicate = builder.conjunction();
             if (year != 0) {
                 Expression<Integer> yearExpression = builder.function("YEAR", Integer.class, dateCreatedAsDate);

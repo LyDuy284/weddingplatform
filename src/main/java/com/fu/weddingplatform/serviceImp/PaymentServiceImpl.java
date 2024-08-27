@@ -67,6 +67,7 @@ import com.fu.weddingplatform.repository.WalletHistoryRepository;
 import com.fu.weddingplatform.repository.WalletRepository;
 import com.fu.weddingplatform.request.email.DepositedEmailForCouple;
 import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
+import com.fu.weddingplatform.request.email.MailRefundForCoupleDTO;
 import com.fu.weddingplatform.request.email.MailRefundForSupplierDTO;
 import com.fu.weddingplatform.request.payment.CreatePaymentDTO;
 import com.fu.weddingplatform.request.payment.UpdatePaymentStatusDTO;
@@ -248,6 +249,23 @@ public class PaymentServiceImpl implements PaymentService {
                                     bookingDetailId))
                             .build();
                     walletService.updateBalanceWallet(updateBalanceWallet);
+
+                    BookingDetail bookingDetail = optionalBookingDetail.get();
+
+                    int paymentAmount = transaction.getPayment().getAmount();
+                    int platformAmount = (int) (paymentAmount * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
+
+                    MailRefundForCoupleDTO mail = MailRefundForCoupleDTO.builder()
+                            .bookingDetail(bookingDetail)
+                            .couple(bookingDetail.getBooking().getCouple())
+                            .supplierName(bookingDetail.getServiceSupplier().getSupplier().getSupplierName())
+                            .totalAmount(Utils.formatAmountToVND(paymentAmount))
+                            .platformAmount(Utils.formatAmountToVND(platformAmount))
+                            .supplierAmount(Utils.formatAmountToVND(paymentAmount - platformAmount - refundPrice))
+                            .receivedAmount(Utils.formatAmountToVND(refundPrice))
+                            .build();
+
+                    sentEmailService.sentRefundEmailForCouple(mail);
 
                     refundTransactionSummary(invoice.getBooking(), refundPrice, transaction.getAmount());
                     return refundPrice;
@@ -578,7 +596,7 @@ public class PaymentServiceImpl implements PaymentService {
                 booking.setStatus(BookingStatus.COMPLETED);
                 bookingRepository.save(booking);
                 // transfer amount to wallet supplier
-//                transferAmountToSupplier(booking);
+                // transferAmountToSupplier(booking);
             }
         }
         response.sendRedirect(VNPayConstant.VNP_REDIRECT_CLIENT);
@@ -611,8 +629,9 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private void transferAmountToSupplier(List<BookingDetail> allBookingDetail, String BookingId) {
-//        List<BookingDetail> allBookingDetail = bookingDetailRepository.findByBookingAndStatus(booking,
-//                BookingDetailStatus.COMPLETED);
+        // List<BookingDetail> allBookingDetail =
+        // bookingDetailRepository.findByBookingAndStatus(booking,
+        // BookingDetailStatus.COMPLETED);
         Set<Supplier> setSupplier = new HashSet<>();
         allBookingDetail.forEach(bd -> setSupplier.add(bd.getServiceSupplier().getSupplier()));
         Map<Supplier, List<BookingDetail>> mapSupplierBookingDetail = mapBookingDetailBySupplier(setSupplier,

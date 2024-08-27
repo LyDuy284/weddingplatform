@@ -16,8 +16,10 @@ import com.fu.weddingplatform.constant.email.CancelBookingDetailForCouple;
 import com.fu.weddingplatform.constant.email.CancelBookingForSupplier;
 import com.fu.weddingplatform.constant.email.DepositBookingForSupplier;
 import com.fu.weddingplatform.constant.email.DepositBookingMailForCouple;
+import com.fu.weddingplatform.constant.email.DoneMailForCouple;
 import com.fu.weddingplatform.constant.email.EmailBookingForCouple;
 import com.fu.weddingplatform.constant.email.ProccessingMailForCouple;
+import com.fu.weddingplatform.constant.email.RefundForCouple;
 import com.fu.weddingplatform.constant.email.RefundMailForSupplier;
 import com.fu.weddingplatform.constant.email.RejectBookingDetail;
 import com.fu.weddingplatform.constant.email.SentEmailBookingToSupplier;
@@ -30,6 +32,8 @@ import com.fu.weddingplatform.request.email.DepositedEmailForSupplierDTO;
 import com.fu.weddingplatform.request.email.EmailBookingForCoupleDTO;
 import com.fu.weddingplatform.request.email.EmailCreateBookingToSupplier;
 import com.fu.weddingplatform.request.email.MailApproveForCoupleDTO;
+import com.fu.weddingplatform.request.email.MailDoneForCoupleDTO;
+import com.fu.weddingplatform.request.email.MailRefundForCoupleDTO;
 import com.fu.weddingplatform.request.email.MailRefundForSupplierDTO;
 import com.fu.weddingplatform.request.email.ProcessingMailForCoupleDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
@@ -49,8 +53,8 @@ public class SentEmailServiceImp implements SentEmailService {
   public void sentEmail(SentEmail sentEmail) throws MessagingException {
     MimeMessage mimeMessage = javaMailSender.createMimeMessage();
     MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-    mimeMessageHelper.setTo("lyhieuduy9190@gmail.com");
-    // mimeMessageHelper.setTo(sentEmail.getEmail());
+    // mimeMessageHelper.setTo("lyhieuduy9190@gmail.com");
+    mimeMessageHelper.setTo(sentEmail.getEmail());
     mimeMessageHelper.setSubject(sentEmail.getTitle());
     mimeMessageHelper.setText(sentEmail.getContent(), true);
     mimeMessageHelper.setFrom(String.format("\"%s\" <%s>", "The-Day-PlatForm", "weddingplatform176@gmail.com"));
@@ -222,6 +226,34 @@ public class SentEmailServiceImp implements SentEmailService {
     String title = "Đơn hàng đã được hoàn thành";
     SentEmail sentEmail = SentEmail.builder()
         .email(mailRefundForSupplierDTO.getCouple().getAccount().getEmail())
+        .content(content)
+        .title(title)
+        .status(Status.PENDING)
+        .build();
+    sentEmailRepository.save(sentEmail);
+  }
+
+  @Override
+  public void sentRefundEmailForCouple(MailRefundForCoupleDTO mailRefundForCoupleDTO) {
+    String content = RefundForCouple.content(mailRefundForCoupleDTO);
+
+    String title = "Tiền đã được hoàn về ví";
+    SentEmail sentEmail = SentEmail.builder()
+        .email(mailRefundForCoupleDTO.getCouple().getAccount().getEmail())
+        .content(content)
+        .title(title)
+        .status(Status.PENDING)
+        .build();
+    sentEmailRepository.save(sentEmail);
+  }
+
+  @Override
+  public void sentDoneEmailForCouple(MailDoneForCoupleDTO mailDoneForCoupleDTO) {
+    String content = DoneMailForCouple.content(mailDoneForCoupleDTO);
+
+    String title = "Dịch vụ đã hoàn thành vui lòng thanh toán cho hệ thống";
+    SentEmail sentEmail = SentEmail.builder()
+        .email(mailDoneForCoupleDTO.getCouple().getAccount().getEmail())
         .content(content)
         .title(title)
         .status(Status.PENDING)
