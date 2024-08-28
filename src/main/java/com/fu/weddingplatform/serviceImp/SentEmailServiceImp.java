@@ -107,9 +107,8 @@ public class SentEmailServiceImp implements SentEmailService {
       }
     } catch (Exception e) {
       if (emailSchedule != null) {
-        // sentEmailRepository.delete(emailSchedule);
+        sentEmailRepository.delete(emailSchedule);
       }
-      throw new RuntimeException(e);
     }
   }
 

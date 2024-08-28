@@ -638,6 +638,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
 
     MailDoneForCoupleDTO mail = MailDoneForCoupleDTO.builder()
         .bookingDetail(bookingDetail)
+        .couple(booking.getCouple())
         .currentBooking(listCurrentBookings)
         .totalAmount(Utils.formatAmountToVND(booking.getTotalPrice()))
         .paymentAmount(Utils.formatAmountToVND(paymentAmount))
