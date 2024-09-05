@@ -80,8 +80,8 @@ public class PromotionServiceImp implements PromotionService {
       throw new ErrorException(ValidationMessage.GREATER_THAN_ZERO);
     }
 
-    if (createDTO.getType().equalsIgnoreCase(PromotionType.PERCENT)){
-      if (createDTO.getValue() >= 100){
+    if (createDTO.getType().equalsIgnoreCase(PromotionType.PERCENT)) {
+      if (createDTO.getValue() >= 100) {
         throw new ErrorException(ValidationMessage.PROMOTION_LESS_THEN_100);
       }
     }
@@ -98,24 +98,27 @@ public class PromotionServiceImp implements PromotionService {
     Promotion promotionSaved = promotionRepository.save(promotion);
 
     // for (String serviceSupplierId : createDTO.getListServiceSupplierId()) {
-    //   ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
-    //       () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
+    // ServiceSupplier serviceSupplier =
+    // serviceSupplierRepository.findById(serviceSupplierId).orElseThrow(
+    // () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
-    //   PromotionServiceSupplier existPromotionServiceSupplier = promotionServiceSupplierRepository
-    //       .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
+    // PromotionServiceSupplier existPromotionServiceSupplier =
+    // promotionServiceSupplierRepository
+    // .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
 
-    //   if (existPromotionServiceSupplier != null) {
-    //     existPromotionServiceSupplier.setStatus(Status.DISABLED);
-    //     promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
-    //   }
+    // if (existPromotionServiceSupplier != null) {
+    // existPromotionServiceSupplier.setStatus(Status.DISABLED);
+    // promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
+    // }
 
-    //   PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier.builder()
-    //       .promotion(promotionSaved)
-    //       .serviceSupplier(serviceSupplier)
-    //       .status(Status.ACTIVATED)
-    //       .build();
+    // PromotionServiceSupplier promotionServiceSupplier =
+    // PromotionServiceSupplier.builder()
+    // .promotion(promotionSaved)
+    // .serviceSupplier(serviceSupplier)
+    // .status(Status.ACTIVATED)
+    // .build();
 
-    //   promotionServiceSupplierRepository.save(promotionServiceSupplier);
+    // promotionServiceSupplierRepository.save(promotionServiceSupplier);
 
     // }
 
@@ -179,7 +182,7 @@ public class PromotionServiceImp implements PromotionService {
   }
 
   @Override
-  @Scheduled(cron = "0 0 0 * * *")
+  @Scheduled(cron = "0 0 0 * * ?")
   public void expriedPromotion() {
 
     String currentDate = Utils.getCurrentDate().toString();
