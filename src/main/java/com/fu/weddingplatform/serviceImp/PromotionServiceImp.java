@@ -182,7 +182,8 @@ public class PromotionServiceImp implements PromotionService {
   }
 
   @Override
-  @Scheduled(cron = "0 0 0 * * ?")
+  @Scheduled(cron = "0 0 0 * * ?", zone = "Asia/Ho_Chi_Minh")
+  // @Scheduled(cron = "*/5 * * * * *") // 5 second
   public void expriedPromotion() {
 
     String currentDate = Utils.getCurrentDate().toString();
