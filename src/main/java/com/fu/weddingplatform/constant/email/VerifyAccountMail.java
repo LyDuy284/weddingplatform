@@ -12,9 +12,10 @@ public class VerifyAccountMail {
     emailBody.append("<p>Thân gửi <b>" + content.getName() + "</b>,</p>");
     emailBody.append("<p><b>The Day</b> xin cảm ơn bạn đã tin tưởng và sử dụng nền tang của chúng tôi.</b>.</p>");
     emailBody.append("<div style=\"font-size: 1rem;\">");
-    emailBody.append("<p style=\"margin: 0;\">Vui lòng xác thực tài khoản của bạn qua đường link:");
+    emailBody.append("<p style=\"margin: 0; target=\"_blank\"\">Vui lòng xác thực tài khoản của bạn qua đường link:");
     emailBody
-        .append("<a href=\"" + content.getLink() + "\" style=\"color: blue;\"><i>Xác thực tài khoản</i></a></p></div>");
+        .append(
+            "<a href=\"" + content.getLink() + "\" style=\"color: blue;\"><i> xác thực tài khoản</i></a></p></div>");
     emailBody.append(
         "<p style=\"margin: 0.5rem 0;\">Mọi thắc mắc vui lòng liên hệ Email hoặc trực tiếp thông qua số điện thoại 0979477952(Mr.Duy).</p>");
     emailBody.append("<div><p><i>Trân trọng,</i></p>");
