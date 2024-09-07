@@ -13,6 +13,7 @@ import com.fu.weddingplatform.request.email.MailApproveForCoupleDTO;
 import com.fu.weddingplatform.request.email.MailDoneForCoupleDTO;
 import com.fu.weddingplatform.request.email.MailRefundForCoupleDTO;
 import com.fu.weddingplatform.request.email.MailRefundForSupplierDTO;
+import com.fu.weddingplatform.request.email.MailVerifyAccountDTO;
 import com.fu.weddingplatform.request.email.ProcessingMailForCoupleDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 
@@ -43,5 +44,7 @@ public interface SentEmailService {
   public void sentRefundEmailForCouple(MailRefundForCoupleDTO mailRefundForCoupleDTO);
 
   public void sentDoneEmailForCouple(MailDoneForCoupleDTO mailDoneForCoupleDTO);
+
+  public void sentVerifyAccount(MailVerifyAccountDTO mailVerifyAccountDTO);
 
 }

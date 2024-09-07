@@ -23,6 +23,7 @@ import com.fu.weddingplatform.constant.email.RefundForCouple;
 import com.fu.weddingplatform.constant.email.RefundMailForSupplier;
 import com.fu.weddingplatform.constant.email.RejectBookingDetail;
 import com.fu.weddingplatform.constant.email.SentEmailBookingToSupplier;
+import com.fu.weddingplatform.constant.email.VerifyAccountMail;
 import com.fu.weddingplatform.entity.SentEmail;
 import com.fu.weddingplatform.repository.SentEmailRepository;
 import com.fu.weddingplatform.request.email.CancelBookingDetailMailForCouple;
@@ -35,6 +36,7 @@ import com.fu.weddingplatform.request.email.MailApproveForCoupleDTO;
 import com.fu.weddingplatform.request.email.MailDoneForCoupleDTO;
 import com.fu.weddingplatform.request.email.MailRefundForCoupleDTO;
 import com.fu.weddingplatform.request.email.MailRefundForSupplierDTO;
+import com.fu.weddingplatform.request.email.MailVerifyAccountDTO;
 import com.fu.weddingplatform.request.email.ProcessingMailForCoupleDTO;
 import com.fu.weddingplatform.request.email.RejectMailDTO;
 import com.fu.weddingplatform.service.SentEmailService;
@@ -253,6 +255,20 @@ public class SentEmailServiceImp implements SentEmailService {
     String title = "Dịch vụ đã hoàn thành vui lòng thanh toán cho hệ thống";
     SentEmail sentEmail = SentEmail.builder()
         .email(mailDoneForCoupleDTO.getCouple().getAccount().getEmail())
+        .content(content)
+        .title(title)
+        .status(Status.PENDING)
+        .build();
+    sentEmailRepository.save(sentEmail);
+  }
+
+  @Override
+  public void sentVerifyAccount(MailVerifyAccountDTO mailVerifyAccountDTO) {
+    String content = VerifyAccountMail.content(mailVerifyAccountDTO);
+
+    String title = "Xác thực tài khoản";
+    SentEmail sentEmail = SentEmail.builder()
+        .email(mailVerifyAccountDTO.getEmail())
         .content(content)
         .title(title)
         .status(Status.PENDING)
