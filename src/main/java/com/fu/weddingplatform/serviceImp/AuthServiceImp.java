@@ -12,6 +12,7 @@ import javax.crypto.SecretKey;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -51,6 +52,7 @@ import com.fu.weddingplatform.response.Auth.RegsiterCoupleReponse;
 import com.fu.weddingplatform.response.Auth.RegsiterStaffReponse;
 import com.fu.weddingplatform.response.Auth.RegsiterSupplierReponse;
 import com.fu.weddingplatform.service.AuthService;
+import com.fu.weddingplatform.service.VerificationTokenService;
 import com.fu.weddingplatform.utils.Utils;
 
 import io.jsonwebtoken.Jwts;
@@ -72,6 +74,9 @@ public class AuthServiceImp implements AuthService {
     private final WalletRepository walletRepository;
     private final ModelMapper modelMapper;
     private final AreaRepository areaRepository;
+
+    @Autowired
+    VerificationTokenService verificationTokenService;
 
     @Override
     public LoginResponse login(LoginDTO loginDTO) {
@@ -107,6 +112,11 @@ public class AuthServiceImp implements AuthService {
                 default:
                     break;
             }
+
+            if (!account.isEnabled()) {
+                throw new ErrorException(AccountErrorMessage.ACCOUNT_NOT_VERIFY);
+            }
+
             loginResponse = LoginResponse.builder()
                     .accountId(account.getId())
                     .email(account.getEmail())
@@ -154,6 +164,7 @@ public class AuthServiceImp implements AuthService {
                 .email(registerDTO.getEmail())
                 .phoneNumber(registerDTO.getPhoneNumber())
                 .role(role)
+                .isEnabled(true)
                 .provider(AccountProvider.LOCAL)
                 .password(passwordEncoder.encode(registerDTO.getPassword()))
                 .status(Status.ACTIVATED)
@@ -194,6 +205,7 @@ public class AuthServiceImp implements AuthService {
                     .provider(AccountProvider.LOCAL)
                     .role(role)
                     .password(passwordEncoder.encode(registerDTO.getPassword()))
+                    .isEnabled(false)
                     .status(Status.ACTIVATED)
                     .build();
             accountSaved = accountRepository.save(account);
@@ -212,14 +224,18 @@ public class AuthServiceImp implements AuthService {
                 .account(accountSaved)
                 .build();
         walletRepository.save(wallet);
+
+        verificationTokenService.generateToken(accountSaved.getId());
+
         response = modelMapper.map(accountSaved, RegsiterCoupleReponse.class);
 
         response.setAccountId(accountSaved.getId());
         response.setRoleName(role.getName());
         response.setPartnerName1(couple.getPartnerName1());
         response.setPartnerName2(couple.getPartnerName2());
-        response.setWeddingDate(newCouple.getWeddingDate().toString());
+        // response.setWeddingDate(newCouple.getWeddingDate().toString());
         response.setCoupleId(newCouple.getId());
+
         return response;
     }
 
@@ -251,6 +267,7 @@ public class AuthServiceImp implements AuthService {
                     .email(registerDTO.getEmail())
                     .phoneNumber(registerDTO.getPhoneNumber())
                     .provider(AccountProvider.LOCAL)
+                    .isEnabled(true)
                     .role(role)
                     .password(passwordEncoder.encode(registerDTO.getPassword()))
                     .status(Status.ACTIVATED)
@@ -303,6 +320,7 @@ public class AuthServiceImp implements AuthService {
                     .provider(AccountProvider.LOCAL)
                     .role(role)
                     .password(passwordEncoder.encode(registerDTO.getPassword()))
+                    .isEnabled(false)
                     .status(Status.ACTIVATED)
                     .build();
             accountSaved = accountRepository.save(account);
@@ -335,6 +353,8 @@ public class AuthServiceImp implements AuthService {
                 .build();
 
         walletRepository.save(wallet);
+
+        verificationTokenService.generateToken(accountSaved.getId());
 
         response = modelMapper.map(accountSaved, RegsiterSupplierReponse.class);
 
@@ -413,6 +433,7 @@ public class AuthServiceImp implements AuthService {
                 .name(name)
                 .email(email)
                 .role(role)
+                .isEnabled(true)
                 .status(Status.ACTIVATED)
                 .password(passwordEncoder.encode(""))
                 .provider(AccountProvider.GOOGLE)

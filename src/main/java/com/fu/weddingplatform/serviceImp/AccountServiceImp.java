@@ -173,7 +173,7 @@ public class AccountServiceImp implements AccountService {
 
         couple.setPartnerName1(updateCoupleDTO.getPartnerName1());
         couple.setPartnerName2(updateCoupleDTO.getPartnerName2());
-        couple.setWeddingDate(Date.valueOf(Utils.convertStringToLocalDate(updateCoupleDTO.getWeddingDate())));
+        // couple.setWeddingDate(Date.valueOf(Utils.convertStringToLocalDate(updateCoupleDTO.getWeddingDate())));
         couple.getAccount().setAddress(updateCoupleDTO.getAddress());
         couple.getAccount().setPhoneNumber(updateCoupleDTO.getPhoneNumber());
         couple.getAccount().setImage(updateCoupleDTO.getImage());

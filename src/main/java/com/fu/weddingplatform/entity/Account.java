@@ -33,6 +33,7 @@ public class Account {
     private String address;
     private String status;
     private String provider;
+    private boolean isEnabled;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @Fetch(FetchMode.JOIN)
