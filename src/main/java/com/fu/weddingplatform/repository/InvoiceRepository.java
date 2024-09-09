@@ -1,5 +1,7 @@
 package com.fu.weddingplatform.repository;
 
+import com.fu.weddingplatform.constant.invoice.InvoiceStatus;
+import com.fu.weddingplatform.entity.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.fu.weddingplatform.entity.Invoice;
@@ -12,4 +14,5 @@ public interface InvoiceRepository extends JpaRepository<Invoice, String> {
     @Query("select i from Invoice i where i.booking.id = ?1 and i.status = ?2")
     List<Invoice> findByBookingIdAndStatus(String bookingId, String status);
 
+    List<Invoice> findByCreateAtLessThanEqualAndStatus(String dateTime, String status);
 }

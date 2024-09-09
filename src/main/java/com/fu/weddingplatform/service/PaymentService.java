@@ -13,4 +13,6 @@ public interface PaymentService {
     void responsePaymentVNP(HttpServletRequest req, HttpServletResponse response) throws IOException;
 
     int refundDepositedTransaction(String coupleId, String bookingDetailId);
+
+    void expiredPaymentTransaction();
 }

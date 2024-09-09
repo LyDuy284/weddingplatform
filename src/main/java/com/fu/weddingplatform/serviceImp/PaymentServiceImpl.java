@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -15,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.fu.weddingplatform.request.payment.PaymentRequestVNP;
 import com.fu.weddingplatform.response.payment.PaymentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -296,7 +300,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
         vnp_Params.put("vnp_OrderInfo", objectMapper.writeValueAsString(paymentDTO));
         vnp_Params.put("vnp_Amount", String.valueOf(paymentInfor.getVnpAmount() * 100L));
-        vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL_SERVER);
+        vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
@@ -611,19 +615,30 @@ public class PaymentServiceImpl implements PaymentService {
     private void updateInvoicePending(Booking booking, UpdatePaymentStatusDTO updatePaymentStatusDTO) {
         List<Invoice> listInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PENDING);
         for (Invoice invoice : listInvoice) {
-            // change invoice status
-            invoice.setStatus(updatePaymentStatusDTO.getInvoiceStatus());
+            int amountPaid = 0;
             // update invoice detail status
             List<InvoiceDetail> listInvoiceDetail = (List<InvoiceDetail>) invoice.getInvoiceDetails();
             for (InvoiceDetail invoiceDetail : listInvoiceDetail) {
                 if (invoiceDetail.getStatus().equals(InvoiceDetailStatus.PENDING)) {
                     invoiceDetail.setStatus(updatePaymentStatusDTO.getInvoiceDetailStatus());
+                }else if(invoiceDetail.getStatus().equals(InvoiceDetailStatus.COMPLETED)){
+                    amountPaid += invoiceDetail.getPrice();
                 }
             }
             // change transactions status
             Payment payment = paymentRepository.findByInvoiceIdAndPaymentMethod(invoice.getId(), PaymentMethod.VNPAY);
             List<Transaction> listTransaction = transactionRepository.findByPaymentId(payment.getId());
             listTransaction.forEach(t -> t.setStatus(updatePaymentStatusDTO.getTransactionStatus()));
+            if(updatePaymentStatusDTO.getInvoiceStatus().equals(InvoiceStatus.CANCELLED)){
+                if(amountPaid == 0){
+                    invoice.setStatus(InvoiceStatus.CANCELLED);
+                }else{
+                    invoice.setStatus(InvoiceStatus.PAID);
+                    invoice.setTotalPrice(amountPaid);
+                }
+            }else{
+                invoice.setStatus(updatePaymentStatusDTO.getInvoiceStatus());
+            }
         }
         invoiceRepository.saveAll(listInvoice);
     }
@@ -705,5 +720,42 @@ public class PaymentServiceImpl implements PaymentService {
         transactionSummary.setTotalAmount(transactionSummary.getTotalAmount() - refundPrice);
         transactionSummary.setDateModified(Utils.formatVNDatetimeNow());
         transactionSummaryRepository.save(transactionSummary);
+    }
+
+    @Override
+    @Scheduled(cron = "0 */5 * * * *", zone = "Asia/Ho_Chi_Minh")
+    public void expiredPaymentTransaction(){
+        String dateTimeNowStr = Utils.formatVNDatetimeNow();
+        LocalDateTime dateTimeNow = Utils.convertStringToLocalDateTime(dateTimeNowStr);
+        LocalDateTime timeChecked = dateTimeNow.minusMinutes(15);
+        List<Invoice> listInvoiceExpired = invoiceRepository.findByCreateAtLessThanEqualAndStatus(timeChecked.toString(), InvoiceStatus.PENDING);
+        if(!listInvoiceExpired.isEmpty()){
+            for (Invoice invoice: listInvoiceExpired) {
+                int amountPaid = 0;
+                if(invoice.getStatus().equals(InvoiceStatus.PENDING)){
+                    for (InvoiceDetail invoiceDetail: invoice.getInvoiceDetails().stream().toList()) {
+                        if(invoiceDetail.getStatus().equals(InvoiceDetailStatus.PENDING)){
+                            invoiceDetail.setStatus(InvoiceDetailStatus.OVERDUE);
+                        }else if (invoiceDetail.getStatus().equals(InvoiceDetailStatus.COMPLETED)){
+                            amountPaid += invoiceDetail.getPrice();
+                        }
+                    }
+                    for(Payment payment: invoice.getPayments().stream().toList()){
+                        for(Transaction transaction: payment.getTransactions().stream().toList()){
+                            if(transaction.getStatus().equals(TransactionStatus.PROCESSING)){
+                                transaction.setStatus(TransactionStatus.OVERDUE);
+                            }
+                        }
+                    }
+                    if(amountPaid == 0){
+                        invoice.setStatus(InvoiceStatus.OVERDUE);
+                    }else{
+                        invoice.setStatus(InvoiceStatus.PAID);
+                        invoice.setTotalPrice(amountPaid);
+                    }
+                }
+                invoiceRepository.save(invoice);
+            }
+        }
     }
 }
