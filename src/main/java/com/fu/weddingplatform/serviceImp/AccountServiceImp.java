@@ -1,6 +1,5 @@
 package com.fu.weddingplatform.serviceImp;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +34,6 @@ import com.fu.weddingplatform.response.Account.SupplierResponse;
 import com.fu.weddingplatform.response.couple.CoupleResponse;
 import com.fu.weddingplatform.service.AccountService;
 import com.fu.weddingplatform.service.SupplierService;
-import com.fu.weddingplatform.utils.Utils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -133,6 +131,7 @@ public class AccountServiceImp implements AccountService {
         accountRepository.save(account);
 
         supplier.setContactPhone(updateDTO.getContactNumber());
+        supplier.setContactPersonName(updateDTO.getContactPersonName());
         supplier.setContactEmail(updateDTO.getContactEmail());
 
         supplierRepository.save(supplier);

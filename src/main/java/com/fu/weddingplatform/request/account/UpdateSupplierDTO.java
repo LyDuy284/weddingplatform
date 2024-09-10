@@ -26,6 +26,7 @@ public class UpdateSupplierDTO {
   @NotNull(message = ValidationMessage.PHONE_NUMBER_NOT_NULL)
   @ValidPhoneNumber
   private String contactNumber;
+  private String contactPersonName;
   @Email(message = ValidationMessage.EMAIL_INVALID_MESSAGE)
   private String contactEmail;
   private String province;
