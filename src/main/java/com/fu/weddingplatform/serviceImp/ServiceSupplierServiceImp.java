@@ -331,29 +331,32 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(updateDTO.getId()).orElseThrow(
                 () -> new ErrorException(SupplierErrorMessage.NOT_FOUND));
 
-        Promotion promotion = promotionRepository.findById(updateDTO.getPromotionId()).orElseThrow(
-                () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
+        Promotion promotion = null;
 
-        if (!(serviceSupplier.getSupplier().getId().equalsIgnoreCase(promotion.getSupplier().getId()))) {
-            throw new ErrorException(PromotionErrorMessage.NOT_THIS_SUPPLIER);
-        }
-
-        if (promotionService.validPromotion(promotion)) {
-            PromotionServiceSupplier existPromotionServiceSupplier = promotionServiceSupplierRepository
-                    .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
-
-            if (existPromotionServiceSupplier != null) {
-                existPromotionServiceSupplier.setStatus(Status.DISABLED);
-                promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
+        if (updateDTO.getPromotionId() != "") {
+            promotionRepository.findById(updateDTO.getPromotionId()).orElseThrow(
+                    () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
+            if (!(serviceSupplier.getSupplier().getId().equalsIgnoreCase(promotion.getSupplier().getId()))) {
+                throw new ErrorException(PromotionErrorMessage.NOT_THIS_SUPPLIER);
             }
 
-            PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier.builder()
-                    .promotion(promotion)
-                    .serviceSupplier(serviceSupplier)
-                    .status(Status.ACTIVATED)
-                    .build();
+            if (promotionService.validPromotion(promotion)) {
+                PromotionServiceSupplier existPromotionServiceSupplier = promotionServiceSupplierRepository
+                        .findFirstByServiceSupplierAndStatus(serviceSupplier, Status.ACTIVATED);
 
-            promotionServiceSupplierRepository.save(promotionServiceSupplier);
+                if (existPromotionServiceSupplier != null) {
+                    existPromotionServiceSupplier.setStatus(Status.DISABLED);
+                    promotionServiceSupplierRepository.save(existPromotionServiceSupplier);
+                }
+
+                PromotionServiceSupplier promotionServiceSupplier = PromotionServiceSupplier.builder()
+                        .promotion(promotion)
+                        .serviceSupplier(serviceSupplier)
+                        .status(Status.ACTIVATED)
+                        .build();
+
+                promotionServiceSupplierRepository.save(promotionServiceSupplier);
+            }
         }
 
         serviceSupplier.setName(updateDTO.getName());
