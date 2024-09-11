@@ -334,7 +334,7 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         Promotion promotion = null;
 
         if (updateDTO.getPromotionId() != "") {
-            promotionRepository.findById(updateDTO.getPromotionId()).orElseThrow(
+            promotion = promotionRepository.findById(updateDTO.getPromotionId()).orElseThrow(
                     () -> new ErrorException(PromotionErrorMessage.NOT_FOUND));
             if (!(serviceSupplier.getSupplier().getId().equalsIgnoreCase(promotion.getSupplier().getId()))) {
                 throw new ErrorException(PromotionErrorMessage.NOT_THIS_SUPPLIER);

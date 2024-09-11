@@ -621,7 +621,7 @@ public class PaymentServiceImpl implements PaymentService {
             for (InvoiceDetail invoiceDetail : listInvoiceDetail) {
                 if (invoiceDetail.getStatus().equals(InvoiceDetailStatus.PENDING)) {
                     invoiceDetail.setStatus(updatePaymentStatusDTO.getInvoiceDetailStatus());
-                }else if(invoiceDetail.getStatus().equals(InvoiceDetailStatus.COMPLETED)){
+                } else if (invoiceDetail.getStatus().equals(InvoiceDetailStatus.COMPLETED)) {
                     amountPaid += invoiceDetail.getPrice();
                 }
             }
@@ -629,14 +629,14 @@ public class PaymentServiceImpl implements PaymentService {
             Payment payment = paymentRepository.findByInvoiceIdAndPaymentMethod(invoice.getId(), PaymentMethod.VNPAY);
             List<Transaction> listTransaction = transactionRepository.findByPaymentId(payment.getId());
             listTransaction.forEach(t -> t.setStatus(updatePaymentStatusDTO.getTransactionStatus()));
-            if(updatePaymentStatusDTO.getInvoiceStatus().equals(InvoiceStatus.CANCELLED)){
-                if(amountPaid == 0){
+            if (updatePaymentStatusDTO.getInvoiceStatus().equals(InvoiceStatus.CANCELLED)) {
+                if (amountPaid == 0) {
                     invoice.setStatus(InvoiceStatus.CANCELLED);
-                }else{
+                } else {
                     invoice.setStatus(InvoiceStatus.PAID);
                     invoice.setTotalPrice(amountPaid);
                 }
-            }else{
+            } else {
                 invoice.setStatus(updatePaymentStatusDTO.getInvoiceStatus());
             }
         }
@@ -724,32 +724,33 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Scheduled(cron = "0 */5 * * * *", zone = "Asia/Ho_Chi_Minh")
-    public void expiredPaymentTransaction(){
+    public void expiredPaymentTransaction() {
         String dateTimeNowStr = Utils.formatVNDatetimeNow();
         LocalDateTime dateTimeNow = Utils.convertStringToLocalDateTime(dateTimeNowStr);
         LocalDateTime timeChecked = dateTimeNow.minusMinutes(15);
-        List<Invoice> listInvoiceExpired = invoiceRepository.findByCreateAtLessThanEqualAndStatus(timeChecked.toString(), InvoiceStatus.PENDING);
-        if(!listInvoiceExpired.isEmpty()){
-            for (Invoice invoice: listInvoiceExpired) {
+        List<Invoice> listInvoiceExpired = invoiceRepository
+                .findByCreateAtLessThanEqualAndStatus(timeChecked.toString(), InvoiceStatus.PENDING);
+        if (!listInvoiceExpired.isEmpty()) {
+            for (Invoice invoice : listInvoiceExpired) {
                 int amountPaid = 0;
-                if(invoice.getStatus().equals(InvoiceStatus.PENDING)){
-                    for (InvoiceDetail invoiceDetail: invoice.getInvoiceDetails().stream().toList()) {
-                        if(invoiceDetail.getStatus().equals(InvoiceDetailStatus.PENDING)){
+                if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
+                    for (InvoiceDetail invoiceDetail : invoice.getInvoiceDetails()) {
+                        if (invoiceDetail.getStatus().equals(InvoiceDetailStatus.PENDING)) {
                             invoiceDetail.setStatus(InvoiceDetailStatus.OVERDUE);
-                        }else if (invoiceDetail.getStatus().equals(InvoiceDetailStatus.COMPLETED)){
+                        } else if (invoiceDetail.getStatus().equals(InvoiceDetailStatus.COMPLETED)) {
                             amountPaid += invoiceDetail.getPrice();
                         }
                     }
-                    for(Payment payment: invoice.getPayments().stream().toList()){
-                        for(Transaction transaction: payment.getTransactions().stream().toList()){
-                            if(transaction.getStatus().equals(TransactionStatus.PROCESSING)){
+                    for (Payment payment : invoice.getPayments()) {
+                        for (Transaction transaction : payment.getTransactions()) {
+                            if (transaction.getStatus().equals(TransactionStatus.PROCESSING)) {
                                 transaction.setStatus(TransactionStatus.OVERDUE);
                             }
                         }
                     }
-                    if(amountPaid == 0){
+                    if (amountPaid == 0) {
                         invoice.setStatus(InvoiceStatus.OVERDUE);
-                    }else{
+                    } else {
                         invoice.setStatus(InvoiceStatus.PAID);
                         invoice.setTotalPrice(amountPaid);
                     }

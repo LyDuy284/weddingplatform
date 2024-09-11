@@ -52,19 +52,19 @@ public class InvoiceDetail {
   @ToString.Include
   private Invoice invoice;
 
-  @JsonIgnore
-  @ManyToOne(fetch = FetchType.LAZY)
-  @Fetch(FetchMode.JOIN)
-  @JoinColumn(name = "promotion_serivce_supplier_id")
-  @EqualsAndHashCode.Include
-  @ToString.Include
-  private PromotionServiceSupplier promotionServiceSupplier;
+  // @JsonIgnore
+  // @ManyToOne(fetch = FetchType.LAZY)
+  // @Fetch(FetchMode.JOIN)
+  // @JoinColumn(name = "promotion_serivce_supplier_id")
+  // @EqualsAndHashCode.Include
+  // @ToString.Include
+  // private PromotionServiceSupplier promotionServiceSupplier;
 
   @OneToMany(mappedBy = "invoiceDetail", cascade = CascadeType.ALL)
   @EqualsAndHashCode.Include
   @ToString.Include
   @JsonIgnore
-//  @OneToOne(mappedBy = "invoiceDetail", cascade = CascadeType.ALL)
+  // @OneToOne(mappedBy = "invoiceDetail", cascade = CascadeType.ALL)
   private Collection<Transaction> transactions;
 
 }
