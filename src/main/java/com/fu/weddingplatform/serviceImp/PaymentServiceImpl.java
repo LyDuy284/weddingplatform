@@ -300,7 +300,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
         vnp_Params.put("vnp_OrderInfo", objectMapper.writeValueAsString(paymentDTO));
         vnp_Params.put("vnp_Amount", String.valueOf(paymentInfor.getVnpAmount() * 100L));
-        vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL);
+        vnp_Params.put("vnp_ReturnUrl", VNPayConstant.VNP_RETURN_URL_SERVER);
         vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
 
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
