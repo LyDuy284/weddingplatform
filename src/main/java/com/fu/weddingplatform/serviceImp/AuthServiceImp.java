@@ -441,4 +441,13 @@ public class AuthServiceImp implements AuthService {
         return accountRepository.save(account);
     }
 
+    @Override
+    public Boolean checkEmailExist(String email) {
+        Optional<Account> optionalUser = accountRepository.findByEmail(email);
+        if (optionalUser.isPresent()){
+            return true;
+        }
+        return false;
+    }
+
 }

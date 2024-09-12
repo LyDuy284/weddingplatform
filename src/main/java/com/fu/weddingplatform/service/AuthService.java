@@ -27,4 +27,6 @@ public interface AuthService {
     public LoginResponse loginWithGoogle(String token);
 
     public Account registerForGoogleLogin(String email, String name, String roleName);
+
+    public Boolean checkEmailExist(String email);
 }

@@ -112,4 +112,14 @@ public class AuthController {
       verificationTokenService.verifyAccount(token);
     return new ModelAndView("redirect:https://youtube.com");
   }
+
+  @PostMapping("/check/email")
+  public ResponseEntity<?> checkEmailExist(@Validated @RequestParam String email) {
+    ResponseDTO<Boolean> responseDTO = new ResponseDTO<>();
+    Boolean registerServiceSupplier = authService.checkEmailExist(email);
+    responseDTO.setData(registerServiceSupplier);
+    responseDTO.setMessage(AccountSuccessMessage.CHECK_EXIST);
+    responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+    return ResponseEntity.ok().body(responseDTO);
+  }
 }
