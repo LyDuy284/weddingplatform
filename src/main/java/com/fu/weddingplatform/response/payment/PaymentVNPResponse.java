@@ -7,11 +7,10 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class PaymentVNPInfor {
+@NoArgsConstructor
+public class PaymentVNPResponse {
     List<String> listInvoiceId;
-    List<String> listVNPBookingDetailId;
-    int vnpAmount;
-    int amountPaidWallet;
+    List<String> listBookingDetailId;
+    boolean isDeposit;
 }
