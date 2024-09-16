@@ -3,6 +3,7 @@ package com.fu.weddingplatform.repository;
 import java.util.List;
 import java.util.Optional;
 
+import com.fu.weddingplatform.constant.invoice.InvoiceStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -23,4 +24,7 @@ public interface InvoiceDetailRepository extends JpaRepository<InvoiceDetail, St
             "    join invoice i on i.id = ivd.invoice_id \n" + //
             "    where i.booking_id = ?1 and ivd.status = 'COMPLETED';", nativeQuery = true)
     int getPayMentPriceByBooking(String id);
+
+    @Query("select id from InvoiceDetail id where id.invoice.id = ?1")
+    List<InvoiceDetail> findAllByInvoiceId(String invoiceId);
 }

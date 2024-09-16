@@ -92,4 +92,9 @@ public class Utils {
                 note);
     }
 
+    public static String formatLocalDateTimeToString(LocalDateTime localDateTime) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return localDateTime.format(dateTimeFormatter);
+    }
+
 }

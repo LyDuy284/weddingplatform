@@ -113,9 +113,8 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         if (allInvoices.isEmpty()) {
             return transactionSummaryResponse;
         }
-
-        List<SupplierAmountDetails> listSupplierAmountDetails = new ArrayList<>();
-
+        
+        Map<String, SupplierAmountDetails> mapSupplierAmountDetails = new HashMap<>();
         for (BookingDetail bookingDetail : transactionSummary.getBooking().getBookingDetails()) {
             Map<String, Integer> hasMap = new HashMap<>();
             int amountPaid = bookingDetail.getInvoiceDetails().stream()
@@ -133,11 +132,15 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                 JsonNode jsonNode = objectMapper.readTree(json);
                 SupplierAmountDetails details = objectMapper.treeToValue(jsonNode, SupplierAmountDetails.class);
                 details.setPrice(price);
-                listSupplierAmountDetails.add(details);
+
+                SupplierAmountDetails suppDetailsExisted = mapSupplierAmountDetails.get(details.getSupplierId());
+                if(suppDetailsExisted != null){
+                    details.setPrice(details.getPrice() + suppDetailsExisted.getPrice());
+                }
+                mapSupplierAmountDetails.put(details.getSupplierId(), details);
             }
         }
-
-        transactionSummaryResponse.setSupplierAmountDetails(listSupplierAmountDetails);
+        transactionSummaryResponse.setSupplierAmountDetails(new ArrayList<>(mapSupplierAmountDetails.values()));
         return transactionSummaryResponse;
     }
 

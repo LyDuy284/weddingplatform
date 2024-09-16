@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fu.weddingplatform.request.payment.PaymentRequestVNP;
 import com.fu.weddingplatform.response.payment.PaymentResponse;
+import com.fu.weddingplatform.response.payment.PaymentVNPResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -132,7 +133,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentResponse requestPaymentVNP(HttpServletRequest req, HttpServletResponse resp,
-            CreatePaymentDTO paymentRequest)
+                                             CreatePaymentDTO paymentRequest)
             throws JsonProcessingException {
         PaymentRequestVNP paymentRequestVNP = createPaymentRequest(req, paymentRequest);
         if (paymentRequestVNP.getAmountVNPay() == 0) {
@@ -294,7 +295,8 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentVNPInfor paymentInfor = createInvoiceByEachSupplier(paymentRequest.getListBookingDetailId(),
                 paymentRequest.isDeposit());
         // set order infor
-        CreatePaymentDTO paymentDTO = CreatePaymentDTO.builder()
+        PaymentVNPResponse paymentDTO = PaymentVNPResponse.builder()
+                .listInvoiceId(paymentInfor.getListInvoiceId())
                 .listBookingDetailId(paymentInfor.getListVNPBookingDetailId())
                 .isDeposit(paymentRequest.isDeposit())
                 .build();
@@ -329,6 +331,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .orElseThrow(() -> new ErrorException(
                         String.format(BookingDetailErrorMessage.NOT_FOUND_BOOKING, listBookingDetailId.get(0))));
         PaymentVNPInfor paymentVNPInfor = PaymentVNPInfor.builder()
+                .listInvoiceId(new ArrayList<>())
                 .listVNPBookingDetailId(new ArrayList<>())
                 .build();
         for (Supplier supplier : setSupplier) {
@@ -337,6 +340,7 @@ public class PaymentServiceImpl implements PaymentService {
                     isDeposit);
             paymentVNPInfor.setVnpAmount(paymentVNPInfor.getVnpAmount() + paymentInfor.getVnpAmount());
             paymentVNPInfor.getListVNPBookingDetailId().addAll(paymentInfor.getListVNPBookingDetailId());
+            paymentVNPInfor.getListInvoiceId().addAll(paymentInfor.getListInvoiceId());
             paymentVNPInfor
                     .setAmountPaidWallet(paymentVNPInfor.getAmountPaidWallet() + paymentInfor.getAmountPaidWallet());
         }
@@ -472,7 +476,10 @@ public class PaymentServiceImpl implements PaymentService {
         }
         invoiceSaved.setTotalPrice(vnpAmount + walletAmount);
         invoiceRepository.save(invoiceSaved);
+        List<String> listInvoiceId = new ArrayList<>();
+        listInvoiceId.add(invoice.getId());
         return PaymentVNPInfor.builder()
+                .listInvoiceId(listInvoiceId)
                 .listVNPBookingDetailId(listVNPBookingDetailId)
                 .vnpAmount(vnpAmount)
                 .amountPaidWallet(walletAmount)
@@ -493,7 +500,7 @@ public class PaymentServiceImpl implements PaymentService {
     // }
 
     private Map<Supplier, List<BookingDetail>> mapBookingDetailBySupplier(Set<Supplier> setSupplier,
-            List<BookingDetail> listBookingDetail) {
+                                                                          List<BookingDetail> listBookingDetail) {
         Map<Supplier, List<BookingDetail>> mapGroup = new HashMap<>();
         for (Supplier supplier : setSupplier) {
             List<BookingDetail> listBookingDetailBySupplier = bookingDetailRepository
@@ -523,7 +530,7 @@ public class PaymentServiceImpl implements PaymentService {
 
         // invoice infor
         String paymentInfor = request.getParameter("vnp_OrderInfo");
-        CreatePaymentDTO paymentDTO = objectMapper.readValue(paymentInfor, CreatePaymentDTO.class);
+        PaymentVNPResponse paymentDTO = objectMapper.readValue(paymentInfor, PaymentVNPResponse.class);
         BookingDetail firstBookingDetail = bookingDetailRepository.findById(paymentDTO.getListBookingDetailId().get(0))
                 .orElseThrow(() -> new ErrorException(String.format(BookingDetailErrorMessage.NOT_FOUND_BOOKING,
                         paymentDTO.getListBookingDetailId().get(0))));
@@ -535,7 +542,7 @@ public class PaymentServiceImpl implements PaymentService {
                     .transactionStatus(TransactionStatus.CANCELLED)
                     .build();
             // update invoice
-            updateInvoicePending(booking, updatePaymentStatusDTO);
+            updateInvoicePending(paymentDTO.getListInvoiceId(), updatePaymentStatusDTO);
         } else {
             UpdatePaymentStatusDTO updatePaymentStatusDTO = UpdatePaymentStatusDTO.builder()
                     .invoiceStatus(InvoiceStatus.PAID)
@@ -543,7 +550,7 @@ public class PaymentServiceImpl implements PaymentService {
                     .transactionStatus(TransactionStatus.COMPLETED)
                     .build();
             // update invoice
-            updateInvoicePending(booking, updatePaymentStatusDTO);
+            updateInvoicePending(paymentDTO.getListInvoiceId(), updatePaymentStatusDTO);
             List<BookingDetail> bookingDetailList = bookingDetailRepository
                     .findListBookingDetailInList(paymentDTO.getListBookingDetailId());
             int totalAmount = 0;
@@ -612,9 +619,11 @@ public class PaymentServiceImpl implements PaymentService {
         return amount == booking.getTotalPrice();
     }
 
-    private void updateInvoicePending(Booking booking, UpdatePaymentStatusDTO updatePaymentStatusDTO) {
-        List<Invoice> listInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PENDING);
-        for (Invoice invoice : listInvoice) {
+    private void updateInvoicePending(List<String> listInvoiceId, UpdatePaymentStatusDTO updatePaymentStatusDTO) {
+//        List<Invoice> listInvoice = invoiceRepository.findByBookingIdAndStatus(booking.getId(), InvoiceStatus.PENDING);
+        for (String invoiceId : listInvoiceId) {
+            Invoice invoice = invoiceRepository.findById(invoiceId)
+                    .orElseThrow(() -> new ErrorException("Invoice not found"));
             int amountPaid = 0;
             // update invoice detail status
             List<InvoiceDetail> listInvoiceDetail = (List<InvoiceDetail>) invoice.getInvoiceDetails();
@@ -627,8 +636,10 @@ public class PaymentServiceImpl implements PaymentService {
             }
             // change transactions status
             Payment payment = paymentRepository.findByInvoiceIdAndPaymentMethod(invoice.getId(), PaymentMethod.VNPAY);
-            List<Transaction> listTransaction = transactionRepository.findByPaymentId(payment.getId());
-            listTransaction.forEach(t -> t.setStatus(updatePaymentStatusDTO.getTransactionStatus()));
+            if(payment != null){
+                List<Transaction> listTransaction = transactionRepository.findByPaymentId(payment.getId());
+                listTransaction.forEach(t -> t.setStatus(updatePaymentStatusDTO.getTransactionStatus()));
+            }
             if (updatePaymentStatusDTO.getInvoiceStatus().equals(InvoiceStatus.CANCELLED)) {
                 if (amountPaid == 0) {
                     invoice.setStatus(InvoiceStatus.CANCELLED);
@@ -639,8 +650,9 @@ public class PaymentServiceImpl implements PaymentService {
             } else {
                 invoice.setStatus(updatePaymentStatusDTO.getInvoiceStatus());
             }
+            invoiceRepository.save(invoice);
         }
-        invoiceRepository.saveAll(listInvoice);
+//        invoiceRepository.saveAll(listInvoice);
     }
 
     private void transferAmountToSupplier(List<BookingDetail> allBookingDetail, String BookingId) {
@@ -729,25 +741,29 @@ public class PaymentServiceImpl implements PaymentService {
         LocalDateTime dateTimeNow = Utils.convertStringToLocalDateTime(dateTimeNowStr);
         LocalDateTime timeChecked = dateTimeNow.minusMinutes(15);
         List<Invoice> listInvoiceExpired = invoiceRepository
-                .findByCreateAtLessThanEqualAndStatus(timeChecked.toString(), InvoiceStatus.PENDING);
+                .findByCreateAtLessThanEqualAndStatus(Utils.formatLocalDateTimeToString(timeChecked), InvoiceStatus.PENDING);
         if (!listInvoiceExpired.isEmpty()) {
             for (Invoice invoice : listInvoiceExpired) {
                 int amountPaid = 0;
                 if (invoice.getStatus().equals(InvoiceStatus.PENDING)) {
-                    for (InvoiceDetail invoiceDetail : invoice.getInvoiceDetails()) {
+                    List<InvoiceDetail> invoiceDetails = invoiceDetailRepository.findAllByInvoiceId(invoice.getId());
+                    for (InvoiceDetail invoiceDetail : invoiceDetails) {
                         if (invoiceDetail.getStatus().equals(InvoiceDetailStatus.PENDING)) {
                             invoiceDetail.setStatus(InvoiceDetailStatus.OVERDUE);
                         } else if (invoiceDetail.getStatus().equals(InvoiceDetailStatus.COMPLETED)) {
                             amountPaid += invoiceDetail.getPrice();
                         }
                     }
-                    for (Payment payment : invoice.getPayments()) {
-                        for (Transaction transaction : payment.getTransactions()) {
-                            if (transaction.getStatus().equals(TransactionStatus.PROCESSING)) {
-                                transaction.setStatus(TransactionStatus.OVERDUE);
-                            }
+                    invoiceDetailRepository.saveAll(invoiceDetails);
+
+                    Payment payment = paymentRepository.findByInvoiceIdAndPaymentMethod(invoice.getId(), PaymentMethod.VNPAY);
+                    List<Transaction> transactionsPending = transactionRepository.findByPaymentId(payment.getId());
+                    for (Transaction transaction : transactionsPending) {
+                        if (transaction.getStatus().equals(TransactionStatus.PROCESSING)) {
+                            transaction.setStatus(TransactionStatus.OVERDUE);
                         }
                     }
+                    transactionRepository.saveAll(transactionsPending);
                     if (amountPaid == 0) {
                         invoice.setStatus(InvoiceStatus.OVERDUE);
                     } else {
