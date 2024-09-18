@@ -29,6 +29,7 @@ import com.fu.weddingplatform.exception.ErrorException;
 import com.fu.weddingplatform.repository.BookingDetailHistoryRepository;
 import com.fu.weddingplatform.repository.BookingDetailRepository;
 import com.fu.weddingplatform.repository.BookingHistoryRepository;
+import com.fu.weddingplatform.repository.BookingRepository;
 import com.fu.weddingplatform.repository.InvoiceDetailRepository;
 import com.fu.weddingplatform.repository.TransactionRepository;
 import com.fu.weddingplatform.repository.TransactionSummaryRepository;
@@ -78,6 +79,9 @@ public class BookingDetailServiceImp implements BookingDetailService {
   private InvoiceDetailRepository invoiceDetailRepository;
   @Autowired
   private TransactionRepository transactionRepository;
+
+  @Autowired
+  private BookingRepository bookingRepository;
 
   @Override
   public BookingDetailResponse confirmBookingDetail(String bookingDetailId) {
@@ -457,7 +461,7 @@ public class BookingDetailServiceImp implements BookingDetailService {
         .build();
 
     bookingDetailHistoryRepository.save(bookingDetailHistory);
-    List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatusNot(
+    List<BookingDetail> listBookingDetailPending = bookingDetailRepository.findByBookingAndStatus(
         bookingDetail.getBooking(),
         BookingDetailStatus.PENDING);
 
