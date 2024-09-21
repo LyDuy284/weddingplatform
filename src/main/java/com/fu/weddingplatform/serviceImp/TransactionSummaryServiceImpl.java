@@ -7,6 +7,7 @@ import java.util.*;
 import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Predicate;
 
+import com.fu.weddingplatform.constant.bookingDetail.BookingDetailStatus;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -116,28 +117,30 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         
         Map<String, SupplierAmountDetails> mapSupplierAmountDetails = new HashMap<>();
         for (BookingDetail bookingDetail : transactionSummary.getBooking().getBookingDetails()) {
-            Map<String, Integer> hasMap = new HashMap<>();
-            int amountPaid = bookingDetail.getInvoiceDetails().stream()
-                    .filter(element -> element.getStatus().equals(InvoiceDetailStatus.COMPLETED))
-                    .mapToInt(InvoiceDetail::getPrice).sum();
-            if (amountPaid > 0) {
-                int amountEarn = (int) (amountPaid * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
-                Supplier supplier = bookingDetail.getServiceSupplier().getSupplier();
-                SupplierResponse supplierResponse = mapper.map(supplier, SupplierResponse.class);
-                String supplierJsonStr = objectMapper.writeValueAsString(supplierResponse);
-                hasMap.merge(supplierJsonStr, amountEarn, Integer::sum);
-                String json = hasMap.keySet().iterator().next();
-                Integer price = hasMap.values().iterator().next();
+            if(bookingDetail.getStatus().equals((BookingDetailStatus.COMPLETED))){
+                Map<String, Integer> hasMap = new HashMap<>();
+                int amountPaid = bookingDetail.getInvoiceDetails().stream()
+                        .filter(element -> element.getStatus().equals(InvoiceDetailStatus.COMPLETED))
+                        .mapToInt(InvoiceDetail::getPrice).sum();
+                if (amountPaid > 0) {
+                    int amountEarn = (int) (amountPaid * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
+                    Supplier supplier = bookingDetail.getServiceSupplier().getSupplier();
+                    SupplierResponse supplierResponse = mapper.map(supplier, SupplierResponse.class);
+                    String supplierJsonStr = objectMapper.writeValueAsString(supplierResponse);
+                    hasMap.merge(supplierJsonStr, amountEarn, Integer::sum);
+                    String json = hasMap.keySet().iterator().next();
+                    Integer price = hasMap.values().iterator().next();
 
-                JsonNode jsonNode = objectMapper.readTree(json);
-                SupplierAmountDetails details = objectMapper.treeToValue(jsonNode, SupplierAmountDetails.class);
-                details.setPrice(price);
+                    JsonNode jsonNode = objectMapper.readTree(json);
+                    SupplierAmountDetails details = objectMapper.treeToValue(jsonNode, SupplierAmountDetails.class);
+                    details.setPrice(price);
 
-                SupplierAmountDetails suppDetailsExisted = mapSupplierAmountDetails.get(details.getSupplierId());
-                if(suppDetailsExisted != null){
-                    details.setPrice(details.getPrice() + suppDetailsExisted.getPrice());
+                    SupplierAmountDetails suppDetailsExisted = mapSupplierAmountDetails.get(details.getSupplierId());
+                    if(suppDetailsExisted != null){
+                        details.setPrice(details.getPrice() + suppDetailsExisted.getPrice());
+                    }
+                    mapSupplierAmountDetails.put(details.getSupplierId(), details);
                 }
-                mapSupplierAmountDetails.put(details.getSupplierId(), details);
             }
         }
         transactionSummaryResponse.setSupplierAmountDetails(new ArrayList<>(mapSupplierAmountDetails.values()));
