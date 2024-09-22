@@ -110,7 +110,7 @@ public class AuthController {
   @GetMapping("/verify")
   public ModelAndView verifyEmail(@RequestParam("token") String token) {
       verificationTokenService.verifyAccount(token);
-    return new ModelAndView("redirect:https://youtube.com");
+    return new ModelAndView("redirect:http://localhost:3000/login");
   }
 
   @PostMapping("/check/email")
