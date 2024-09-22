@@ -22,4 +22,6 @@ public interface ServiceSupplierService {
             int minPrice, int maxPrice, String supplierId);
 
     public ServiceSupplierResponse convertServiceSupplierToResponse(ServiceSupplier serviceSupplier);
+
+    public ServiceSupplierResponse activeServiceSupplier(String id);
 }

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fu.weddingplatform.constant.booking.BookingSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierSuccessMessage;
@@ -23,6 +24,7 @@ import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.UpdateServiceSupplier;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
+import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierFilterResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
@@ -94,4 +96,14 @@ public class ServiceSupplierController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
+    @PutMapping("activate")
+    @PreAuthorize(RolePreAuthorize.ROLE_SUPPLIER)
+    public ResponseEntity<?> activeServiceSupplier(@RequestParam String id) {
+        ServiceSupplierResponse data = serviceSupplierService.activeServiceSupplier(id);
+        ResponseDTO<ServiceSupplierResponse> response = new ResponseDTO<>();
+        response.setData(data);
+        response.setStatus(ResponseStatusDTO.SUCCESS);
+        response.setMessage(ServiceSupplierSuccessMessage.ACTIVATE);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }
