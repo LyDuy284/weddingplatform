@@ -88,4 +88,15 @@ public class BlogPostController {
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         return ResponseEntity.ok().body(responseDTO);
     }
+
+    @PutMapping("delete")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_STAFF)
+    public ResponseEntity<?> deleteBlogPost(@RequestParam String id) {
+        ResponseDTO<Boolean> responseDTO = new ResponseDTO<>();
+        Boolean data = blogPostService.deleteBlogPost(id);
+        responseDTO.setData(data);
+        responseDTO.setMessage(BlogPostSuccessMessage.UPDATE);
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        return ResponseEntity.ok().body(responseDTO);
+    }
 }
