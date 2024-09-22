@@ -9,8 +9,12 @@ import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.category.CategoryErrorMessage;
+import com.fu.weddingplatform.constant.comboService.ComboErrorMessage;
 import com.fu.weddingplatform.constant.promotion.PromotionErrorMessage;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
+import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierErrorMessage;
+import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierStatus;
+import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierSuccessMessage;
 import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
 import com.fu.weddingplatform.constant.validation.ValidationMessage;
 import com.fu.weddingplatform.entity.Category;
@@ -375,4 +379,18 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
 
     }
 
+    @Override
+    public ServiceSupplierResponse activeServiceSupplier(String id) {
+        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(id)
+            .orElseThrow(() -> new ErrorException(ServiceSupplierErrorMessage.NOT_FOUND));
+
+        if(serviceSupplier.getStatus().equals(ServiceSupplierStatus.ACTIVATED)){
+            throw new ErrorException(ServiceSupplierErrorMessage.ACTIVATE);
+        }
+
+        serviceSupplier.setStatus(ServiceSupplierStatus.ACTIVATED);
+        serviceSupplierRepository.save(serviceSupplier);
+        ServiceSupplierResponse response = modelMapper.map(serviceSupplier, ServiceSupplierResponse.class);
+        return response;
+    }
 }
