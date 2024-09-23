@@ -24,4 +24,6 @@ public interface ServiceSupplierService {
     public ServiceSupplierResponse convertServiceSupplierToResponse(ServiceSupplier serviceSupplier);
 
     public ServiceSupplierResponse activeServiceSupplier(String id);
+
+    public ServiceSupplierResponse disableServiceSupplier(String id);
 }

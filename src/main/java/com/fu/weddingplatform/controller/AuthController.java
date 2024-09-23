@@ -110,7 +110,7 @@ public class AuthController {
   @GetMapping("/verify")
   public ModelAndView verifyEmail(@RequestParam("token") String token) {
       verificationTokenService.verifyAccount(token);
-    return new ModelAndView("redirect:http://localhost:3000/login");
+    return new ModelAndView("redirect:https://the-day-six.vercel.app/login");
   }
 
   @PostMapping("/check/email")

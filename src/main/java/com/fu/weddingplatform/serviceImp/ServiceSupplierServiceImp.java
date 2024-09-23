@@ -382,9 +382,9 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
     @Override
     public ServiceSupplierResponse activeServiceSupplier(String id) {
         ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(id)
-            .orElseThrow(() -> new ErrorException(ServiceSupplierErrorMessage.NOT_FOUND));
+                .orElseThrow(() -> new ErrorException(ServiceSupplierErrorMessage.NOT_FOUND));
 
-        if(serviceSupplier.getStatus().equals(ServiceSupplierStatus.ACTIVATED)){
+        if (serviceSupplier.getStatus().equals(ServiceSupplierStatus.ACTIVATED)) {
             throw new ErrorException(ServiceSupplierErrorMessage.ACTIVATE);
         }
 
@@ -392,5 +392,29 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
         serviceSupplierRepository.save(serviceSupplier);
         ServiceSupplierResponse response = modelMapper.map(serviceSupplier, ServiceSupplierResponse.class);
         return response;
+    }
+
+    @Override
+    public ServiceSupplierResponse disableServiceSupplier(String id) {
+        ServiceSupplier serviceSupplier = serviceSupplierRepository.findById(id)
+                .orElseThrow(() -> new ErrorException(ServiceSupplierErrorMessage.NOT_FOUND));
+
+        if (serviceSupplier.getStatus().equals(ServiceSupplierStatus.DISABLED)) {
+            throw new ErrorException(ServiceSupplierErrorMessage.DISABLE);
+        }
+
+        int noOfBooking = serviceSupplierRepository.findForDisableServiceSupplier(id);
+
+        if (noOfBooking > 0) {
+            throw new ErrorException(ServiceSupplierErrorMessage.DISABLE);
+        }
+
+        serviceSupplier.setStatus(ServiceSupplierStatus.DISABLED);
+
+        serviceSupplierRepository.save(serviceSupplier);
+
+        ServiceSupplierResponse response = modelMapper.map(serviceSupplier, ServiceSupplierResponse.class);
+        return response;
+
     }
 }

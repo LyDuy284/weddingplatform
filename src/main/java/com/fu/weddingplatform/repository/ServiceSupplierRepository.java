@@ -40,4 +40,8 @@ public interface ServiceSupplierRepository extends JpaRepository<ServiceSupplier
                         "where cs.combo_id = ?1")
         List<ServiceSupplier> getServiceSupplierByCombo(String comboId);
 
+        @Query(nativeQuery = true, value = "SELECT  count(distinct(id)) FROM the_day.booking_detail \n" + //
+                        "where status not like 'COMPLETED' and status not like 'CANCELED' and status not like 'REJECTED' and service_supplier_id = ?1")
+        int findForDisableServiceSupplier(String serviceSupplierId);
+
 }

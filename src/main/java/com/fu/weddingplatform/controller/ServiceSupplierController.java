@@ -97,9 +97,20 @@ public class ServiceSupplierController {
     }
 
     @PutMapping("activate")
-    @PreAuthorize(RolePreAuthorize.ROLE_SUPPLIER)
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
     public ResponseEntity<?> activeServiceSupplier(@RequestParam String id) {
         ServiceSupplierResponse data = serviceSupplierService.activeServiceSupplier(id);
+        ResponseDTO<ServiceSupplierResponse> response = new ResponseDTO<>();
+        response.setData(data);
+        response.setStatus(ResponseStatusDTO.SUCCESS);
+        response.setMessage(ServiceSupplierSuccessMessage.ACTIVATE);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PutMapping("disable")
+    @PreAuthorize(RolePreAuthorize.ROLE_ADMIN_SUPPLIER)
+    public ResponseEntity<?> disableServiceSupplier(@RequestParam String id) {
+        ServiceSupplierResponse data = serviceSupplierService.disableServiceSupplier(id);
         ResponseDTO<ServiceSupplierResponse> response = new ResponseDTO<>();
         response.setData(data);
         response.setStatus(ResponseStatusDTO.SUCCESS);

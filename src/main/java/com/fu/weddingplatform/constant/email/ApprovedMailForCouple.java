@@ -64,7 +64,7 @@ public class ApprovedMailForCouple {
         emailBody.append("<div><span style=\"display: inline-block; width: 8rem;\">Còn lại:</span><b><i>"
                 + Utils.formatAmountToVND(content.getBookingDetail().getPrice()) + "</i></b></div>");
         emailBody.append(
-                "<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra trạng thái đơn hàng tại: <a href=\"#\">link</a></p>");
+                "<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra trạng thái đơn hàng tại: <a href=\"https://the-day-six.vercel.app/booking-history/" + content.getBookingDetail().getBooking().getId() + "\">Tại Đây</a></p>");
 
         emailBody.append(
                 "<p style=\"margin: 0.5rem 0;\">Mọi thắc mắc vui lòng liên hệ Email hoặc trực tiếp thông qua số điện thoại 0979477952 (Mr.Duy).</p>");
