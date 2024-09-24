@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fu.weddingplatform.constant.booking.BookingSuccessMessage;
 import com.fu.weddingplatform.constant.response.ResponseStatusDTO;
 import com.fu.weddingplatform.constant.role.RolePreAuthorize;
 import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierSuccessMessage;
@@ -24,7 +23,6 @@ import com.fu.weddingplatform.request.serviceSupplier.CreateServiceSupplier;
 import com.fu.weddingplatform.request.serviceSupplier.UpdateServiceSupplier;
 import com.fu.weddingplatform.response.ListResponseDTO;
 import com.fu.weddingplatform.response.ResponseDTO;
-import com.fu.weddingplatform.response.booking.BookingDetailResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierBySupplierReponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierFilterResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
@@ -86,9 +84,10 @@ public class ServiceSupplierController {
             @RequestParam(defaultValue = "") String type,
             @RequestParam(defaultValue = "0") int minPrice,
             @RequestParam(defaultValue = "0") int maxPrice,
-            @RequestParam(defaultValue = "") String supplierId) {
+            @RequestParam(defaultValue = "") String supplierId,
+            @RequestParam(defaultValue = "") String status) {
         List<ServiceSupplierFilterResponse> serviceSupplierBySupplierReponse = serviceSupplierService
-                .filterByService(categoryId, serviceId, type, minPrice, maxPrice, supplierId);
+                .filterByService(categoryId, serviceId, type, minPrice, maxPrice, supplierId, status);
         ListResponseDTO<ServiceSupplierFilterResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
         responseDTO.setMessage(ServiceSupplierSuccessMessage.FILTER);

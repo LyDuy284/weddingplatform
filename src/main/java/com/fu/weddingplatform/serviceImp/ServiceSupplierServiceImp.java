@@ -9,12 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.fu.weddingplatform.constant.Status;
 import com.fu.weddingplatform.constant.category.CategoryErrorMessage;
-import com.fu.weddingplatform.constant.comboService.ComboErrorMessage;
 import com.fu.weddingplatform.constant.promotion.PromotionErrorMessage;
 import com.fu.weddingplatform.constant.service.ServiceErrorMessage;
 import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierErrorMessage;
 import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierStatus;
-import com.fu.weddingplatform.constant.serviceSupplier.ServiceSupplierSuccessMessage;
 import com.fu.weddingplatform.constant.supplier.SupplierErrorMessage;
 import com.fu.weddingplatform.constant.validation.ValidationMessage;
 import com.fu.weddingplatform.entity.Category;
@@ -141,10 +139,10 @@ public class ServiceSupplierServiceImp implements ServiceSupplierService {
 
     @Override
     public List<ServiceSupplierFilterResponse> filterByService(String categoryId, String serviceId, String type,
-            int minPrice, int maxPrice, String supplierId) {
+            int minPrice, int maxPrice, String supplierId, String status) {
 
         List<ServiceSupplier> listServiceSuppliers = serviceSupplierRepository.filterServiceSupplier(categoryId,
-                serviceId, type, minPrice, maxPrice, supplierId);
+                serviceId, type, minPrice, maxPrice, supplierId, status);
 
         if (listServiceSuppliers.size() == 0) {
             throw new EmptyException(SupplierErrorMessage.EMPTY);

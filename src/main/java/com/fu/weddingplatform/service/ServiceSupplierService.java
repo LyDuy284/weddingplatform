@@ -19,7 +19,7 @@ public interface ServiceSupplierService {
     public List<ServiceSupplierBySupplierReponse> getBySupplier(String id);
 
     public List<ServiceSupplierFilterResponse> filterByService(String categoryId, String serviceId, String type,
-            int minPrice, int maxPrice, String supplierId);
+            int minPrice, int maxPrice, String supplierId, String status);
 
     public ServiceSupplierResponse convertServiceSupplierToResponse(ServiceSupplier serviceSupplier);
 

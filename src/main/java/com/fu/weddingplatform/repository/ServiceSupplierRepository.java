@@ -27,12 +27,12 @@ public interface ServiceSupplierRepository extends JpaRepository<ServiceSupplier
                         "   join category c on c.id = s.category_id \n" +
                         "where ( ?1 = '' or   c.id = ?1)   \n" +
                         "   and ( ?2 = '' or  s.id = ?2) \n" +
-                        "   and ss.status = 'ACTIVATED' \n" +
+                        "   and ( ?7 = '' or  ss.status = ?7) \n" +
                         "   and ( ?3 = '' or  ss.type = ?3) \n" +
                         "   and (?4 <= ss.price and (?5 = 0 or ss.price <= ?5)) \n" +
                         "   and (?6 = '' or  ss.supplier_id = ?6)")
         public List<ServiceSupplier> filterServiceSupplier(String category, String service, String type, int minPrice,
-                        int maxPrice, String supplierId);
+                        int maxPrice, String supplierId, String status);
 
         @Query(nativeQuery = true, value = "SELECT ss.* FROM combo_service cs \n" +
                         "    join combo c on c.id = cs.combo_id \n" +
