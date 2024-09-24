@@ -100,7 +100,7 @@ public class DoneMailForCouple {
 
     }
     emailBody.append(
-        "<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra trạng thái đơn hàng tại: <a href=\"#\">link</a></p>");
+        "<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra trạng thái đơn hàng tại: <a href=\"https://the-day-six.vercel.app/booking-history/" + DTO.getBookingDetail().getBooking().getId() + "\">Tại đây</a></p>");
     emailBody.append(
         "<p style=\"margin: 0.5rem 0;\">Mọi thắc mắc vui lòng liên hệ Email hoặc trực tiếp thông qua số điện thoại 0979477952 (Mr.Duy).</p>");
     emailBody.append("<div><p><i>Trân trọng,</i></p>");

@@ -2,17 +2,20 @@ package com.fu.weddingplatform.serviceImp;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fu.weddingplatform.constant.Status;
+import com.fu.weddingplatform.constant.blogPost.BlogPostErrorMessage;
 import com.fu.weddingplatform.constant.comboService.ComboErrorMessage;
 import com.fu.weddingplatform.constant.comboService.ComboServiceStatus;
 import com.fu.weddingplatform.constant.rating.RatingErrorMessage;
@@ -33,8 +36,10 @@ import com.fu.weddingplatform.repository.StaffRepository;
 import com.fu.weddingplatform.request.combo.CreateComboService;
 import com.fu.weddingplatform.request.combo.UpdateComboInfor;
 import com.fu.weddingplatform.response.combo.ComboResponse;
+import com.fu.weddingplatform.response.comboService.ComboServiceResponse;
 import com.fu.weddingplatform.response.promotion.PromotionResponse;
 import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierFilterResponse;
+import com.fu.weddingplatform.response.serviceSupplier.ServiceSupplierResponse;
 import com.fu.weddingplatform.service.ComboService;
 import com.fu.weddingplatform.service.PromotionService;
 import com.fu.weddingplatform.service.RatingService;
@@ -117,6 +122,7 @@ public class ComboServiceImpl implements ComboService {
                 .status(ComboServiceStatus.ACTIVATED)
                 .description(request.getDescription())
                 .staff(staff)
+                .createAt(Utils.formatVNDatetimeNow())
                 .image(request.getImage())
                 .build();
         Combo comboCreated = comboRepository.saveAndFlush(combo);
@@ -193,6 +199,41 @@ public class ComboServiceImpl implements ComboService {
             response.add(filterResponse);
         }
 
+        return response;
+    }
+
+    @Override
+    public List<ComboResponse> getAllActiveCombo(int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "createAt"));
+        Page<Combo> pageResult = comboRepository.findByStatus(Status.ACTIVATED,
+                pageable);
+
+        List<ComboResponse> response = new ArrayList<>();
+        if (!pageResult.hasContent()) {
+            throw new EmptyException(BlogPostErrorMessage.EMPTY_MESSAGE);
+        }
+
+        for (Combo combo : pageResult.getContent()) {
+            ComboResponse comboResponse = modelMapper.map(combo,
+                    ComboResponse.class);
+
+            if (combo.getStaff() != null) {
+                comboResponse.setStaffId(combo.getStaff().getId());
+            }
+
+            List<ComboServiceResponse> listComboServices = new ArrayList<ComboServiceResponse>();
+
+            List<ComboServices> comboServices = combo.getComboServices().stream().collect(Collectors.toList());
+
+            for (ComboServices comboService : comboServices) {
+                ComboServiceResponse comboServiceResponse = modelMapper.map(comboService, ComboServiceResponse.class);
+                ServiceSupplierResponse serviceSupplierResponse = serviceSupplierService.convertServiceSupplierToResponse(comboService.getServiceSupplier());
+                comboServiceResponse.setServiceSupplier(serviceSupplierResponse);
+                listComboServices.add(comboServiceResponse);
+            }
+            comboResponse.setComboServices(listComboServices);
+            response.add(comboResponse);
+        }
         return response;
     }
 

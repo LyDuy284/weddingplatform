@@ -23,4 +23,6 @@ public interface ComboService {
     ComboResponse getById(String comboId);
 
     List<ServiceSupplierFilterResponse> getByComboServiceId(String comboId);
+
+    List<ComboResponse> getAllActiveCombo(int pageNo, int pageSize);
 }

@@ -97,7 +97,7 @@ public class CancelBookingDetailForCouple {
         + content.getRemaining() + "</i></b></div></div>");
 
     emailBody
-        .append("<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra đơn hàng tại: <a href=\"#\">link</a></p>");
+        .append("<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra đơn hàng tại: <a href=\"https://the-day-six.vercel.app/booking-history/" + content.getBookingDetail().getBooking().getId() + "\">Tại đây</a></p>");
     emailBody.append(
         "<i style=\"font-size: 1rem;\"><b>Số tiền đặt cọc sẽ được hệ thống gửi về ví của bạn (nếu có).</b></i>");
     emailBody.append(

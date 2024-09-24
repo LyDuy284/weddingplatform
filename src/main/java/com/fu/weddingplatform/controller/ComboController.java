@@ -53,6 +53,16 @@ public class ComboController {
         return new ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
+    @GetMapping("getActiveCombo")
+    public ResponseEntity<?> getActiveCombo(@RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "0") int pageSize) {
+        List<ComboResponse> comboResponses = comboService.getAllActiveCombo(pageNo, pageSize);
+        ListResponseDTO<ComboResponse> responseDTO = new ListResponseDTO<>();
+        responseDTO.setData(comboResponses);
+        responseDTO.setStatus(ResponseStatusDTO.SUCCESS);
+        responseDTO.setMessage(ComboSuccessMessage.GET);
+        return new ResponseEntity<>(responseDTO, HttpStatus.OK);
+    }
+
     @PostMapping("create")
     @PreAuthorize(RolePreAuthorize.ROLE_STAFF)
     public ResponseEntity<?> createCombo(@Validated @RequestBody CreateComboService request) {
