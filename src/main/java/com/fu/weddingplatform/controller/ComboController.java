@@ -54,7 +54,7 @@ public class ComboController {
     }
 
     @GetMapping("getActiveCombo")
-    public ResponseEntity<?> getActiveCombo(@RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "0") int pageSize) {
+    public ResponseEntity<?> getActiveCombo(@RequestParam(defaultValue = "0") int pageNo, @RequestParam(defaultValue = "10") int pageSize) {
         List<ComboResponse> comboResponses = comboService.getAllActiveCombo(pageNo, pageSize);
         ListResponseDTO<ComboResponse> responseDTO = new ListResponseDTO<>();
         responseDTO.setData(comboResponses);
