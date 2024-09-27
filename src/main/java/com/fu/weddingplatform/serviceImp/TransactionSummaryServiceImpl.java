@@ -117,7 +117,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
         
         Map<String, SupplierAmountDetails> mapSupplierAmountDetails = new HashMap<>();
         for (BookingDetail bookingDetail : transactionSummary.getBooking().getBookingDetails()) {
-            if(bookingDetail.getStatus().equals((BookingDetailStatus.COMPLETED))){
+//            if(bookingDetail.getStatus().equals((BookingDetailStatus.COMPLETED))){
                 Map<String, Integer> hasMap = new HashMap<>();
                 int amountPaid = bookingDetail.getInvoiceDetails().stream()
                         .filter(element -> element.getStatus().equals(InvoiceDetailStatus.COMPLETED))
@@ -141,7 +141,7 @@ public class TransactionSummaryServiceImpl implements TransactionSummaryService 
                     }
                     mapSupplierAmountDetails.put(details.getSupplierId(), details);
                 }
-            }
+
         }
         transactionSummaryResponse.setSupplierAmountDetails(new ArrayList<>(mapSupplierAmountDetails.values()));
         return transactionSummaryResponse;

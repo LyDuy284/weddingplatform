@@ -19,6 +19,7 @@ public interface BookingDetailRepository extends JpaRepository<BookingDetail, St
   List<BookingDetail> findByServiceSupplierAndStatus(ServiceSupplier serviceSupplier, String status);
 
   List<BookingDetail> findByBookingAndStatus(Booking booking, String status);
+  List<BookingDetail> findByBooking(Booking booking);
 
   List<BookingDetail> findByBookingAndStatusNot(Booking booking, String status);
 
