@@ -78,7 +78,7 @@ public class DoneMailForCouple {
         emailBody.append(
             "<div style=\"width: 90%; display: flex; justify-content: space-between; border-bottom: 2px dashed; margin: 0.8rem auto; padding: 0.6rem 0rem;\">");
         emailBody.append(
-            "<span style=\"width: 65%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\"><b>Name</b></span>");
+            "<span style=\"width: 65%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;\"><b>"+ bookingDetail.getServiceSupplier().getName() +"</b></span>");
         emailBody.append("<span style=\"width: 25%; text-align: center;\"><b>"
             + Utils.formatAmountToVND(bookingDetail.getPrice()) + "</b></span></div>");
         emailBody.append("<div style=\"padding-left: 4rem; margin-bottom: 2rem;\"><div>");

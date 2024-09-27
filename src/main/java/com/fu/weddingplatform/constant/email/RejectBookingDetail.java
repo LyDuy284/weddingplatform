@@ -101,7 +101,7 @@ public class RejectBookingDetail {
                                                         + content.getRemaining()
                                                         + "</i></b></div></div>");
                 }
-                emailBody.append("<p>Kiểm tra trạng thái đơn hàng tại: link</p>");
+                emailBody.append("<p>Kiểm tra trạng thái đơn hàng tại: <a href=\"https://the-day-six.vercel.app/booking-list" + content.getBookingDetail().getBooking().getId() + "\">Tại đây</a></p>");
                 emailBody.append(
                                 "<p>Mọi thắc mắc vui lòng gửi Email hoặc liên hệ trực tiếp thông qua số điện thoại 0979477952 (Mr.Duy).</p>");
                 emailBody.append("<div><p><i>Trân trọng,</i></p>");

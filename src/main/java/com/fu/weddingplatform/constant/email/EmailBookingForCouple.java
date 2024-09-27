@@ -55,7 +55,7 @@ public class EmailBookingForCouple {
                                 "<div><span style=\"display: inline-block; width: 8rem;\">Đã thanh toán:</span><b><i>0 </i></b></div>");
                 emailBody.append("<div><span style=\"display: inline-block; width: 8rem;\">Còn lại:</span><b><i>"
                                 + emailBookingForCouple.getTotalPrice() + " </i></b></div></div>");
-                emailBody.append("<p>Kiểm tra trạng thái đơn hàng tại: link</p>");
+                emailBody.append("<p>Kiểm tra trạng thái đơn hàng tại: <a href=\"https://the-day-six.vercel.app/booking-history/" + emailBookingForCouple.getBookingId() + "\">Tại đây</a></p>");
                 emailBody.append(
                                 "<p>Mọi thắc mắc quý khách có thể gửi Email hoặc liên hệ trực tiếp thông qua số điện thoại 0979477952 (Mr.Duy).</p>");
                 emailBody.append("<p>The Day chúc quý khách có một trải nghiệm tuyệt vời.</p><br><div>");
