@@ -659,14 +659,19 @@ public class PaymentServiceImpl implements PaymentService {
         // List<BookingDetail> allBookingDetail =
         // bookingDetailRepository.findByBookingAndStatus(booking,
         // BookingDetailStatus.COMPLETED);
-        List<BookingDetail> bookingDetailsCompleted = bookingDetailRepository.findByBookingAndStatus(booking, BookingDetailStatus.COMPLETED);
+//        List<BookingDetail> bookingDetailsCompleted = bookingDetailRepository.findByBooking(booking);
         Set<Supplier> setSupplier = new HashSet<>();
-        bookingDetailsCompleted.forEach(bd -> setSupplier.add(bd.getServiceSupplier().getSupplier()));
+        booking.getBookingDetails().forEach(bd -> setSupplier.add(bd.getServiceSupplier().getSupplier()));
         Map<Supplier, List<BookingDetail>> mapSupplierBookingDetail = mapBookingDetailBySupplier(setSupplier,
-                bookingDetailsCompleted);
+                booking.getBookingDetails().stream().toList());
         for (Supplier supplier : setSupplier) {
+            int totalAmount = 0;
             List<BookingDetail> listBookingDetailBySupplier = mapSupplierBookingDetail.get(supplier);
-            int totalAmount = listBookingDetailBySupplier.stream().mapToInt(BookingDetail::getPrice).sum();
+            for (BookingDetail bookingDetail : listBookingDetailBySupplier){
+                List<InvoiceDetail> listInvoiceDetailCompleted = invoiceDetailRepository.findCompletedInvoiceDetail(bookingDetail.getId());
+                totalAmount += listInvoiceDetailCompleted.stream().mapToInt(InvoiceDetail::getPrice).sum();
+            }
+//            int totalAmount = listBookingDetailBySupplier.stream().mapToInt(BookingDetail::getPrice).sum();
             int supplierAmount = (int) (totalAmount * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
             Wallet supplierWallet = supplier.getAccount().getWallet();
             supplierWallet.setBalance(supplierWallet.getBalance() + supplierAmount);
