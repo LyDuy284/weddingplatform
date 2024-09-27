@@ -226,7 +226,7 @@ public class SentEmailServiceImp implements SentEmailService {
 
     String title = "Đơn hàng đã được hoàn thành";
     SentEmail sentEmail = SentEmail.builder()
-        .email(mailRefundForSupplierDTO.getCouple().getAccount().getEmail())
+        .email(mailRefundForSupplierDTO.getBookingDetail().getServiceSupplier().getSupplier().getContactEmail())
         .content(content)
         .title(title)
         .status(Status.PENDING)
