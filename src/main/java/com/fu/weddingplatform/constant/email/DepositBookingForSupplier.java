@@ -60,7 +60,7 @@ public class DepositBookingForSupplier {
         emailBody.append("<div><span style=\"display: inline-block; width: 8rem;\">Còn lại:</span><b><i>"
                 + dto.getRemainingAmount() + "</i></b></div>");
         emailBody.append(
-                "<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra trạng thái đơn hàng tại: <a href=\"#\">link</a></p>");
+                "<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra trạng thái đơn hàng tại: <a href=\"https://the-day-six.vercel.app/booking-list\">Tại đây</a></p>");
         emailBody.append(
                 "<i style=\"font-size: 1rem;\"><b>Số tiền sẽ được hệ thống gửi về ví của bạn khi đơn hàng hoàn tất.</b></i>");
         emailBody.append(

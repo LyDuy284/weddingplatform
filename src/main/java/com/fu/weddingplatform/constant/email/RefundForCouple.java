@@ -52,7 +52,7 @@ public class RefundForCouple {
     emailBody.append("<div><span style=\"display: inline-block; width: 14rem;\">Còn lại:</span><b><i>"
         + content.getReceivedAmount() + "</i></b></div></div>");
     emailBody.append(
-        "<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra đơn hàng tại: <a href=\"#\">link</a></p>");
+        "<p style=\"margin: 0.5rem 0; margin-top: 1.5rem;\">Kiểm tra Ví tại: <a href=\"https://the-day-six.vercel.app/wallet-history\">Tại đây</a></p>");
     emailBody.append(
         "<i style=\"font-size: 1rem;\"><b>Số tiền đã được gửi về ví của bạn theo chính sách của hệ thống.</b></i>");
     emailBody.append(

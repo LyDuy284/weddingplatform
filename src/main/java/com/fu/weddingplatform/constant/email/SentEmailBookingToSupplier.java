@@ -44,7 +44,7 @@ public class SentEmailBookingToSupplier {
                 emailBody.append("<span style=\"padding-left: 0.5rem; display: block; max-width: 80%\"><i>"
                                 + content.getNote()
                                 + "</i></span></div></div></div>");
-                emailBody.append("<p>Vui lòng truy cập hệ thống để xác nhận đơn hàng: link</p>");
+                emailBody.append("<p>Vui lòng truy cập hệ thống để xác nhận đơn hàng: <a href=\"https://the-day-six.vercel.app/booking-list\">Tại đây</a></p>");
                 emailBody.append(
                                 "<p>Mọi thắc mắc vui lòng gửi Email hoặc liên hệ trực tiếp thông qua số điện thoại 0979477952 (Mr.Duy).</p>");
                 emailBody
