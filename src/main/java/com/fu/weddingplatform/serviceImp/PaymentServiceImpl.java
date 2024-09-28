@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.fu.weddingplatform.enums.PaymentType;
 import com.fu.weddingplatform.request.payment.PaymentRequestVNP;
 import com.fu.weddingplatform.response.payment.PaymentResponse;
 import com.fu.weddingplatform.response.payment.PaymentVNPResponse;
@@ -344,6 +345,11 @@ public class PaymentServiceImpl implements PaymentService {
             paymentVNPInfor
                     .setAmountPaidWallet(paymentVNPInfor.getAmountPaidWallet() + paymentInfor.getAmountPaidWallet());
         }
+        if(paymentVNPInfor.getAmountPaidWallet() != 0){
+            if(!isDeposit){
+                transferAmountToSupplier(firstBookingDetail.getBooking(), PaymentMethod.WALLET);
+            }
+        }
         return paymentVNPInfor;
     }
 
@@ -598,7 +604,7 @@ public class PaymentServiceImpl implements PaymentService {
                 bookingDetailList.forEach(bd -> bookingDetailService.completeBookingDetail(bd.getId()));
                 totalAmount = (int) (bookingDetailList.stream().mapToInt(BookingDetail::getPrice).sum()
                         * PaymentTypeValue.FINAL_PAYMENT_VALUE);
-                transferAmountToSupplier(booking);
+                transferAmountToSupplier(booking, PaymentMethod.VNPAY);
             }
             // bookingDetailRepository.saveAll(bookingDetailList);
             setTransactionSummary(booking, totalAmount);
@@ -655,7 +661,7 @@ public class PaymentServiceImpl implements PaymentService {
 //        invoiceRepository.saveAll(listInvoice);
     }
 
-    private void transferAmountToSupplier(Booking booking) {
+    private void transferAmountToSupplier(Booking booking, PaymentMethod paymentMethod) {
         // List<BookingDetail> allBookingDetail =
         // bookingDetailRepository.findByBookingAndStatus(booking,
         // BookingDetailStatus.COMPLETED);
@@ -669,37 +675,46 @@ public class PaymentServiceImpl implements PaymentService {
             List<BookingDetail> listBookingDetailBySupplier = mapSupplierBookingDetail.get(supplier);
             for (BookingDetail bookingDetail : listBookingDetailBySupplier){
                 List<InvoiceDetail> listInvoiceDetailCompleted = invoiceDetailRepository.findCompletedInvoiceDetail(bookingDetail.getId());
-                totalAmount += listInvoiceDetailCompleted.stream().mapToInt(InvoiceDetail::getPrice).sum();
+                for(InvoiceDetail invoiceDetail : listInvoiceDetailCompleted){
+                    Optional<Transaction> optionalTransaction = transactionRepository.findCompletedTransaction(invoiceDetail.getId());
+                    if(optionalTransaction.isPresent()){
+                        Transaction transaction = optionalTransaction.get();
+                        if(transaction.getPayment().getPaymentMethod().equals(paymentMethod)){
+                            totalAmount += transaction.getAmount();
+                        }
+                    }
+                }
             }
-//            int totalAmount = listBookingDetailBySupplier.stream().mapToInt(BookingDetail::getPrice).sum();
-            int supplierAmount = (int) (totalAmount * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
-            Wallet supplierWallet = supplier.getAccount().getWallet();
-            supplierWallet.setBalance(supplierWallet.getBalance() + supplierAmount);
-            Wallet walletSaved = walletRepository.saveAndFlush(supplierWallet);
+            if(totalAmount != 0){
+                int supplierAmount = (int) (totalAmount * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE);
+                Wallet supplierWallet = supplier.getAccount().getWallet();
+                supplierWallet.setBalance(supplierWallet.getBalance() + supplierAmount);
+                Wallet walletSaved = walletRepository.saveAndFlush(supplierWallet);
 
-            for (BookingDetail bookingDetail : listBookingDetailBySupplier) {
-                MailRefundForSupplierDTO mailRefundForSupplierDTO = MailRefundForSupplierDTO.builder()
-                        .bookingDetail(bookingDetail)
-                        .couple(bookingDetail.getBooking().getCouple())
-                        .totalAmount(Utils.formatAmountToVND(bookingDetail.getPrice()))
-                        .platformAmount(Utils.formatAmountToVND(
-                                (int) (bookingDetail.getPrice() * PaymentTypeValue.PLATFORM_FEE_VALUE)))
-                        .receivedAmount(Utils.formatAmountToVND(
-                                (int) (bookingDetail.getPrice() * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE)))
+                for (BookingDetail bookingDetail : listBookingDetailBySupplier) {
+                    MailRefundForSupplierDTO mailRefundForSupplierDTO = MailRefundForSupplierDTO.builder()
+                            .bookingDetail(bookingDetail)
+                            .couple(bookingDetail.getBooking().getCouple())
+                            .totalAmount(Utils.formatAmountToVND(bookingDetail.getPrice()))
+                            .platformAmount(Utils.formatAmountToVND(
+                                    (int) (bookingDetail.getPrice() * PaymentTypeValue.PLATFORM_FEE_VALUE)))
+                            .receivedAmount(Utils.formatAmountToVND(
+                                    (int) (bookingDetail.getPrice() * PaymentTypeValue.SUPPLIER_RECEIVE_VALUE)))
+                            .build();
+
+                    sentEmailService.sentRefundEmailForSupplier(mailRefundForSupplierDTO);
+                }
+
+                WalletHistory walletHistory = WalletHistory.builder()
+                        .wallet(walletSaved)
+                        .type(WalletHistoryType.PlUS)
+                        .createDate(Utils.formatVNDatetimeNow())
+                        .amount(supplierAmount)
+                        .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY,
+                                supplierAmount, booking.getId()))
                         .build();
-
-                sentEmailService.sentRefundEmailForSupplier(mailRefundForSupplierDTO);
+                walletHistoryRepository.save(walletHistory);
             }
-
-            WalletHistory walletHistory = WalletHistory.builder()
-                    .wallet(walletSaved)
-                    .type(WalletHistoryType.PlUS)
-                    .createDate(Utils.formatVNDatetimeNow())
-                    .amount(supplierAmount)
-                    .description(String.format(WalletHistoryConstant.DESCRIPTION_PLUS_MONEY,
-                            supplierAmount, booking.getId()))
-                    .build();
-            walletHistoryRepository.save(walletHistory);
         }
     }
 
