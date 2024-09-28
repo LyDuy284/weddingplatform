@@ -171,6 +171,12 @@ public class AuthServiceImp implements AuthService {
                 .build();
         Account newAccount = accountRepository.save(account);
 
+        Wallet wallet = Wallet.builder()
+                .balance(0)
+                .account(newAccount).build();
+
+        walletRepository.save(wallet);
+
         response = modelMapper.map(newAccount, AccountResponse.class);
         response.setRoleName(role.getName());
         return response;
@@ -281,6 +287,12 @@ public class AuthServiceImp implements AuthService {
                 .build();
 
         Staff newStaff = staffRepository.save(staff);
+
+        Wallet wallet = Wallet.builder()
+                .balance(0)
+                .account(accountSaved).build();
+
+        walletRepository.save(wallet);
 
         response = modelMapper.map(accountSaved, RegsiterStaffReponse.class);
 
@@ -444,7 +456,7 @@ public class AuthServiceImp implements AuthService {
     @Override
     public Boolean checkEmailExist(String email) {
         Optional<Account> optionalUser = accountRepository.findByEmail(email);
-        if (optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             return true;
         }
         return false;
